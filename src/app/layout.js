@@ -36,20 +36,29 @@ export default function RootLayout({ children }) {
                             </a>
 
                             <nav className="hidden md:flex ml-10">
-                                <a href="#" className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium">
+                                <a
+                                    href="explore"
+                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                >
                                     Explore
                                 </a>
-                                <a href="#" className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium">
+                                <a
+                                    href="problems"
+                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                >
                                     Problems
                                 </a>
-                                <a href="#" className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium">
+                                <a
+                                    href="contest"
+                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                >
                                     Contest
                                 </a>
-                                <a href="#" className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium">
+                                <a
+                                    href="discuss"
+                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                >
                                     Discuss
-                                </a>
-                                <a href="#" className="text-gray-600 hover:text-orange-500 text-sm font-medium">
-                                    Interview
                                 </a>
                             </nav>
                         </div>
