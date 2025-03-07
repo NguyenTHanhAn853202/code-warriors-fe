@@ -1,0 +1,206 @@
+.exploreContainer {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+.exploreContainer h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.exploreSection {
+    margin-bottom: 30px;
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.sectionHeader h2 {
+    font-size: 18px;
+    color: #333;
+    margin: 0;
+}
+
+.moreLink {
+    color: #1890ff;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.courseContainer {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    width: 100%;
+}
+
+.courseContainer::-webkit-scrollbar {
+    height: 6px;
+}
+
+.courseContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.courseContainer::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.courseCard {
+    flex: 0 0 250px;
+    border-radius: 12px;
+    padding: 20px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.courseCard:hover {
+    transform: scale(1.05);
+}
+
+.courseInfo {
+    position: relative;
+    z-index: 1;
+}
+
+.newTag {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #52c41a;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.courseInfo h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+    white-space: pre-line;
+    line-height: 1.4;
+}
+
+.courseStats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.courseStats div {
+    text-align: center;
+}
+
+.courseStats span {
+    display: block;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.courseStats p {
+    font-size: 12px;
+    opacity: 0.8;
+    margin: 5px 0 0;
+}
+
+.progressContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.progressContainer span {
+    font-size: 14px;
+}
+
+.playButton {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+
+/* Gradient classes */
+
+.purpleGradient {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+}
+
+.greenGradient {
+    background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+}
+
+.orangeGradient {
+    background: linear-gradient(135deg, #ff6a00 0%, #ee0979 100%);
+}
+
+.blueGradient {
+    background: linear-gradient(135deg, #56ccf2 0%, #2f80ed 100%);
+}
+
+.tealGradient {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.yellowGradient {
+    background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+}
+
+.multiColorGradient {
+    background: linear-gradient(135deg, #ff8008 0%, #ffc837 100%);
+}
+
+.greenLightGradient {
+    background: linear-gradient(135deg, #4cd964 0%, #5ac8fa 100%);
+}
+
+.tealLightGradient {
+    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+}
+
+.pinkGradient {
+    background: linear-gradient(135deg, #ff6a88 0%, #ff99ac 100%);
+}
+
+.blueLightGradient {
+    background: linear-gradient(135deg, #5f2c82 0%, #49a09d 100%);
+}
+
+.greenDarkGradient {
+    background: linear-gradient(135deg, #093028 0%, #237a57 100%);
+}
+
+.blueFacebookGradient {
+    background: linear-gradient(135deg, #3b5998 0%, #6d84b4 100%);
+}
+
+.blueMicrosoftGradient {
+    background: linear-gradient(135deg, #00a4ef 0%, #50e3c2 100%);
+}
+
+.orangeAmazonGradient {
+    background: linear-gradient(135deg, #ff9900 0%, #ff6600 100%);
+}
+
+.blackAppleGradient {
+    background: linear-gradient(135deg, #222 0%, #444 100%);
+}
+
+.blueSortingGradient {
+    background: linear-gradient(135deg, #2196f3 0%, #4fc3f7 100%);
+}
