@@ -31,8 +31,7 @@ const Navbar = () => {
           alt="CodeWars Logo" 
           width={150} 
           height={50} 
-          priority
-        />
+          priority/>
       </Link>
       <div className={styles.links}>
         {links.map((link) => (
