@@ -1,70 +1,150 @@
 'use client';
+import React, { useState, useEffect, use } from 'react';
+import axios from 'axios';
+import { FaCheck, FaRegCalendarCheck, FaChevronDown, FaSearch, FaCog, FaRandom } from 'react-icons/fa';
+import './page.css';
+import CategoryList from '@/components/problems/CategoryList';
+import TopicFilters from '@/components/problems/TopicFilters';
+import FilterBar from '@/components/problems/FilterBar';
+import Pagination from '@/components/problems/Pagination';
+import ProblemsTable from '@/components/problems/ProblemTable';
 
-import { useState, useEffect } from 'react';
-
-export default function Problems() {
+const ProblemList = () => {
     const [problems, setProblems] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [search, setSearch] = useState('');
-    const limit = 10;
+    const [loading, setLoading] = useState(true);
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        totalProblems: 0,
+    });
+    const [filters, setFilters] = useState({
+        difficulty: '',
+        title: '',
+        page: 1,
+        limit: 5,
+    });
+
+    // Categories mapped to your algorithm types
+    const categories = [
+        { name: 'Array', count: 1860 },
+        { name: 'String', count: 771 },
+        { name: 'Hash Table', count: 672 },
+        { name: 'Dynamic Programming', count: 571 },
+        { name: 'Math', count: 563 },
+        { name: 'Sorting', count: 444 },
+        { name: 'Greedy', count: 406 },
+    ];
+
+    // Topic filters
+    const topics = [
+        { name: 'All Topics', icon: 'list' },
+        { name: 'Algorithms', icon: 'network' },
+        { name: 'Database', icon: 'database' },
+        { name: 'Shell', icon: 'terminal' },
+        { name: 'Concurrency', icon: 'threads' },
+        { name: 'JavaScript', icon: 'js' },
+    ];
 
     useEffect(() => {
-        fetchProblems(currentPage, search);
-    }, [currentPage, search]);
+        fetchProblems();
+    }, [filters]);
 
-    async function fetchProblems(page, title) {
+    const fetchProblems = async () => {
+        setLoading(true);
         try {
-            const res = await fetch(`http://localhost:8080/v1/api/problems?page=${page}&limit=${limit}&title=${title}`);
-            const data = await res.json();
-            if (res.ok) {
-                setProblems(data.problems);
-                setTotalPages(data.pagination.totalPages);
-            }
+            const response = await axios.get('http://localhost:8080/api/v1/problems/viewAllProblems', {
+                params: filters,
+            });
+
+            setProblems(response.data.problems);
+            setPagination(response.data.pagination);
         } catch (error) {
             console.error('Error fetching problems:', error);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
+
+    const handleFilterChange = (key, value) => {
+        setFilters((prev) => ({
+            ...prev,
+            [key]: value,
+            page: key === 'page' ? value : 1,
+        }));
+    };
+
+    const getDifficultyColor = (difficulty) => {
+        if (!difficulty) return '';
+
+        if (Array.isArray(difficulty)) {
+            const level = difficulty[0]?.toLowerCase();
+            switch (level) {
+                case 'easy':
+                    return 'text-green-500';
+                case 'medium':
+                    return 'text-yellow-500';
+                case 'hard':
+                    return 'text-red-500';
+                default:
+                    return '';
+            }
+        }
+
+        if (typeof difficulty === 'object' && difficulty.name) {
+            const level = difficulty.name.toLowerCase();
+            switch (level) {
+                case 'easy':
+                    return 'text-green-500';
+                case 'medium':
+                    return 'text-yellow-500';
+                case 'hard':
+                    return 'text-red-500';
+                default:
+                    return '';
+            }
+        }
+
+        return '';
+    };
+
+    const getAcceptanceRate = (problem) => {
+        const id = typeof problem._id === 'string' ? problem._id : String(problem._id);
+        const hashCode = id.split('').reduce((a, b) => {
+            a = (a << 5) - a + b.charCodeAt(0);
+            return a & a;
+        }, 0);
+        return ((Math.abs(hashCode) % 60) + 15).toFixed(1) + '%';
+    };
+
+    const getFrequencyBar = (problem) => {
+        const id = typeof problem._id === 'string' ? problem._id : String(problem._id);
+        const hashCode = id.split('').reduce((a, b) => {
+            a = (a << 5) - a + b.charCodeAt(0);
+            return a & a;
+        }, 0);
+
+        return (Math.abs(hashCode) % 90) + 10;
+    };
 
     return (
-        <div className="max-w-3xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-4">Problems</h1>
-            <input
-                type="text"
-                placeholder="Search by title..."
-                className="border p-2 w-full mb-4"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-            />
-            <div className="space-y-4">
-                {problems.map((problem) => (
-                    <div key={problem._id} className="border p-4 rounded-lg shadow-md">
-                        <h3 className="text-lg font-semibold">{problem.title}</h3>
-                        <p className="text-gray-600">{problem.description}</p>
-                        <p className="text-sm text-blue-600">Difficulty: {problem.difficulty.name}</p>
-                        <p className="text-sm text-gray-500">Author: {problem.author.username}</p>
-                    </div>
-                ))}
-            </div>
-            <div className="flex justify-between mt-6">
-                <button
-                    className="px-4 py-2 bg-gray-300 rounded-md"
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                >
-                    Previous
-                </button>
-                <span className="px-4 py-2">
-                    Page {currentPage} of {totalPages}
-                </span>
-                <button
-                    className="px-4 py-2 bg-gray-300 rounded-md"
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                >
-                    Next
-                </button>
-            </div>
+        <div className="container mx-auto px-4 py-6 bg-gray-50">
+            <CategoryList categories={categories} />
+
+            <TopicFilters topics={topics}></TopicFilters>
+
+            <FilterBar filters={filters} handleFilterChange={handleFilterChange}></FilterBar>
+
+            <ProblemsTable
+                problems={problems}
+                loading={loading}
+                getDifficultyColor={getDifficultyColor}
+                getAcceptanceRate={getAcceptanceRate}
+                getFrequencyBar={getFrequencyBar}
+            ></ProblemsTable>
+
+            <Pagination pagination={pagination} filters={filters} handleFilterChange={handleFilterChange}></Pagination>
         </div>
     );
-}
+};
+
+export default ProblemList;
