@@ -1,0 +1,66 @@
+/* ProblemList.css */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+body {
+    font-family: "Inter", sans-serif;
+    background-color: #f9fafb;
+    color: #1f2937;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f9fafb;
+    z-index: 10;
+}
+
+th,
+td {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+tr:hover {
+    background-color: #f3f4f6;
+}
+
+.text-green-500 {
+    color: #10b981;
+}
+
+.text-yellow-500 {
+    color: #f59e0b;
+}
+
+.text-red-500 {
+    color: #ef4444;
+}
+
+.rounded-full {
+    border-radius: 9999px;
+}
+
+input:focus {
+    outline: none;
+}
+
+button {
+    transition: all 0.2s;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+/* Lock icon styling */
+.lock-icon {
+    color: #9ca3af;
+}
