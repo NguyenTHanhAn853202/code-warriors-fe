@@ -111,15 +111,15 @@ function Submit({ params }) {
     };
 
     return (
-        <div className="h-full bg-gray-100">
-            <PanelGroup direction="horizontal">
-                <Panel defaultSize={fullCodeEditor ? 0 : 50} style={{ flexGrow: fullCodeEditor ? 0 : 50 }}>
-                    <div className="bg-white h-full rounded-lg overflow-hidden">
-                        <DetailProblem />
+        <div className="min-h-[88vh] relative bg-gray-100">
+            <PanelGroup className="!h-[88vh]" direction="horizontal">
+                <Panel defaultSize={fullCodeEditor ? 0 : 50}>
+                    <div className="bg-white h-full rounded-lg overflow-hidden relative min-h-full">
+                        <DetailProblem languages={languages} problemId={problemId} />
                     </div>
                 </Panel>
                 <PanelResizeHandle className="w-3 bg-transparent cursor-ew-resize" />
-                <Panel defaultSize={fullCodeEditor ? 100 : 50} style={{ flexGrow: fullCodeEditor ? 100 : 50 }}>
+                <Panel defaultSize={fullCodeEditor ? 100 : 50}>
                     <PanelGroup>
                         <Panel defaultSize={95}>
                             <div className="bg-white rounded-lg overflow-hidden relative h-full">
@@ -210,7 +210,7 @@ function Submit({ params }) {
                         </Panel>
                         <PanelResizeHandle className="w-full h-3 bg-transparent cursor-ew-resize" />
                         <Panel className="min-h-[47px]">
-                            <div className="bg-white h-full rounded-lg overflow-hidden">
+                            <div className="bg-white h-full rounded-lg overflow-y-scroll">
                                 <div className="bg-gray-200 p-3">
                                     {isLoading ? (
                                         <Spin />
