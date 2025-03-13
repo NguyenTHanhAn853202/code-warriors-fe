@@ -5,9 +5,7 @@ import 'react-quill-new/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
-const Description = () => {
-    const [value, setValue] = useState('');
-
+const Description = ({ value, setValue }) => {
     const modules = {
         toolbar: [
             [{ font: [] }, { size: [] }],
@@ -56,6 +54,7 @@ const Description = () => {
                 modules={modules}
                 formats={formats}
                 placeholder="Viết nội dung ở đây..."
+                style={{ height: '200px', marginBottom: '80px' }}
             />
         </div>
     );
