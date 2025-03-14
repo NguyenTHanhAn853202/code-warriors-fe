@@ -1,131 +1,120 @@
-'use client';
+"use client"; // Thêm dòng này ở đầu file
 
-import React, { useState } from 'react';
-import Description from './Description';
-import { DatePicker, Input, Select } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from "react";
+import FeaturedContests from "../../components/contest/FeaturedContests";
+import ContestList from "../../components/contest/ContestList";
+import GlobalRanking from "../../components/contest/GlobalRanking";
+import request from "../../utils/server";
+import styles from "./page.module.css";
 
-const { RangePicker } = DatePicker;
+const Page = () => {
+  const [activeTab, setActiveTab] = useState("global");
+  const [contests, setContests] = useState([]);
+  const [featuredContests, setFeaturedContests] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingFeatured, setLoadingFeatured] = useState(false);
 
-const rankOptions = [
-    { label: 'Bronze', value: 'bronze' },
-    { label: 'Silver', value: 'silver' },
-    { label: 'Gold', value: 'gold' },
-    { label: 'Platinum', value: 'platinum' },
-    { label: 'Diamond', value: 'diamond' },
-    { label: 'Master', value: 'master' },
-    { label: 'Grandmaster', value: 'grandmaster' },
-];
+ 
+  const fetchContests = async () => {
+    setLoading(true);
+    try {
+      const url = activeTab === "global" ? "/contest/viewAllContest" : "/my-contest";
+      const res = await request.get(url);
+      setContests(res.data.contests);
+    } catch (error) {
+      console.error("Error fetching contests:", error);
+    }
+    setLoading(false);
+  };
 
-const difficultyOptions = [
-    { label: 'Easy', value: 'easy' },
-    { label: 'Medium', value: 'medium' },
-    { label: 'Hard', value: 'hard' },
-];
+  // Hàm gọi API danh sách Featured Contests
+  const fetchFeaturedContests = async () => {
+    try {
+      const res = await request.get("/contest/FeaturedContest");
+      setFeaturedContests(res.data.contests);
+    } catch (error) {
+      console.error("Lỗi API:", error.response ? error.response.data : error.message);
+    }
+  };
 
-const Contest = () => {
-    const [selectedRank, setSelectedRank] = useState(null);
-    const [selectedDifficulty, setSelectedDifficulty] = useState(null);
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [testCases, setTestCases] = useState([]);
-    const [selectedTime, setSelectedTime] = useState(null);
-    const [submitted, setSubmitted] = useState(false);
 
-    const handleAddTestCase = () => {
-        setTestCases([...testCases, { key: testCases.length, input: '', output: '' }]);
-    };
+  useEffect(() => {
+    fetchContests();
+  }, [activeTab]);
 
-    const handleEditTestCase = (key, field, value) => {
-        setTestCases((prev) => prev.map((tc) => (tc.key === key ? { ...tc, [field]: value } : tc)));
-    };
+  
+  useEffect(() => {
+    fetchFeaturedContests();
+  }, []);
 
-    const handleDeleteTestCase = (key) => {
-        setTestCases((prev) => prev.filter((tc) => tc.key !== key));
-    };
-
-    const handleSubmit = () => {
-        setSubmitted(true);
-        console.log(description);
-    };
-
-    return (
-        <div className="p-6 max-w-3xl mx-auto bg-white  rounded-lg">
-            <h2 className="text-3xl font-normal mb-4 w-full text-center">Đăng thử thách</h2>
-            <h3 className="text-xl font-normal mb-4">Nhập Tiêu Đề</h3>
-            <Input placeholder="Nhập tiêu đề" value={title} onChange={(e) => setTitle(e.target.value)} size="large" />
-            <h3 className="text-xl font-normal mt-4 mb-4">Nhập Mô Tả</h3>
-            <Description value={description} setValue={setDescription} />
-
-            <div className="flex justify-between">
-                <div className="">
-                    <h3 className="text-xl font-normal mt-4 mb-1">Chọn Rank:</h3>
-                    <Select
-                        placeholder="Chọn rank"
-                        options={rankOptions}
-                        style={{ width: 300 }}
-                        onChange={setSelectedRank}
-                        size="large"
-                    />
-                </div>
-
-                <div className="">
-                    <h3 className="text-xl font-normal mt-4 mb-1">Chọn Mức Độ:</h3>
-
-                    <Select
-                        placeholder="Chọn mức độ"
-                        options={difficultyOptions}
-                        style={{ width: 300 }}
-                        onChange={setSelectedDifficulty}
-                        size="large"
-                    />
-                </div>
-            </div>
-
-            <div className="mt-4">
-                <h3 className="text-xl font-normal mb-1">Chọn Thời Gian:</h3>
-                <RangePicker
-                    showTime
-                    style={{ width: 360 }}
-                    size="large"
-                    onChange={(value) => setSelectedTime(value)}
-                />
-            </div>
-
-            <h3 className="text-xl font-normal mt-4">Danh Sách Test Cases</h3>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2" onClick={handleAddTestCase}>
-                Thêm Test Case
-            </button>
-
-            <div className="mt-4 space-y-3">
-                {testCases.map((testCase) => (
-                    <div key={testCase.key} className="flex gap-2 items-center">
-                        <input
-                            type="text"
-                            className="w-1/2 p-2 border rounded-lg"
-                            placeholder="📥 Input"
-                            value={testCase.input}
-                            onChange={(e) => handleEditTestCase(testCase.key, 'input', e.target.value)}
-                        />
-                        <input
-                            type="text"
-                            className="w-1/2 p-2 border rounded-lg"
-                            placeholder="📤 Output"
-                            value={testCase.output}
-                            onChange={(e) => handleEditTestCase(testCase.key, 'output', e.target.value)}
-                        />
-                        <button className="text-red-500" onClick={() => handleDeleteTestCase(testCase.key)}>
-                            <DeleteOutlined />
-                        </button>
-                    </div>
-                ))}
-            </div>
-
-            <button className="bg-green-500 text-white px-4 py-2 rounded-lg mt-6 w-full" onClick={handleSubmit}>
-                Đăng Thử Thách
-            </button>
+  return (
+    <div className="bg-white min-h-screen text-gray-800">
+      {/* Header Banner */}
+      <div className="bg-gray-800 py-10 text-center text-white relative">
+        <div className={`trophy-icon mb-2 ${styles.trophyIcon}`}>
+          <img src="/cup.png" alt="Trophy" className="w-35 h-40 mx-auto" />
         </div>
-    );
+        <h1 className="text-2xl font-semibold mb-1">CodeWars Contest</h1>
+        <p className="text-gray-300 text-sm">
+          Challenge yourself every week and rise in the rankings!
+        </p>
+      </div>
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        {/* Featured Contests */}
+        {loadingFeatured ? (
+          <p className="text-center p-4">Loading featured contests...</p>
+        ) : (
+          <FeaturedContests styles={styles} contests={featuredContests} />
+        )}
+
+        {/* Contest List and Rankings */}
+        <div className="flex flex-col md:flex-row gap-4 mt-8">
+          <div className="w-full md:w-2/3">
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow">
+              <div className="border-b border-gray-200 flex relative">
+                <div
+                  className="absolute bottom-0 h-1 bg-orange-500 transition-all duration-300"
+                  style={{
+                    width: "50%",
+                    left: activeTab === "global" ? "0%" : "50%",
+                  }}
+                />
+                <button
+                  className={`py-3 px-6 text-sm font-medium flex-1 text-center relative transition-colors duration-300 ${
+                    activeTab === "global"
+                      ? "text-orange-500 font-bold"
+                      : "text-gray-500"
+                  } hover:text-orange-600`}
+                  onClick={() => setActiveTab("global")}
+                >
+                  Global Contests
+                </button>
+                <button
+                  className={`py-3 px-6 text-sm font-medium flex-1 text-center relative transition-colors duration-300 ${
+                    activeTab === "my"
+                      ? "text-orange-500 font-bold"
+                      : "text-gray-500"
+                  } hover:text-orange-600`}
+                  onClick={() => setActiveTab("my")}
+                >
+                  My Contests
+                </button>
+              </div>
+              {/* Danh sách contest */}
+              {loading ? (
+                <p className="text-center p-4">Loading contests...</p>
+              ) : (
+                <ContestList styles={styles} contests={contests} />
+              )}
+            </div>
+          </div>
+          <div className="w-full md:w-1/3">
+            <GlobalRanking styles={styles} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default Contest;
+export default Page;
