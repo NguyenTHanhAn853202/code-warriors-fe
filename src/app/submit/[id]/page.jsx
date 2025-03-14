@@ -1,6 +1,5 @@
 'use client';
 
-import DetailProblem from '@/src/components/DetailProblem';
 import { Editor } from '@monaco-editor/react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { FaCode } from 'react-icons/fa6';
@@ -13,7 +12,8 @@ import { IoIosArrowDown } from 'react-icons/io';
 import { useEffect, useRef, useState } from 'react';
 import { Button, Popover, Spin } from 'antd';
 import axios from 'axios';
-import request from '@/src/utils/server';
+import DetailProblem from '@/components/DetailProblem';
+import request from '@/utils/server';
 
 function Submit({ params }) {
     const [fullCodeEditor, setFullCodeEditor] = useState(false);

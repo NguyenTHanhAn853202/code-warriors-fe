@@ -37,25 +37,25 @@ export default function RootLayout({ children }) {
 
                             <nav className="hidden md:flex ml-10">
                                 <a
-                                    href="explore"
+                                    href="/explore"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
                                     Explore
                                 </a>
                                 <a
-                                    href="problems"
+                                    href="/problems"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
                                     Problems
                                 </a>
                                 <a
-                                    href="contest"
+                                    href="/contest"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
                                     Contest
                                 </a>
                                 <a
-                                    href="discuss"
+                                    href="/discuss"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
                                     Discuss

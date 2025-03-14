@@ -12,6 +12,7 @@
         "@monaco-editor/react": "^4.7.0",
         "antd": "^5.24.3",
         "axios": "^1.8.2",
+        "dompurify": "^3.2.4",
         "lucide-react": "^0.479.0",
         "next": "15.2.0",
         "react": "^19.0.0",

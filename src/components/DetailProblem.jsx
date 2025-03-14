@@ -59,7 +59,6 @@ const columns = [
     },
 ];
 
-
 function DetailProblem({ problemId, languages }) {
     const [tag, setTag] = useState(tags.description);
     const [data, setData] = useState({
