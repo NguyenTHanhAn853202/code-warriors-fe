@@ -18,7 +18,7 @@ const Page = () => {
   const fetchContests = async () => {
     setLoading(true);
     try {
-      const url = activeTab === "global" ? "/contest/viewAllContest" : "/my-contest";
+      const url = activeTab === "global" ? "/contest/viewAllContest" : "/contest/my";
       const res = await request.get(url);
       setContests(res.data.contests);
     } catch (error) {

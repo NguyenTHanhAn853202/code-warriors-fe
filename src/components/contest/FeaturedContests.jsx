@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 
 const FeaturedContests = ({ styles, contests }) => {
   const router = useRouter();
-  const images = ["/nen1.jpg", "/nen2.jpg", "/nen3.jpg"];
+  const backgroundMap = {
+    easy: "/nen1.jpg",
+    medium: "/nen2.jpg",
+    hard: "/nen3.jpg",
+  };
 
   if (!contests || contests.length === 0) {
     return <p className="text-center text-gray-500">No featured contests available.</p>;
@@ -24,15 +28,17 @@ const FeaturedContests = ({ styles, contests }) => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {contests.map((contest, index) => {
-          const randomImage = images[Math.floor(Math.random() * images.length)];
+        {contests.map((contest) => {
+          const rank = contest.rankDifficulty?.[0]?.toLowerCase();
+          const backgroundImage = backgroundMap[rank] || "/nen1.jpg";
+
           return (
             <div
-              key={contest._id || index} 
+              key={contest._id}
               className={`bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer ${styles?.contestCard}`}
             >
               <img
-                src={randomImage}
+                src={backgroundImage}
                 alt={contest.title}
                 className="w-full h-40 object-cover"
                 onClick={() => router.push(`/contest/${contest._id}`)}
