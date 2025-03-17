@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Image from 'next/image';
+import ContextProvider from '@/components/ContextProvider';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -98,7 +99,9 @@ export default function RootLayout({ children }) {
                     </div>
                 </header>
 
-                <main className="p-4">{children}</main>
+                <main className="p-4">
+                    <ContextProvider>{children}</ContextProvider>
+                </main>
 
                 <footer className="bg-white border-t border-gray-200 mt-8">
                     <div className="container mx-auto px-4 py-8">
