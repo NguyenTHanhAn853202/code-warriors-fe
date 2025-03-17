@@ -136,7 +136,7 @@ export default function Home() {
         {/* Login and Sign Up buttons */}
         <div className={styles.buttonContainer}>
           <Link href="/login">
-            <button className={styles.primaryButton}>Login</button>
+            <button className={styles.primaryButton}>Sign In</button>
           </Link>
           
           <Link href="/signup">
