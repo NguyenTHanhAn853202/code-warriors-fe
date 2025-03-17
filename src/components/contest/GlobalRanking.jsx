@@ -6,23 +6,23 @@ const GlobalRanking = ({ styles }) => {
   const router = useRouter(); // Sử dụng useRouter để điều hướng
 
   const rankings = [
-    { rank: 1, name: "thinh", score: 3845, contests: 24 },
-    { rank: 2, name: "Neal Wu", avatar: "/user.png", score: 3830, contests: 53 },
-    { rank: 3, name: "jiangly", avatar: "/user.png", score: 3740, contests: 46 },
-    { rank: 4, name: "ecnerwala", avatar: "/user.png", score: 3658, contests: 36 },
-    { rank: 5, name: "hsdgjsahd", avatar: "/user.png", score: 3547, contests: 102 },
-    { rank: 6, name: "cdjcd", avatar: "/user.png", score: 3546, contests: 36 },
-    { rank: 7, name: "Heltion", avatar: "/user.png", score: 3490, contests: 204 },
-    { rank: 8, name: "dchjbhsd", avatar: "/user.png", score: 3444, contests: 445 },
-    { rank: 9, name: "cdsjk", avatar: "/user.png", score: 3440, contests: 265 },
+    { rank: 1, name: "thinh", score: 3845},
+    { rank: 2, name: "Neal Wu", avatar: "/user.png", score: 3830 },
+    { rank: 3, name: "jiangly", avatar: "/user.png", score: 3740},
+    { rank: 4, name: "ecnerwala", avatar: "/user.png", score: 3658},
+    { rank: 5, name: "hsdgjsahd", avatar: "/user.png", score: 3547},
+    { rank: 6, name: "cdjcd", avatar: "/user.png", score: 3546},
+    { rank: 7, name: "Heltion", avatar: "/user.png", score: 3490 },
+    { rank: 8, name: "dchjbhsd", avatar: "/user.png", score: 3444},
+    { rank: 9, name: "cdsjk", avatar: "/user.png", score: 3440 },
+    { rank: 10, name: "cdsjk", avatar: "/user.png", score: 3440 }
   ];
 
   // Hàm điều hướng khi bấm nút "View More"
   const handleViewMore = () => {
-    router.push("/contest/rankGlobal"); // Điều hướng đến trang ranking
+    router.push("/contest/rankGlobal");
   };
 
-  // Hàm chọn màu cho số hạng
   const getRankNumberStyle = (rank) => {
     switch (rank) {
       case 1:
@@ -90,20 +90,9 @@ const GlobalRanking = ({ styles }) => {
               <div className="text-lg font-bold text-gray-900">
                 {user.score}
               </div>
-              <div className="text-sm text-gray-500">Contests: {user.contests}</div>
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Nút xem thêm */}
-      <div className="p-3 text-center">
-        <button
-          onClick={handleViewMore}
-          className="text-blue-600 text-sm hover:text-blue-400 transition"
-        >
-          View More
-        </button>
       </div>
     </div>
   );
