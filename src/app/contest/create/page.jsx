@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Description from './Description';
 import { DatePicker, Input, Select, message } from 'antd';
@@ -8,24 +8,36 @@ import { DeleteOutlined } from '@ant-design/icons';
 
 const { RangePicker } = DatePicker;
 
-const rankOptions = [
-    { label: 'Bronze', value: 'Bronze' },
-    { label: 'Silver', value: 'Silver' },
-    { label: 'Gold', value: 'Gold' },
-    { label: 'Platinum', value: 'Platinum' },
-    { label: 'Diamond', value: 'Diamond' },
-    { label: 'Master', value: 'Master' },
-    { label: 'Grandmaster', value: 'Grandmaster' },
-];
-
 const Contest = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [sourceCode, setSourceCode] = useState('');
     const [testCases, setTestCases] = useState([]);
+    const [rankOptions, setRankOptions] = useState([]); // Lấy rank từ API
     const [selectedRank, setSelectedRank] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
     const [errors, setErrors] = useState({});
+
+    // Fetch danh sách rank từ API
+    useEffect(() => {
+        const fetchRanks = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/v1/rank/viewAllRanks');
+                if (response.status === 200) {
+                    const rankData = response.data.data.ranks.map((rank) => ({
+                        label: rank.name, // API trả về { id, name }
+                        value: rank.id,
+                    }));
+                    setRankOptions(rankData);
+                }
+            } catch (error) {
+                message.error('Không thể tải danh sách rank!');
+                console.error('Lỗi khi lấy rank:', error);
+            }
+        };
+
+        fetchRanks();
+    }, []);
 
     const handleAddTestCase = () => {
         setTestCases([...testCases, { key: testCases.length, input: '', expectedOutput: '' }]);
@@ -84,7 +96,7 @@ const Contest = () => {
         const requestData = {
             title,
             description,
-            difficulty: [selectedRank], // Đúng với JSON mẫu
+            difficulty: [selectedRank],
             startDate: selectedTime[0].toISOString(),
             endDate: selectedTime[1].toISOString(),
             testCases: testCases.map((tc) => ({
