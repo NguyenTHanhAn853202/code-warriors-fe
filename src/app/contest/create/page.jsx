@@ -5,6 +5,7 @@ import axios from 'axios';
 import Description from './Description';
 import { DatePicker, Input, Select, message } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
+import Link from 'next/link';
 
 const { RangePicker } = DatePicker;
 
@@ -115,7 +116,7 @@ const Contest = () => {
                 setSourceCode('');
                 setTestCases([]);
                 setSelectedRank(null);
-                setSelectedTime(null);
+                setSelectedTime(null);               
             } else {
                 message.error('Có lỗi xảy ra, vui lòng thử lại!');
             }
@@ -127,7 +128,14 @@ const Contest = () => {
 
     return (
         <div className="p-6 max-w-3xl mx-auto bg-white rounded-lg">
-            <h2 className="text-3xl font-normal mb-4 w-full text-center">Đăng thử thách</h2>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-3xl font-normal">Đăng thử thách</h2>
+                <Link href="/contest/myContest">
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                        List My Contest
+                    </button>
+                </Link>
+            </div>
 
             <h3 className="text-xl font-normal mb-2">Nhập Tiêu Đề</h3>
             <Input placeholder="Nhập tiêu đề" value={title} onChange={(e) => setTitle(e.target.value)} size="large" />

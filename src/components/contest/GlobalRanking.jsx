@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
-import { useRouter } from "next/navigation"; // Import đúng thư viện của Next.js 13+
+import { useRouter } from "next/navigation";
 
 const GlobalRanking = ({ styles }) => {
-  const router = useRouter(); // Sử dụng useRouter để điều hướng
+  const router = useRouter();
 
   const rankings = [
     { rank: 1, name: "thinh", score: 3845},
@@ -17,11 +17,6 @@ const GlobalRanking = ({ styles }) => {
     { rank: 9, name: "cdsjk", avatar: "/user.png", score: 3440 },
     { rank: 10, name: "cdsjk", avatar: "/user.png", score: 3440 }
   ];
-
-  // Hàm điều hướng khi bấm nút "View More"
-  const handleViewMore = () => {
-    router.push("/contest/rankGlobal");
-  };
 
   const getRankNumberStyle = (rank) => {
     switch (rank) {

@@ -66,20 +66,14 @@ const ContestList = ({ contests }) => {
 
                 <div className="flex-1 space-y-2">
                   <h3 className="text-lg font-semibold">{contest.title}</h3>
-                  
-                  {/* Hiển thị algorithmTypes */}
                   <p className="text-sm">
                     ⏲️Start Date: <span className="rounded">{formatDate(contest.startDate)}</span>
                   </p>
-
-                  {/* Hiển thị ngày bắt đầu */}
                   <p className="text-sm">
                     ⏲️End Date: <span className="rounded">{formatDate(contest.endDate)}</span>
                   </p>
-
-                  {/* Hiển thị rankDifficulty */}
                   <p className="text-sm">
-                    🔥 Rank:  
+                    🔥Rank:  
                     {contest.difficulty && contest.difficulty.length > 0 ? (
                       <span className="font-medium"> {contest.difficulty[0].name}</span>
                     ) : (

@@ -67,23 +67,23 @@ const Page = () => {
         <div className="flex flex-col md:flex-row gap-4 mt-8">
           <div className="w-full md:w-2/3">
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow">
-              <div className="border-b border-gray-200 flex relative">
+              <div className="border-b border-gray-200 flex justify-start">
                 <button
-                  className={`py-3 px-6 text-sm font-medium flex-1 text-center transition-colors duration-300 ${
-                    activeTab === "global" ? "text-orange-500 font-bold" : "text-gray-500"
+                  className={`py-3 px-6 text-lg font-bold flex-1 text-left transition-colors duration-300 ${
+                    activeTab === "global" ? "text-black-500 font-bold" : "text-gray-500"
                   } hover:text-orange-600`}
                   onClick={() => setActiveTab("global")}
                 >
                   Global Contests
                 </button>
-                <button
+                {/* <button
                   className={`py-3 px-6 text-sm font-medium flex-1 text-center transition-colors duration-300 ${
                     activeTab === "my" ? "text-orange-500 font-bold" : "text-gray-500"
                   } hover:text-orange-600`}
                   onClick={() => setActiveTab("my")}
                 >
                   My Contests
-                </button>
+                </button> */}
               </div>
               {/* Danh sách contest */}
               {loading ? (
