@@ -5,15 +5,21 @@ import { useRouter } from "next/navigation";
 
 const ContestList = ({ contests }) => {
   const router = useRouter();
-  const images = {
-    easy: "/nen1.jpg",
-    medium: "/nen2.jpg",
-    hard: "/nen3.jpg",
+  const getBackgroundImage = (rank) => {
+    const backgroundMap = {
+      bronze: "/nen1.jpg",
+      silver: "/nen2.jpg",
+      gold: "/nen3.jpg",
+      platinum: "/nen1.jpg",
+      diamond: "/nen2.jpg",
+      master: "/nen3.jpg",
+      grandmaster: "/nen2.jpg",
+    };
+    return backgroundMap[rank] || "/nen1.jpg";
   };
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
   useEffect(() => {
     if (contests.length > 0) {
       setTotalPages(Math.ceil(contests.length / itemsPerPage));
@@ -40,8 +46,8 @@ const ContestList = ({ contests }) => {
     <div key={currentPage} className="p-4">
       <div className="space-y-4">
         {currentContests.map((contest, index) => {
-          const rank = contest.rankDifficulty?.[0] || "Unknown";
-          const backgroundImage = images[rank] || "/nen1.jpg"; 
+          const rank = contest.difficulty?.[0]?.name?.toLowerCase();
+          const backgroundImage = getBackgroundImage(rank);
 
           return (
             <div
@@ -60,28 +66,19 @@ const ContestList = ({ contests }) => {
 
                 <div className="flex-1 space-y-2">
                   <h3 className="text-lg font-semibold">{contest.title}</h3>
-                  
-                  {/* Hiển thị algorithmTypes */}
                   <p className="text-sm">
-                    📝  
-                    {Array.isArray(contest.algorithmTypes) 
-                      ? (contest.algorithmTypes.length > 0 ? contest.algorithmTypes.join(", ") : "No algorithm type")
-                      : contest.algorithmTypes || "No algorithm type"}
+                    ⏲️Start Date: <span className="rounded">{formatDate(contest.startDate)}</span>
                   </p>
-
-                  {/* Hiển thị rankDifficulty */}
                   <p className="text-sm">
-                    🔥  
-                    {contest.rankDifficulty && contest.rankDifficulty.length > 0 ? (
-                      <span className="font-medium"> {contest.rankDifficulty.join(", ")}</span>
+                    ⏲️End Date: <span className="rounded">{formatDate(contest.endDate)}</span>
+                  </p>
+                  <p className="text-sm">
+                    🔥Rank:  
+                    {contest.difficulty && contest.difficulty.length > 0 ? (
+                      <span className="font-medium"> {contest.difficulty[0].name}</span>
                     ) : (
                       <span className="text-gray-500"> Unknown</span>
                     )}
-                  </p>
-
-                  {/* Hiển thị ngày bắt đầu */}
-                  <p className="text-sm">
-                    ⏲️ <span className="rounded">{formatDate(contest.startDate)}</span>
                   </p>
                 </div>
               <button

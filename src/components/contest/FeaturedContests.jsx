@@ -1,25 +1,55 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const FeaturedContests = ({ styles, contests }) => {
   const router = useRouter();
-  const backgroundMap = {
-    easy: "/nen1.jpg",
-    medium: "/nen2.jpg",
-    hard: "/nen3.jpg",
+  const getBackgroundImage = (rank) => {
+    const backgroundMap = {
+      bronze: "/nen1.jpg",
+      silver: "/nen2.jpg",
+      gold: "/nen3.jpg",
+      platinum: "/nen1.jpg",
+      diamond: "/nen2.jpg",
+      master: "/nen3.jpg",
+      grandmaster: "/nen2.jpg",
+    };
+    return backgroundMap[rank] || "/nen1.jpg";
+  };
+
+  const useCountdown = (endDate) => {
+    const calculateTimeLeft = () => {
+      const now = new Date().getTime();
+      const end = new Date(endDate).getTime();
+      const diff = Math.max(0, end - now);
+
+      return {
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
+      };
+    };
+
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+    useEffect(() => {
+      if (Object.values(timeLeft).every((val) => val === 0)) return;
+
+      const timer = setInterval(() => {
+        setTimeLeft(calculateTimeLeft());
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }, [timeLeft]);
+
+    return timeLeft;
   };
 
   if (!contests || contests.length === 0) {
     return <p className="text-center text-gray-500">No featured contests available.</p>;
   }
-
-  const formatDate = (isoDate) => {
-    if (!isoDate) return "Unknown date";
-    const date = new Date(isoDate);
-    return date.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
-  };
 
   return (
     <div>
@@ -29,8 +59,9 @@ const FeaturedContests = ({ styles, contests }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {contests.map((contest) => {
-          const rank = contest.rankDifficulty?.[0]?.toLowerCase();
-          const backgroundImage = backgroundMap[rank] || "/nen1.jpg";
+          const rank = contest.difficulty?.[0]?.name?.toLowerCase();
+          const backgroundImage = getBackgroundImage(rank);
+          const { days, hours, minutes, seconds } = useCountdown(contest.endDate);
 
           return (
             <div
@@ -43,16 +74,15 @@ const FeaturedContests = ({ styles, contests }) => {
                 className="w-full h-40 object-cover"
                 onClick={() => router.push(`/contest/${contest._id}`)}
               />
-
-              <div className="p-2 text-left">
+              <div className="p-2 text-left bg-white bg-opacity-50 text-black">
                 <h3
-                  className="font-semibold text-base text-black hover:underline cursor-pointer"
+                  className="font-semibold text-base hover:underline cursor-pointer"
                   onClick={() => router.push(`/contest/${contest._id}`)}
                 >
                   {contest.title}
                 </h3>
-                <p className="text-gray-600 text-sm">
-                  📅 Start Date: {formatDate(contest.startDate)}
+                <p className="text-sm">
+                  ⌛ Time remaining: {days}d {hours}h {minutes}m {seconds}s
                 </p>
               </div>
             </div>

@@ -109,7 +109,7 @@ export default function RootLayout({ children }) {
                     <div className="container mx-auto px-4 py-8">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                             <div>
-                                <h3 className="font-medium text-gray-800 mb-4">LeetCode</h3>
+                                <h3 className="font-medium text-gray-800 mb-4">CodeWars</h3>
                                 <ul className="space-y-2">
                                     <li>
                                         <a href="#" className="text-sm text-gray-600 hover:text-orange-500">
