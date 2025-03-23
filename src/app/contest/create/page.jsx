@@ -14,7 +14,7 @@ const Contest = () => {
     const [description, setDescription] = useState('');
     const [sourceCode, setSourceCode] = useState('');
     const [testCases, setTestCases] = useState([]);
-    const [rankOptions, setRankOptions] = useState([]); // Lấy rank từ API
+    const [rankOptions, setRankOptions] = useState([]);
     const [selectedRank, setSelectedRank] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
     const [errors, setErrors] = useState({});
@@ -26,9 +26,9 @@ const Contest = () => {
                 const response = await axios.get('http://localhost:8080/api/v1/rank/viewAllRanks');
                 if (response.status === 200) {
                     const rankData = response.data.data.ranks.map((rank) => ({
-                        label: rank.name, // API trả về { id, name }
-                        value: rank.id,
+                        value: rank.name,
                     }));
+                    console.log(rankData);
                     setRankOptions(rankData);
                 }
             } catch (error) {
@@ -116,7 +116,7 @@ const Contest = () => {
                 setSourceCode('');
                 setTestCases([]);
                 setSelectedRank(null);
-                setSelectedTime(null);               
+                setSelectedTime(null);
             } else {
                 message.error('Có lỗi xảy ra, vui lòng thử lại!');
             }
@@ -131,9 +131,7 @@ const Contest = () => {
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-3xl font-normal">Đăng thử thách</h2>
                 <Link href="/contest/myContest">
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">
-                        List My Contest
-                    </button>
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">List My Contest</button>
                 </Link>
             </div>
 
@@ -149,6 +147,7 @@ const Contest = () => {
             <Select
                 placeholder="Chọn rank"
                 options={rankOptions}
+                value={selectedRank || undefined}
                 style={{ width: 300 }}
                 size="large"
                 onChange={setSelectedRank}
