@@ -1,26 +1,22 @@
-import React, { useState } from "react";
-import { FaFilter, FaChevronDown, FaChevronUp, FaSearch } from "react-icons/fa";
+import React, { useState } from 'react';
+import { FaFilter, FaChevronDown, FaChevronUp, FaSearch } from 'react-icons/fa';
 
 const AlgorithmType = ({ algorithmType, onFilterSelect }) => {
     const [expanded, setExpanded] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState('');
     const [selectedTypes, setSelectedTypes] = useState([]);
 
-    // Lọc thuật toán theo tìm kiếm
-    const filteredTypes = algorithmType.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredTypes = algorithmType.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const displayTypes = expanded ? filteredTypes : filteredTypes.slice(0, 6);
 
-    // Chọn/bỏ chọn thuật toán
     const handleTypeSelect = (typeName) => {
         const newSelectedTypes = selectedTypes.includes(typeName)
             ? selectedTypes.filter((type) => type !== typeName)
             : [...selectedTypes, typeName];
 
         setSelectedTypes(newSelectedTypes);
-        onFilterSelect(newSelectedTypes); // Gửi danh sách đã chọn lên App
+        onFilterSelect(newSelectedTypes); 
     };
 
     return (
@@ -42,11 +38,11 @@ const AlgorithmType = ({ algorithmType, onFilterSelect }) => {
             <div className="flex flex-wrap gap-3 mb-4">
                 {displayTypes.map((item) => (
                     <div
-                        key={item.id}
+                        key={item.id || item.name} // Dùng item.name nếu item.id không tồn tại
                         className={`flex items-center px-3 py-2 rounded-full cursor-pointer transition-all ${
                             selectedTypes.includes(item.name)
-                                ? "bg-blue-100 text-blue-700 border border-blue-300"
-                                : "bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
+                                ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200'
                         }`}
                         onClick={() => handleTypeSelect(item.name)}
                     >

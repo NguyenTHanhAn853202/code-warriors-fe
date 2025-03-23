@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
                 <header className="sticky top-0 z-50 bg-white shadow-sm">
                     <div className="container mx-auto px-4 flex justify-between items-center h-16">
                         <div className="flex items-center">
-                            <a href="#" className="flex items-center font-semibold text-xl">
+                            <a href="/home" className="flex items-center font-semibold text-xl">
                                 <Image
                                     src="/logoCode.png" // Path to your image in public folder
                                     alt="LeetCode Logo"
@@ -62,6 +62,12 @@ export default function RootLayout({ children }) {
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
                                     Discuss
+                                </a>
+                                <a
+                                    href="/roomBattle"
+                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                >
+                                    Room Battle
                                 </a>
                             </nav>
                         </div>
