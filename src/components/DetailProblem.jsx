@@ -59,7 +59,7 @@ const columns = [
     },
 ];
 
-function DetailProblem({ problemId, languages }) {
+function DetailProblem({ matchId, languages }) {
     const [tag, setTag] = useState(tags.description);
     const [data, setData] = useState({
         _id: '',
@@ -81,7 +81,7 @@ function DetailProblem({ problemId, languages }) {
     useEffect(() => {
         (async () => {
             try {
-                const response = await request.get(`/problems/${problemId}`);
+                const response = await request.get(`/match/${matchId}`);
                 if (response.status === 200) {
                     setData(response.data.data);
                 }
@@ -89,12 +89,12 @@ function DetailProblem({ problemId, languages }) {
                 console.log(error);
             }
         })();
-    }, [problemId]);
+    }, [matchId]);
 
     useEffect(() => {
         if (tag == tags.submissions) {
             async function query() {
-                const response = await request.get('/submission/history/' + problemId);
+                const response = await request.get('/submission/history/' + matchId);
                 if (response.status === 200) {
                     let dataSource = response.data.data;
                     dataSource = dataSource.map((item, index) => ({

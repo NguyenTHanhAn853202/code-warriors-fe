@@ -36,7 +36,7 @@ function Test() {
     };
 
     const handleReject = () => {
-        socket.emit('reject_match', {
+        socket.emit('leave_waiting', {
             userId: '67c515ad7893bdb73c6a1370',
             matchId: data?.matchId,
             roomId: data?.roomId,
