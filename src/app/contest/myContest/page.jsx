@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { Trash2, Edit, Plus } from 'lucide-react';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer ,Cell} from 'recharts';
-import { Modal, Form, Input, Select, DatePicker } from 'antd';
+import { Modal, Form, Input, Select, DatePicker, Button, Divider, Row, Col,message } from 'antd';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 import dayjs from 'dayjs';
+import '@ant-design/v5-patch-for-react-19';
 
 export default function ContestManagementPage() {
   const [contests, setContests] = useState([]);
@@ -127,6 +128,7 @@ export default function ContestManagementPage() {
       const updatedContests = contests.filter((contest) => contest._id !== id);
       setContests(updatedContests);
       calculateStats(updatedContests);
+      message.success('Deleted successfully !');
     } catch (error) {
       console.error("Error deleting contest:", error);
     }
@@ -134,6 +136,12 @@ export default function ContestManagementPage() {
 
   const showEditModal = (contest) => {
     setSelectedContest(contest);
+  
+    const formattedTestCases = contest.testCases?.map(testCase => ({
+      input: testCase.input,
+      expectedOutput: testCase.expectedOutput
+    })) || [];
+    
     form.setFieldsValue({
       title: contest.title,
       description: contest.description,
@@ -141,8 +149,11 @@ export default function ContestManagementPage() {
       dateRange: [
         dayjs(contest.startDate), 
         dayjs(contest.endDate)
-      ]
+      ],
+      sourceCode: contest.source_code || '',
+      testCases: formattedTestCases
     });
+
     
     setIsModalOpen(true);
   };
@@ -155,13 +166,16 @@ export default function ContestManagementPage() {
         description: values.description,
         difficulty: values.rank,
         startDate: values.dateRange[0].toISOString(),
-        endDate: values.dateRange[1].toISOString()
+        endDate: values.dateRange[1].toISOString(),
+        sourceCode: values.sourceCode,
+        testCases: values.testCases || []
       };
     
       const response = await axios.patch(
         `http://localhost:8080/api/v1/contest/updateContest/${selectedContest._id}`, 
         updatedData
       );
+      
       const updatedContests = contests.map((contest) => 
         contest._id === selectedContest._id ? response.data.data.contest : contest
       );
@@ -169,11 +183,12 @@ export default function ContestManagementPage() {
       setContests(updatedContests);
       calculateStats(updatedContests);
       setIsModalOpen(false);
-      alert("Contest updated successfully!");
+      message.success('Updated successfully !');
     } catch (error) {
       console.error("Error updating contest:", error);
     }
   };
+
   const handleEdit = (contest) => {
     showEditModal(contest);
   };
@@ -279,6 +294,8 @@ export default function ContestManagementPage() {
                 <th className="px-6 py-3 text-left font-medium text-xs text-blue-500 uppercase">Title</th>
                 <th className="px-6 py-3 text-left font-medium text-xs text-blue-500 uppercase">Description</th>
                 <th className="px-6 py-3 text-left font-medium text-xs text-blue-500 uppercase">Rank</th>
+                <th className="px-6 py-3 text-left font-medium text-xs text-blue-500 uppercase">Source Code</th>
+                <th className="px-6 py-3 text-left font-medium text-xs text-blue-500 uppercase">Test Case</th>
                 <th className="px-6 py-3 text-left font-medium text-xs text-blue-500 uppercase">Start Date</th>
                 <th className="px-6 py-3 text-left font-medium text-xs text-blue-500 uppercase">End Date</th>
                 <th className="px-6 py-3 text-left font-medium text-xs text-blue-500 uppercase">Status</th>
@@ -299,6 +316,8 @@ export default function ContestManagementPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">{contest.difficulty?.[0]?.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">📄</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{contest.testCases?.length ?? 0}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{new Date(contest.startDate).toLocaleString()}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{new Date(contest.endDate).toLocaleString()}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -361,47 +380,126 @@ export default function ContestManagementPage() {
       </div>
 
       {/* Modal cập nhật */}
-      <Modal
-                title="Update Contest"
-                open={isModalOpen}
-                onCancel={() => setIsModalOpen(false)}
-                onOk={handleUpdateContest}
+        <Modal
+          title="Update Contest"
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          onOk={handleUpdateContest}
+          width={800}
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item
+              label="Title"
+              name="title"
+              rules={[{ required: true, message: 'Please enter title!' }]}
             >
-                <Form form={form} layout="vertical">
-                    <Form.Item
-                        label="title"
-                        name="title"
-                        rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
+              <Input />
+            </Form.Item>
+            
+            <Form.Item
+              label="Description"
+              name="description"
+              rules={[{ required: true, message: 'Please enter description!' }]}
+            >
+              <Input.TextArea autoSize={{ minRows: 3, maxRows: 6 }} style={{ fontSize: "14px" }} />
+            </Form.Item>
+            
+            <Form.Item 
+              label="Rank" 
+              name="rank" 
+              rules={[{ required: true, message: 'Please select rank!' }]}
+            >
+              <Select>
+                {ranks.map((rank) => (
+                  <Option key={rank._id} value={rank._id}>
+                    {rank.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+            
+            <Form.Item
+              label="Time Range"
+              name="dateRange"
+              rules={[{ required: true, message: 'Please select time range!' }]}
+            >
+              <RangePicker showTime format="DD/MM/YYYY HH:mm" style={{ width: '100%' }} />
+            </Form.Item>
+            
+            <Form.Item
+              label="Source Code Template"
+              name="sourceCode"
+            >
+              <Input.TextArea 
+                className="code-editor"
+                autoSize={{ minRows: 6, maxRows: 12 }} 
+                style={{ fontFamily: "monospace", fontSize: "14px" }}
+                placeholder="Enter starter code template here..."
+              />
+            </Form.Item>
+            
+            <Divider orientation="left">Test Cases</Divider>
+            
+            <Form.List name="testCases">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <div key={key} style={{ marginBottom: 24, border: '1px dashed #d9d9d9', padding: 16, borderRadius: 8 }}>
+                      <Row gutter={16}>
+                        <Col span={11}>
+                          <Form.Item
+                            {...restField}
+                            name={[name, 'input']}
+                            label="Input"
+                            rules={[{ required: true, message: 'Input is required' }]}
+                          >
+                            <Input.TextArea 
+                              autoSize={{ minRows: 3, maxRows: 6 }}
+                              style={{ fontFamily: "monospace" }}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col span={11}>
+                          <Form.Item
+                            {...restField}
+                            name={[name, 'expectedOutput']}
+                            label="Expected Output"
+                            rules={[{ required: true, message: 'Expected output is required' }]}
+                          >
+                            <Input.TextArea 
+                              autoSize={{ minRows: 3, maxRows: 6 }}
+                              style={{ fontFamily: "monospace" }}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col span={2} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Button 
+                            type="text"
+                            danger
+                            icon={<Trash2 size={16} />} 
+                            onClick={() => remove(name)}
+                            style={{ marginTop: 24 }}
+                          />
+                        </Col>
+                      </Row>
+                    </div>
+                  ))}
+                  
+                  <Form.Item>
+                    <Button 
+                      type="dashed" 
+                      onClick={() => add()} 
+                      block 
+                      icon={<Plus size={16} />}
                     >
-                        <Input />
-                        
-                    </Form.Item>
-                    <Form.Item
-                        label="Description"
-                        name="description"
-                        rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
-                    >
-                         <Input.TextArea autoSize={{ minRows: 3, maxRows: 9 }} style={{ fontSize: "14px" }} />
-                        
-                    </Form.Item>
-                    <Form.Item label="Rank" name="rank" rules={[{ required: true, message: 'Vui lòng chọn rank!' }]}>
-                        <Select>
-                            {ranks.map((rank) => (
-                                <Option key={rank._id} value={rank._id}>
-                                    {rank.name}
-                                </Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item
-                        label="Chọn ngày"
-                        name="dateRange"
-                        rules={[{ required: true, message: 'Vui lòng chọn khoảng thời gian!' }]}
-                    >
-                        <RangePicker showTime format="DD/MM/YYYY HH:mm" />
-                    </Form.Item>
-                </Form>
-            </Modal>
+                      Add Test Case
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+          </Form>
+        </Modal>
 
       <style jsx global>{`
         @keyframes pulse {
@@ -412,6 +510,10 @@ export default function ContestManagementPage() {
 
         .animate-pulse {
           animation: pulse 1.5s infinite;
+        }
+          .code-editor {
+          font-family: 'Courier New', monospace;
+          background-color: #f5f5f5;
         }
       `}</style>
     </div>

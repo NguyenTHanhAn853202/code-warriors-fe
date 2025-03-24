@@ -212,7 +212,7 @@ export default function RootLayout({ children }) {
                         <div className="pt-4 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
                             <div className="mb-4 md:mb-0">
                                 <p className="text-sm text-gray-500">
-                                    Copyright © 2025 LeetCode. All rights reserved.
+                                    Copyright © 2025 CodeWars. All rights reserved.
                                 </p>
                             </div>
 
