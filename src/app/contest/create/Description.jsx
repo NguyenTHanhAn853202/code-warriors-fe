@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
+import 'quill/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
@@ -13,7 +14,7 @@ const Description = ({ value, setValue }) => {
             [{ color: [] }, { background: [] }],
             [{ script: 'sub' }, { script: 'super' }],
             [{ header: '1' }, { header: '2' }, 'blockquote', 'code-block'],
-            [{ list: 'ordered' }, { list: 'bullet' }],
+            [{ list: 'ordered' }, [{ list: 'bullet' }]], // Sửa chỗ này
             [{ indent: '-1' }, { indent: '+1' }],
             [{ direction: 'rtl' }],
             [{ align: [] }],
@@ -36,7 +37,6 @@ const Description = ({ value, setValue }) => {
         'blockquote',
         'code-block',
         'list',
-        'bullet',
         'indent',
         'direction',
         'align',
@@ -53,7 +53,7 @@ const Description = ({ value, setValue }) => {
                 onChange={setValue}
                 modules={modules}
                 formats={formats}
-                placeholder="Viết nội dung ở đây..."
+                placeholder="Write content here ..."
                 style={{ height: '200px', marginBottom: '80px' }}
             />
         </div>

@@ -135,11 +135,11 @@ export default function Home() {
         
         {/* Login and Sign Up buttons */}
         <div className={styles.buttonContainer}>
-          <Link href="/login">
+          <Link href="/account/signin">
             <button className={styles.primaryButton}>Sign In</button>
           </Link>
           
-          <Link href="/signup">
+          <Link href="/account/signup">
             <button className={styles.secondaryButton}>Sign Up</button>
           </Link>
         </div>

@@ -27,13 +27,12 @@ export default function RootLayout({ children }) {
                 <header className="sticky top-0 z-50 bg-white shadow-sm">
                     <div className="container mx-auto px-4 flex justify-between items-center h-16">
                         <div className="flex items-center">
-                            <a href="/home" className="flex items-center font-semibold text-xl">
+                            <a href="/" className="flex items-center font-semibold text-xl">
                                 <Image
                                     src="/logoCode.png" // Path to your image in public folder
                                     alt="LeetCode Logo"
                                     width={55}
                                     height={55}
-                                    className="mr-2"
                                 />
                                 CodeWars
                             </a>
@@ -100,7 +99,7 @@ export default function RootLayout({ children }) {
                                 Premium
                             </button>
 
-                            <a href="#" className="text-gray-700 hover:text-orange-500 text-sm font-medium">
+                            <a href="/account/signin" className="text-gray-700 hover:text-orange-500 text-sm font-medium">
                                 Sign In
                             </a>
                         </div>
@@ -212,7 +211,7 @@ export default function RootLayout({ children }) {
                         <div className="pt-4 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
                             <div className="mb-4 md:mb-0">
                                 <p className="text-sm text-gray-500">
-                                    Copyright © 2025 LeetCode. All rights reserved.
+                                    Copyright © 2025 CodeWars. All rights reserved.
                                 </p>
                             </div>
 
