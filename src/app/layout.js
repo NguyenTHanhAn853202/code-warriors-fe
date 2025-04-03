@@ -64,7 +64,7 @@ export default function RootLayout({ children }) {
                                     Discuss
                                 </a>
                                 <a
-                                    href="/roomBattle"
+                                    href="/create-room"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
                                     Room Battle
