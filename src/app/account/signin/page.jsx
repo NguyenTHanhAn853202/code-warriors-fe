@@ -15,6 +15,7 @@ export default function SignInPage() {
   const [imagePosition, setImagePosition] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const animationInterval = setInterval(() => {
@@ -30,7 +31,6 @@ export default function SignInPage() {
       ...formData,
       [name]: type === 'checkbox' ? checked : value
     });
-    // Clear error when user starts typing
     if (error) setError('');
   };
 
@@ -42,6 +42,7 @@ export default function SignInPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
+    setSuccessMessage('');
     
     try {
       const response = await fetch('http://localhost:8080/api/v1/user/login', {
@@ -53,7 +54,7 @@ export default function SignInPage() {
           email: formData.email,
           password: formData.password
         }),
-        credentials: 'include' // Important for cookies to be sent and stored
+        credentials: 'include' 
       });
       
       const data = await response.json();
@@ -62,15 +63,20 @@ export default function SignInPage() {
         throw new Error(data.message || 'Login failed');
       }
       
-      // If remember me is checked, save email to localStorage
       if (formData.rememberMe) {
         localStorage.setItem('rememberedEmail', formData.email);
+        localStorage.setItem('rememberedPassword', formData.password);
       } else {
+
         localStorage.removeItem('rememberedEmail');
+        localStorage.removeItem('rememberedPassword');
       }
       
-      // Redirect to dashboard or homepage after successful login
-      router.push('/explore');
+      setSuccessMessage('Login successful!...');
+      
+      setTimeout(() => {
+        router.push('/explore');
+      }, 1500);
       
     } catch (error) {
       setError(error.message || 'Invalid email or password');
@@ -79,14 +85,16 @@ export default function SignInPage() {
     }
   };
 
-  // Load remembered email on component mount
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('rememberedEmail');
+    const rememberedPassword = localStorage.getItem('rememberedPassword');
+    
     if (rememberedEmail) {
       setFormData(prev => ({
         ...prev,
         email: rememberedEmail,
-        rememberMe: true
+        rememberMe: true,
+        ...(rememberedPassword && { password: rememberedPassword })
       }));
     }
   }, []);
@@ -120,6 +128,15 @@ export default function SignInPage() {
           {error && (
             <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
               {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-md flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              {successMessage}
             </div>
           )}
 
@@ -199,6 +216,16 @@ export default function SignInPage() {
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                   Remember me
                 </label>
+                <div className="relative ml-1 group">
+                  <div className="cursor-help text-gray-400 hover:text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="absolute bottom-6 left-0 w-48 p-2 bg-gray-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                    This will save both your email and password for future logins
+                  </div>
+                </div>
               </div>
               <div>
                 <Link href="/account/password/forgot-password" className="text-sm font-medium text-blue-600 hover:text-blue-500">

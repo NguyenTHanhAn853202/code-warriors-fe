@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ResetPasswordForm = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +10,47 @@ const ResetPasswordForm = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [tokenValid, setTokenValid] = useState(true);
+  const [tokenChecking, setTokenChecking] = useState(true);
+
+  const getToken = () => {
+    if (typeof window !== 'undefined') {
+      const urlPath = window.location.pathname;
+      const segments = urlPath.split('/');
+      if (segments.length >= 2 && segments[segments.length - 1] === 'reset') {
+        return segments[segments.length - 2] || '';
+      }
+      return '';
+    }
+    return '';
+  }
+
+  const token = getToken();
+
+  useEffect(() => {
+    const validateToken = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/v1/user/validateResetToken/${token}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          setTokenValid(true);
+        } else {
+          setTokenValid(false);
+        }
+      } catch (error) {
+        setTokenValid(false);
+      } finally {
+        setTokenChecking(false);
+      }
+    };
+
+    validateToken();
+  }, [token]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,7 +59,6 @@ const ResetPasswordForm = () => {
       [name]: value
     });
     
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -30,14 +70,14 @@ const ResetPasswordForm = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    // Password validation
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{6,}$/;
+    
     if (!formData.newPassword) {
       newErrors.newPassword = 'New password is required';
-    } else if (formData.newPassword.length < 8) {
-      newErrors.newPassword = 'Password must be at least 8 characters';
+    } else if (!passwordRegex.test(formData.newPassword)) {
+      newErrors.newPassword = 'Password must be at least 6 characters and include both letters and numbers';
     }
     
-    // Confirm password validation
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.newPassword !== formData.confirmPassword) {
@@ -48,62 +88,98 @@ const ResetPasswordForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) return;
     
-    // Simulate API call
     setLoading(true);
     
-    // Mock success after 1 second
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-      
-      // Clear form
-      setFormData({
-        newPassword: '',
-        confirmPassword: ''
+    try {
+      const response = await fetch(`http://localhost:8080/api/v1/user/resetPassword/${token}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          newPassword: formData.newPassword,
+          confirmPassword: formData.confirmPassword
+        })
       });
-    }, 1000);
-    
-    // In a real implementation, you would call your API here
-    // const resetPassword = async () => {
-    //   try {
-    //     const response = await fetch('/api/reset-password', {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json'
-    //       },
-    //       body: JSON.stringify({
-    //         token: 'token-from-url-or-props',
-    //         newPassword: formData.newPassword
-    //       })
-    //     });
-    //     const data = await response.json();
-    //     if (response.ok) {
-    //       setSuccess(true);
-    //     } else {
-    //       setErrors({ form: data.message || 'Failed to reset password' });
-    //     }
-    //   } catch (error) {
-    //     setErrors({ form: 'Network error. Please try again.' });
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // resetPassword();
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setSuccess(true);
+        setFormData({
+          newPassword: '',
+          confirmPassword: ''
+        });
+      } else {
+        setErrors({ 
+          form: data.message || 'Unable to reset password'
+        });
+      }
+    } catch (error) {
+      setErrors({ form: 'Connection error. Please try again.' });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (tokenChecking) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="mt-8 text-center">
+            <svg className="animate-spin h-10 w-10 mx-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p className="mt-4 text-gray-600">Checking token...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!tokenValid) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div className="rounded-md bg-red-50 p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">Invalid or expired token</h3>
+                  <div className="mt-2 text-sm text-red-700">
+                    <p>Your password reset link is invalid or has expired.</p>
+                  </div>
+                  <div className="mt-4">
+                    <a
+                      href="/account/password/forgot-password"
+                      className="w-full inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      Request a new link
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Reset Your Password
+          Reset Password
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Please enter your new password below
+          Please enter your new password
         </p>
       </div>
 
@@ -122,13 +198,13 @@ const ResetPasswordForm = () => {
                   <div className="mt-2 text-sm text-green-700">
                     <p>Your password has been reset successfully.</p>
                   </div>
-                  <div className=" flex justify-center mt-4">
+                  <div className="flex justify-center mt-4">
                     <button
                       type="button"
                       className="items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       onClick={() => window.location.href = "/account/signin"}
                     >
-                      Go to Login
+                      Go to login page
                     </button>
                   </div>
                 </div>
@@ -196,7 +272,7 @@ const ResetPasswordForm = () => {
               </div>
 
               <div className="text-xs text-gray-500">
-                <p>Password must be at least 6 characters long</p>
+                <p>Password must be at least 6 characters and include both letters and numbers</p>
               </div>
 
               <div>
@@ -229,13 +305,13 @@ const ResetPasswordForm = () => {
               </div>
             </div>
 
-            <div className="flex justify-center mt-6 grid grid-cols-2 gap-3">
+            <div className="mt-6 grid grid-cols-2 gap-3">
               <div>
                 <a
                   href="/account/signin"
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
-                  Back to Login
+                  Back to login
                 </a>
               </div>
               <div>
@@ -243,7 +319,7 @@ const ResetPasswordForm = () => {
                   href="/account/password/forgot-password"
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
-                  Forgot Password
+                  Forgot password
                 </a>
               </div>
             </div>
