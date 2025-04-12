@@ -13,7 +13,7 @@
         "@ant-design/v5-patch-for-react-19": "^1.0.3",
         "@monaco-editor/react": "^4.7.0",
         "antd": "^5.24.4",
-        "axios": "^1.8.3",
+        "axios": "^1.8.4",
         "dayjs": "^1.11.13",
         "dompurify": "^3.2.4",
         "lucide-react": "^0.479.0",
@@ -31,6 +31,7 @@
     "devDependencies": {
         "@eslint/eslintrc": "^3",
         "@tailwindcss/postcss": "^4",
+        "@types/nodemailer": "^6.4.17",
         "eslint": "^9",
         "eslint-config-next": "15.2.0",
         "eslint-config-prettier": "^10.0.2",

@@ -24,6 +24,7 @@ export default function SignUp() {
       [name]: value
     });
     
+    // Clear any previous errors for this field
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -35,26 +36,21 @@ export default function SignUp() {
   const validateForm = () => {
     const newErrors = {};
     
+    // Only check for empty required fields - backend will handle format validation
     if (!formData.username.trim()) {
       newErrors.username = 'Username is required';
     }
     
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
     }
     
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[A-Z]).{6,}$/;
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (!passwordRegex.test(formData.password)) {
-      newErrors.password = 'Password must be at least 6 characters with one letter, one number, and one uppercase letter';
     }
     
-    if (formData.password !== formData.repeatPassword) {
-      newErrors.repeatPassword = 'Passwords do not match';
+    if (!formData.repeatPassword) {
+      newErrors.repeatPassword = 'Please confirm your password';
     }
     
     if (!termsAccepted) {
@@ -224,11 +220,11 @@ export default function SignUp() {
                   </svg>
                 )}
               </button>
-              {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password}</p>}
+              {errors.password && <p className="mt-1 text-sm text-red-500 absolute">{errors.password}</p>}
             </div>
-            
+
             {/* Repeat password input */}
-            <div className="relative">
+            <div className="relative mt-8">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -259,8 +255,8 @@ export default function SignUp() {
                   </svg>
                 )}
               </button>
-              {errors.repeatPassword && <p className="mt-1 text-sm text-red-500">{errors.repeatPassword}</p>}
-            </div>
+              {errors.repeatPassword && <p className="mt-1 text-sm text-red-500 absolute">{errors.repeatPassword}</p>}
+            </div>  
             
             {/* Terms checkbox */}
             <div className="flex items-center">

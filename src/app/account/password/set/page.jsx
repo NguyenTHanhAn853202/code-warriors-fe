@@ -1,5 +1,8 @@
 "use client"
 import React, { useState } from 'react';
+import axios from "axios";
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 const ChangePasswordPage = () => {
   const [formData, setFormData] = useState({
@@ -22,8 +25,8 @@ const ChangePasswordPage = () => {
     
     if (!formData.newPassword) {
       newErrors.newPassword = 'New password is required';
-    } else if (formData.newPassword.length < 8) {
-      newErrors.newPassword = 'Password must be at least 8 characters';
+    } else if (formData.newPassword.length < 6) {
+      newErrors.newPassword = 'Password must be at least 6 characters';
     }
     
     if (!formData.confirmPassword) {
@@ -46,18 +49,18 @@ const ChangePasswordPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+  
     if (!validateForm()) {
       return;
     }
-    
+  
     setLoading(true);
     setError('');
-    
+    setSuccess(false);
+  
     try {
-      // Replace with your actual API call
       const response = await changePassword(formData);
-      
+  
       setSuccess(true);
       setFormData({
         currentPassword: '',
@@ -65,29 +68,43 @@ const ChangePasswordPage = () => {
         confirmPassword: '',
       });
     } catch (err) {
-      setError(err.message || 'Failed to change password. Please try again.');
+      const message =
+        err.response?.data?.message || err.message || 'Failed to change password. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Mock API function - replace with your actual implementation
   const changePassword = async (data) => {
-    return new Promise((resolve, reject) => {
-      // Simulate API call
-      setTimeout(() => {
-        // Simulate successful response
-        resolve({ success: true });
-        
-        // Or simulate an error
-        // reject(new Error('Current password is incorrect'));
-      }, 1000);
-    });
+    const res = await axios.post(
+      "http://localhost:8080/api/v1/user/changePassword",
+      {
+        oldPassword: data.currentPassword,
+        newPassword: data.newPassword,
+        confirmPassword: data.confirmPassword
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    return res.data;
   };
 
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full mx-auto bg-white rounded-lg shadow-md p-8">
+        {/* Back Button added here */}
+        <Link 
+          href="/account" 
+          className="inline-flex items-center text-indigo-600 hover:text-indigo-800 mb-4"
+        >
+          <ArrowLeft size={16} className="mr-1" />
+          Back to Account
+        </Link>
+        
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">Change Password</h1>
           <p className="mt-2 text-sm text-gray-600">
