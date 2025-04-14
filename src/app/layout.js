@@ -5,6 +5,7 @@ import './globals.css';
 import Image from 'next/image';
 import ContextProvider from '@/components/ContextProvider';
 import { useParams, usePathname } from 'next/navigation';
+import { ToastContainer } from 'react-toastify';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -102,6 +103,7 @@ export default function RootLayout({ children }) {
                 </header>
 
                 <main className={noPadding.includes(pathname) ? '' : 'p-4'}>
+                    <ToastContainer />
                     <ContextProvider>{children}</ContextProvider>
                 </main>
 

@@ -7,6 +7,7 @@ const ContextGlobal = createContext();
 
 function ContextProvider({ children }) {
     const [socket, setSocket] = useState();
+    const [queueRoom, setQueueRoom] = useState([]);
 
     useEffect(() => {
         const socketInstance = io('http://localhost:8080', {
@@ -19,11 +20,19 @@ function ContextProvider({ children }) {
         };
     }, []);
 
-    return <ContextGlobal.Provider value={{ socket: socket }}>{children}</ContextGlobal.Provider>;
+    return (
+        <ContextGlobal.Provider value={{ socket: socket, queueRoom, setQueueRoom: setQueueRoom }}>
+            {children}
+        </ContextGlobal.Provider>
+    );
 }
 
 export default ContextProvider;
 
 export const useSocket = () => {
     return useContext(ContextGlobal).socket;
+};
+
+export const useQueueRoom = () => {
+    return [useContext(ContextGlobal).queueRoom, useContext(ContextGlobal).setQueueRoom];
 };

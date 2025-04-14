@@ -14,8 +14,15 @@ import { Button, Popover, Spin } from 'antd';
 import axios from 'axios';
 import DetailProblem from '@/components/DetailProblem';
 import request from '@/utils/server';
+import { useSocket } from '@/components/ContextProvider';
+import { useRouter, useParams } from 'next/navigation';
+import { toastError, toastInfo, toastSuccess } from '@/utils/toasty';
+import ChatMatch from '@/components/ChatMatch';
+import Webcam from 'react-webcam';
 
-function Submit({ params }) {
+const countAccept = 3;
+
+function Submit() {
     const [fullCodeEditor, setFullCodeEditor] = useState(false);
     const [languages, setLanguges] = useState([]);
     const [idLanguage, setIdlanguage] = useState({});
@@ -24,12 +31,53 @@ function Submit({ params }) {
     const [isLoading, setIsLoading] = useState(false);
     const editorRef = useRef(null);
     const [testResult, setTestResult] = useState(null);
-
+    const endTime = sessionStorage.getItem('endTime');
+    const socket = useSocket();
+    const router = useRouter();
+    const params = useParams();
+    const [hasSubmission, setHasSubmission] = useState(false);
     const { id: matchId } = params;
+    const submitButton = useRef(null);
+    const webcamRef = useRef(null);
+    const [count, setCount] = useState(0);
+    const [idInterval, setIdInterval] = useState();
 
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
     }
+
+    useEffect(() => {
+        if (socket) {
+            const handleMatchEnded = (data) => {
+                setIsLoading(true);
+                if (!hasSubmission) {
+                    submitButton.current && submitButton.current.click();
+                    setHasSubmission(true);
+                }
+            };
+
+            const handleFinishMatch = (data) => {
+                router.push(`/matchResult/${matchId}`);
+                console.log('finish');
+            };
+
+            const handleCompetitorSubmission = (data) => {
+                toastInfo('The competitor was submission');
+            };
+
+            // Đăng ký sự kiện
+            socket.on('match_ended', handleMatchEnded);
+            socket.on('finish_match', handleFinishMatch);
+            socket.on('competitor_submission', handleCompetitorSubmission);
+
+            // Cleanup: Xóa listener khi component unmount hoặc `socket` thay đổi
+            return () => {
+                socket.off('match_ended', handleMatchEnded);
+                socket.off('finish_match', handleFinishMatch);
+                socket.off('competitor_submission', handleCompetitorSubmission);
+            };
+        }
+    }, [socket, submitButton.current]); // Chạy lại khi `socket` thay đổi
 
     useEffect(() => {
         (async () => {
@@ -52,7 +100,6 @@ function Submit({ params }) {
                     });
                 }
                 data = data.reverse();
-
                 setLanguges(data);
                 setIdlanguage({
                     id: data[4].id,
@@ -62,43 +109,47 @@ function Submit({ params }) {
         })();
     }, []);
 
-    const handleSubmit = async () => {
-        try {
-            if (!matchId) {
-                alert('Vui long chon ngon ngu');
+    const captureAndSend = async () => {
+        if (!webcamRef.current || !webcamRef.current?.getScreenshot) return;
+        const imageSrcs = webcamRef.current.getScreenshot();
+        if (imageSrcs) {
+            try {
+                const blob = await fetch(imageSrcs).then((res) => res.blob());
+                const file = new File([blob], 'webcam-image.jpg', {
+                    type: 'image/jpeg',
+                });
+
+                const formData = new FormData();
+                formData.append('image', file);
+                const data = await axios.post('http://127.0.0.1:5000/detect', formData, {});
+                console.log(data.data);
+                if (data.data.status === 'Closed') {
+                    if (count < countAccept) {
+                        setCount((pre) => pre + 1);
+                    }
+                } else {
+                    if (count > 0) {
+                        setCount((pre) => pre - 1);
+                    }
+                }
+            } catch (error) {
+                console.error('Error sending image:', error);
             }
-            if (!editorRef.current.getValue()) {
-                alert('Vui long viet ma truoc khi chay');
-            }
-            setIsLoading(true);
-            const response = await request.post('/submission', {
-                sourceCode: editorRef.current.getValue(),
-                languageId: idLanguage.id,
-                problemId: matchId,
-            });
-            if (response.status === 200) {
-                setTestResult(response.data);
-            }
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setIsLoading(false);
         }
     };
 
     const handleRunCode = async () => {
         try {
-            if (!matchId) {
-                alert('Vui long chon ngon ngu');
-            }
-            if (!editorRef.current.getValue()) {
-                alert('Vui long viet ma truoc khi chay');
-            }
             setIsLoading(true);
+            const problemId = await request.post('/match/get-problemId', {
+                matchId: matchId,
+            });
+            console.log(problemId);
+
             const response = await request.post('/submission/run', {
                 sourceCode: editorRef.current.getValue(),
                 languageId: idLanguage.id,
-                problemId: matchId,
+                problemId: problemId.data?.data,
             });
             if (response.status === 200) {
                 setTestResult(response.data);
@@ -109,14 +160,104 @@ function Submit({ params }) {
             setIsLoading(false);
         }
     };
+    const handleSubmit = async () => {
+        try {
+            setIsLoading(true);
+            setHasSubmission(true);
+            socket.emit('submit_match', {
+                languageId: idLanguage.id,
+                sourceCode: editorRef.current.getValue(),
+                matchId: matchId,
+            });
+            toastSuccess('Submission is successfully');
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        let id = setInterval(() => {
+            captureAndSend();
+        }, 3000);
+        setIdInterval(id);
+        return () => {
+            clearInterval(id);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (count > countAccept) {
+            toastInfo('We found you cheating, your assignment will be submited with black page!');
+            (async () => {
+                try {
+                    setIsLoading(true);
+                    setHasSubmission(true);
+                    socket.emit('submit_match', {
+                        languageId: idLanguage.id,
+                        sourceCode: '// cheating',
+                        matchId: matchId,
+                    });
+                    toastSuccess('Submission is successfully');
+                } catch (error) {
+                    console.log(error);
+                } finally {
+                    setIsLoading(false);
+                }
+            })();
+            clearInterval(idInterval);
+        }
+    }, [count]);
+
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+            event.preventDefault();
+            router.push('/');
+        };
+
+        const handleVisibilityChange = async () => {
+            if (document.visibilityState === 'hidden') {
+                try {
+                    console.log('hidden');
+
+                    // await axios.post('/api/submit', { battleId, userId, code });
+                } catch (error) {
+                    console.error('Error submitting code:', error);
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
 
     return (
         <div className="min-h-[88vh] relative bg-gray-100">
+            {/* <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" className="absolute -z-10" /> */}
             <PanelGroup className="!h-[88vh]" direction="horizontal">
-                <Panel defaultSize={fullCodeEditor ? 0 : 50}>
-                    <div className="bg-white h-full rounded-lg overflow-hidden relative min-h-full">
-                        <DetailProblem languages={languages} matchId={matchId} />
-                    </div>
+                <Panel>
+                    <PanelGroup>
+                        <Panel defaultSize={fullCodeEditor ? 0 : 50}>
+                            <div className="bg-white h-full rounded-lg overflow-hidden relative min-h-full">
+                                <DetailProblem
+                                    router={router}
+                                    endTime={endTime}
+                                    languages={languages}
+                                    matchId={matchId}
+                                />
+                            </div>
+                        </Panel>
+                        <PanelResizeHandle className="w-full h-3 bg-transparent cursor-ew-resize" />
+                        <Panel className="min-h-[47px]">
+                            <ChatMatch matchId={matchId} />
+                        </Panel>
+                    </PanelGroup>
                 </Panel>
                 <PanelResizeHandle className="w-3 bg-transparent cursor-ew-resize" />
                 <Panel defaultSize={fullCodeEditor ? 100 : 50}>
@@ -130,6 +271,7 @@ function Submit({ params }) {
                                             <span>Code</span>
                                         </div>
                                         <button
+                                            disabled={hasSubmission}
                                             onClick={handleRunCode}
                                             className="flex items-center space-x-1 hover:opacity-60 hover:bg-gray-200 px-2"
                                         >
@@ -137,6 +279,8 @@ function Submit({ params }) {
                                             <span className="text-base">Run</span>
                                         </button>
                                         <button
+                                            ref={submitButton}
+                                            disabled={hasSubmission}
                                             onClick={handleSubmit}
                                             className="flex items-center text-green-500 space-x-1 hover:opacity-60 hover:bg-gray-200 px-2"
                                         >
