@@ -32,7 +32,7 @@ const ProblemList = () => {
         axios
             .get('http://localhost:8080/api/v1/algorithmTypes/viewalgorithmTypes')
             .then((response) => {
-                console.log("Tất cả các loại thuật toán:", response.data);
+                console.log('Tất cả các loại thuật toán:', response.data);
                 setAlgorithmTypes(response.data.data);
             })
             .catch((error) => {
@@ -41,19 +41,19 @@ const ProblemList = () => {
     }, []);
 
     // Topic filters
-    const topics = [
-        { name: 'All Topics', icon: 'list' },
-        { name: 'Algorithms', icon: 'network' },
-        { name: 'Database', icon: 'database' },
-        { name: 'Shell', icon: 'terminal' },
-        { name: 'Concurrency', icon: 'threads' },
-        { name: 'JavaScript', icon: 'js' },
-    ];
+    // const topics = [
+    //     { name: 'All Topics', icon: 'list' },
+    //     { name: 'Algorithms', icon: 'network' },
+    //     { name: 'Database', icon: 'database' },
+    //     { name: 'Shell', icon: 'terminal' },
+    //     { name: 'Concurrency', icon: 'threads' },
+    //     { name: 'JavaScript', icon: 'js' },
+    // ];
 
     useEffect(() => {
         fetchProblems();
     }, [filters]);
-    
+
     const fetchProblems = async () => {
         setLoading(true);
         try {
@@ -68,7 +68,6 @@ const ProblemList = () => {
             console.log('API response:', response.data);
             const problemsData = response.data.problems || [];
 
-            // In cấu trúc chi tiết của bài toán đầu tiên để debug
             if (problemsData.length > 0) {
                 console.log('Cấu trúc chi tiết của bài toán đầu tiên:', JSON.stringify(problemsData[0], null, 2));
             }
@@ -76,62 +75,49 @@ const ProblemList = () => {
             console.log('Đang lọc theo thuật toán:', filters.algorithmTypes);
 
             let filtered = problemsData;
-
-            // Chỉ lọc client-side nếu có lọc thuật toán được chọn
             if (filters.algorithmTypes.length > 0) {
                 filtered = problemsData.filter((problem) => {
                     console.log('Kiểm tra bài toán:', problem.title);
-                    
+
                     // Kiểm tra algorithmTypes là mảng các đối tượng
                     if (problem.algorithmTypes && Array.isArray(problem.algorithmTypes)) {
                         console.log('algorithmTypes là mảng:', problem.algorithmTypes);
-                        
-                        // Trường hợp mảng các đối tượng có thuộc tính name
+
                         if (problem.algorithmTypes.length > 0 && problem.algorithmTypes[0].name) {
                             const hasMatch = problem.algorithmTypes.some((type) =>
-                                filters.algorithmTypes.includes(type.name)
+                                filters.algorithmTypes.includes(type.name),
                             );
                             console.log('Kiểm tra theo type.name:', hasMatch);
                             return hasMatch;
-                        }
-                        
-                        // Trường hợp mảng các chuỗi
-                        else if (problem.algorithmTypes.length > 0 && typeof problem.algorithmTypes[0] === 'string') {
+                        } else if (problem.algorithmTypes.length > 0 && typeof problem.algorithmTypes[0] === 'string') {
                             const hasMatch = problem.algorithmTypes.some((type) =>
-                                filters.algorithmTypes.includes(type)
+                                filters.algorithmTypes.includes(type),
                             );
                             console.log('Kiểm tra theo chuỗi thuần:', hasMatch);
                             return hasMatch;
                         }
-                    }
-                    
-                    // Trường hợp algorithmType (không có s) là một đối tượng
-                    else if (problem.algorithmType && typeof problem.algorithmType === 'object') {
+                    } else if (problem.algorithmType && typeof problem.algorithmType === 'object') {
                         const hasMatch = filters.algorithmTypes.includes(problem.algorithmType.name);
                         console.log('Kiểm tra algorithmType (số ít):', hasMatch);
                         return hasMatch;
-                    }
-                    
-                    // Kiểm tra trường hợp thuật toán được lưu dưới tên khác
-                    else if (problem.categories && Array.isArray(problem.categories)) {
-                        const hasMatch = problem.categories.some(cat => 
-                            filters.algorithmTypes.includes(cat.name || cat)
+                    } else if (problem.categories && Array.isArray(problem.categories)) {
+                        const hasMatch = problem.categories.some((cat) =>
+                            filters.algorithmTypes.includes(cat.name || cat),
                         );
                         console.log('Kiểm tra theo categories:', hasMatch);
                         return hasMatch;
                     }
-                    
+
                     return false;
                 });
             }
 
             console.log('Dữ liệu bài toán sau khi lọc:', filtered);
             console.log('Số lượng bài toán sau khi lọc:', filtered.length);
-            
+
             setProblems(filtered);
             setFilteredProblems(filtered);
-            
-            // Cập nhật pagination
+
             if (response.data.pagination) {
                 setPagination(response.data.pagination);
             } else {
@@ -139,7 +125,7 @@ const ProblemList = () => {
                 setPagination({
                     currentPage: filters.page,
                     totalPages: Math.ceil(filtered.length / filters.limit),
-                    totalProblems: filtered.length
+                    totalProblems: filtered.length,
                 });
             }
         } catch (error) {
@@ -155,52 +141,52 @@ const ProblemList = () => {
         setFilters((prev) => ({
             ...prev,
             [key]: value,
-            page: key === 'page' ? value : 1, // Reset trang về 1 khi filter thay đổi
+            page: key === 'page' ? value : 1,
         }));
     };
 
     const handleAlgorithmTypeFilter = (selectedTypes) => {
-        console.log("Đã chọn các loại thuật toán:", selectedTypes);
+        console.log('Đã chọn các loại thuật toán:', selectedTypes);
         setFilters((prev) => ({
             ...prev,
             algorithmTypes: selectedTypes,
-            page: 1, // Reset to first page when filter changes
+            page: 1, 
         }));
     };
 
-    const getDifficultyColor = (difficulty) => {
-        if (!difficulty) return '';
+// Update this function in your ProblemList component
+const getDifficultyColor = (difficulty) => {
+    if (!difficulty) return '';
 
-        if (Array.isArray(difficulty)) {
-            const level = difficulty[0]?.toLowerCase();
-            switch (level) {
-                case 'easy':
-                    return 'text-green-500';
-                case 'medium':
-                    return 'text-yellow-500';
-                case 'hard':
-                    return 'text-red-500';
-                default:
-                    return '';
-            }
-        }
+    // Normalize difficulty to a string
+    let level;
+    
+    // If difficulty is an array of objects
+    if (Array.isArray(difficulty) && difficulty.length > 0) {
+        level = difficulty[0].name?.toLowerCase();
+    }
+    // If difficulty is a single object
+    else if (typeof difficulty === 'object') {
+        level = difficulty.name?.toLowerCase();
+    }
+    // If difficulty is already a string
+    else {
+        level = String(difficulty).toLowerCase();
+    }
 
-        if (typeof difficulty === 'object' && difficulty.name) {
-            const level = difficulty.name.toLowerCase();
-            switch (level) {
-                case 'easy':
-                    return 'text-green-500';
-                case 'medium':
-                    return 'text-yellow-500';
-                case 'hard':
-                    return 'text-red-500';
-                default:
-                    return '';
-            }
-        }
-
-        return '';
-    };
+    switch (level) {
+        case 'bronze':
+            return 'text-orange-500';
+        case 'silver':
+            return 'text-gray-400';
+        case 'gold':
+            return 'text-yellow-500';
+        case 'platinum':
+            return 'text-blue-500';
+        default:
+            return '';
+    }
+};
 
     const getAcceptanceRate = (problem) => {
         const id = typeof problem._id === 'string' ? problem._id : String(problem._id);
@@ -230,8 +216,7 @@ const ProblemList = () => {
                 loading={loading}
                 onFilterSelect={handleAlgorithmTypeFilter}
             />
-
-            <TopicFilters topics={topics} />
+            {/* <TopicFilters topics={topics} /> */}
 
             <FilterBar filters={filters} handleFilterChange={handleFilterChange} />
 
