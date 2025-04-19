@@ -246,31 +246,18 @@ export default function ContestManagementPage() {
               <span className="text-blue-800 text-sm font-semibold">Total Contests</span>
               <div className="relative">
                 <span className="text-blue-900 text-3xl font-bold">{animatedStats.total}</span>
-                <span className="absolute -top-8.5 -right-30 text-xs bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-                  {stats.total > 0 ? "📝" : ""}
-                </span>
               </div>
             </div>
             <div className="bg-green-100 p-4 rounded-lg shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:shadow-lg hover:bg-green-200 transform hover:-translate-y-1">
               <span className="text-green-800 text-sm font-semibold">Active Contests</span>
               <div className="relative">
                 <span className="text-green-900 text-3xl font-bold">{animatedStats.active}</span>
-                {stats.active > 0 && (
-                  <span className="absolute -top-8.5 -right-30 text-xs bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-                    {stats.active > 0 ? "✅" : ""}
-                  </span>
-                )}
               </div>
             </div>
             <div className="bg-red-100 p-4 rounded-lg shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:shadow-lg hover:bg-red-200 transform hover:-translate-y-1">
               <span className="text-red-800 text-sm font-semibold">Closed Contests</span>
               <div className="relative">
                 <span className="text-red-900 text-3xl font-bold">{animatedStats.closed}</span>
-                {stats.closed > 0 && (
-                  <span className="absolute -top-8.5 -right-32 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-                    {stats.closed > 0 ? "🔒" : ""}
-                  </span>
-                )}
               </div>
             </div>
           </div>

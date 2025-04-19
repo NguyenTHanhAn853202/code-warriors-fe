@@ -11,12 +11,7 @@ const ProfilePage = () => {
     location: '',
     birthday: '',
     summary: '',
-    website: '',
-    github: '',
     avatar: '/user_1.jpg',
-    work: '',
-    education: '',
-    technicalSkills: []
   });
 
   const [editingField, setEditingField] = useState(null);
@@ -31,26 +26,21 @@ const ProfilePage = () => {
   const fetchUserInfo = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      
+      // Using axios with credentials to send cookies
       const response = await axios.get('http://localhost:8080/api/v1/user/info', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        withCredentials: true  // This ensures cookies are sent with the request
       });
 
       if (response.data.status === 'success') {
+        const userData = response.data.data;
         setUser({
-          username: response.data.data.username || '',
-          gender: response.data.data.gender || 'Select Gender',
-          location: response.data.data.location || 'Your location',
-          birthday: response.data.data.birthday || 'Your birthday',
-          summary: response.data.data.summary || 'Tell us about yourself',
-          website: response.data.data.website || 'Your blog, portfolio, etc.',
-          github: response.data.data.github || 'Your Github username or url',
-          avatar: response.data.data.avtImage || '/user_1.jpg',
-          work: response.data.data.work || 'Add a workplace',
-          education: response.data.data.education || 'Add a school',
-          technicalSkills: response.data.data.technicalSkills || []
+          username: userData.username || '',
+          gender: userData.gender || 'Select Gender',
+          location: userData.location || 'Your location',
+          birthday: userData.birthday || 'Your birthday',
+          summary: userData.summary || 'Tell us about yourself',
+          avatar: userData.avatarImage || '/user_1.jpg',
         });
       }
     } catch (err) {
@@ -68,18 +58,14 @@ const ProfilePage = () => {
 
   const handleSave = async (field) => {
     try {
-      const token = localStorage.getItem('token');
       let updateData = { [field]: tempValue };
-      if (field === 'technicalSkills') {
-        updateData.technicalSkills = tempValue.split(',').map(skill => skill.trim());
-      }
-  
+      
       const response = await axios.patch(
         'http://localhost:8080/api/v1/user/updateProfile',
         updateData,
         {
+          withCredentials: true,  // Send cookies with the request
           headers: {
-            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         }
@@ -88,7 +74,7 @@ const ProfilePage = () => {
       if (response.data.status === 'success') {
         setUser(prev => ({
           ...prev,
-          [field]: field === 'technicalSkills' ? updateData.technicalSkills : tempValue
+          [field]: tempValue
         }));
         setEditingField(null);
       }
@@ -134,16 +120,6 @@ const ProfilePage = () => {
           autoFocus
         />
       );
-    } else if (field === 'technicalSkills') {
-      return (
-        <input 
-          type="text" 
-          value={tempValue} 
-          onChange={(e) => setTempValue(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 text-sm flex-grow"
-          autoFocus
-        />
-      );
     } else {
       return (
         <input 
@@ -179,16 +155,10 @@ const ProfilePage = () => {
           </div>
         ) : (
           <>
-            <span className="text-gray-500">
-              {field === 'technicalSkills' && Array.isArray(value) 
-                ? value.join(', ') 
-                : value}
-            </span>
+            <span className="text-gray-500">{value}</span>
             {editable && (
               <button 
-                onClick={() => handleEdit(field, field === 'technicalSkills' && Array.isArray(value) 
-                  ? value.join(', ') 
-                  : value)} 
+                onClick={() => handleEdit(field, value)} 
                 className="text-blue-500 hover:text-blue-700 ml-2"
               >
                 <span className="flex items-center gap-1">
@@ -262,19 +232,6 @@ const ProfilePage = () => {
           <InfoItem label="Location" field="location" value={user.location} />
           <InfoItem label="Birthday" field="birthday" value={user.birthday} />
           <InfoItem label="Summary" field="summary" value={user.summary} />
-          <InfoItem label="Website" field="website" value={user.website} />
-          <InfoItem label="Github" field="github" value={user.github} />
-        </Section>
-        
-        {/* Experience Section */}
-        <Section title="Experience">
-          <InfoItem label="Work" field="work" value={user.work} />
-          <InfoItem label="Education" field="education" value={user.education} />
-        </Section>
-        
-        {/* Skills Section */}
-        <Section title="Skills">
-          <InfoItem label="Technical Skills" field="technicalSkills" value={user.technicalSkills} />
         </Section>
       </div>
     </div>

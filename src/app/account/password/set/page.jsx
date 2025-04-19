@@ -85,9 +85,10 @@ const ChangePasswordPage = () => {
         confirmPassword: data.confirmPassword
       },
       {
+        withCredentials: true, // This ensures cookies are sent with the request
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+          'Content-Type': 'application/json'
+        }
       }
     );
     return res.data;

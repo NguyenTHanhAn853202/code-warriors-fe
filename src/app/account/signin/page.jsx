@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -54,7 +55,7 @@ export default function SignInPage() {
           email: formData.email,
           password: formData.password
         }),
-        credentials: 'include' 
+        credentials: 'include'
       });
       
       const data = await response.json();
@@ -62,30 +63,39 @@ export default function SignInPage() {
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
-      
+
       if (formData.rememberMe) {
         localStorage.setItem('rememberedEmail', formData.email);
+
         localStorage.setItem('rememberedPassword', formData.password);
       } else {
-
         localStorage.removeItem('rememberedEmail');
         localStorage.removeItem('rememberedPassword');
       }
+
+      localStorage.setItem('isAuthenticated', 'true');
+      if (data.user) {
+        localStorage.setItem('userData', JSON.stringify(data.user));
+      }
       
-      setSuccessMessage('Login successful!...');
+      setSuccessMessage('Login successful! Redirecting...');
+      toast.success('Login successful!');
       
       setTimeout(() => {
-        router.push('/explore');
+        router.push('/home');
+        window.location.href = '/home';
       }, 1500);
       
     } catch (error) {
       setError(error.message || 'Invalid email or password');
+      toast.error(error.message || 'Login failed');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   useEffect(() => {
+    // Check for remembered credentials
     const rememberedEmail = localStorage.getItem('rememberedEmail');
     const rememberedPassword = localStorage.getItem('rememberedPassword');
     
@@ -284,7 +294,7 @@ export default function SignInPage() {
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
               <Link href="/account/signup" className="font-medium text-blue-600 hover:text-orange-500">
-                Create one now
+                Create new account 👋🏻
               </Link>
             </p>
           </div>

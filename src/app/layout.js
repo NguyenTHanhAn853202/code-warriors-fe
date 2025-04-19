@@ -5,6 +5,8 @@ import './globals.css';
 import Image from 'next/image';
 import ContextProvider from '@/components/ContextProvider';
 import { useParams, usePathname } from 'next/navigation';
+import { ToastContainer } from 'react-toastify';
+import { useState, useEffect } from 'react';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -20,6 +22,58 @@ const noPadding = ['/room'];
 
 export default function RootLayout({ children }) {
     const pathname = usePathname();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState(null);
+    const [showDropdown, setShowDropdown] = useState(false);
+
+    // Check authentication status when component mounts
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/user/info', {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    setIsAuthenticated(true);
+                    setUser(userData);
+                } else {
+                    setIsAuthenticated(false);
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                setIsAuthenticated(false);
+                setUser(null);
+            }
+        };
+
+        checkAuth();
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/user/logout', {
+                method: 'POST',
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                setIsAuthenticated(false);
+                setUser(null);
+                setShowDropdown(false);
+                window.location.href = '/';
+            }
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
+
+    const toggleDropdown = () => {
+        setShowDropdown(!showDropdown);
+    };
 
     return (
         <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
@@ -27,9 +81,12 @@ export default function RootLayout({ children }) {
                 <header className="sticky top-0 z-50 bg-white shadow-sm">
                     <div className="container mx-auto px-4 flex justify-between items-center h-16">
                         <div className="flex items-center">
-                            <a href="/" className="flex items-center font-semibold text-xl">
+                            <a 
+                                href={isAuthenticated ? "/home" : "/"} 
+                                className="flex items-center font-semibold text-xl"
+                            >
                                 <Image
-                                    src="/logoCode.png" // Path to your image in public folder
+                                    src="/logoCode.png"
                                     alt="LeetCode Logo"
                                     width={55}
                                     height={55}
@@ -39,10 +96,10 @@ export default function RootLayout({ children }) {
 
                             <nav className="hidden md:flex ml-10">
                                 <a
-                                    href="/explore"
+                                    href="/home"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
-                                    Explore
+                                    Home
                                 </a>
                                 <a
                                     href="/problems"
@@ -99,14 +156,90 @@ export default function RootLayout({ children }) {
                                 Premium
                             </button>
 
-                            <a href="/account/signin" className="text-gray-700 hover:text-orange-500 text-sm font-medium">
-                                Sign In
-                            </a>
+                            {isAuthenticated ? (
+                                <div className="relative">
+                                    <button
+                                        onClick={toggleDropdown}
+                                        className="flex items-center text-gray-700 hover:text-orange-500 text-sm font-medium"
+                                    >
+                                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-2">
+                                            {user?.avatar ? (
+                                                <Image
+                                                    src={user.avatar}
+                                                    alt="User Avatar"
+                                                    width={32}
+                                                    height={32}
+                                                    className="rounded-full"
+                                                />
+                                            ) : (
+                                                <span>{user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}</span>
+                                            )}
+                                        </div>
+                                        <span>{user?.name || user?.email?.split('@')[0]}</span>
+                                        <svg
+                                            className={`ml-1 w-4 h-4 transition-transform ${
+                                                showDropdown ? 'transform rotate-180' : ''
+                                            }`}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M19 9l-7 7-7-7"
+                                            />
+                                        </svg>
+                                    </button>
+
+                                    {showDropdown && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                            <a
+                                                href="/account"
+                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            >
+                                                Your Profile
+                                            </a>
+                                            <a
+                                                href="/contest/myContest"
+                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            >
+                                                My Contest
+                                            </a>
+                                            <a
+                                                href="/submissions"
+                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            >
+                                                chưa làm
+                                            </a>
+                                            <a
+                                                href="/settings"
+                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            >
+                                                Settings
+                                            </a>
+                                            <div className="border-t border-gray-100 my-1"></div>
+                                            <button
+                                                onClick={handleLogout}
+                                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                            >
+                                                Sign Out
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <a href="/account/signin" className="text-gray-700 hover:text-orange-500 text-sm font-medium">
+                                    Sign In
+                                </a>
+                            )}
                         </div>
                     </div>
                 </header>
 
                 <main className={noPadding.includes(pathname) ? '' : 'p-4'}>
+                    <ToastContainer />
                     <ContextProvider>{children}</ContextProvider>
                 </main>
 
