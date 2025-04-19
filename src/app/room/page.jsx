@@ -17,32 +17,42 @@ function Room() {
     const router = useRouter();
 
     useEffect(() => {
-        if (socket) {
-            socket.on('found_competitor', (data) => {
-                console.log('found_competitor');
+        if (!socket) return;
 
-                if (data) {
-                    setFoundMatch(true);
-                    setData(data);
-                }
-            });
-            socket.on('reject_match', (data) => {
-                const { success = null } = data;
-                if (success) {
-                    setWaitingCompetitor(false);
-                    setFoundMatch(false);
-                }
-            });
-            socket.on('start_match', (data) => {
-                const { matchId, roomId, success } = data;
-                // setWaitingCompetitor(false);
-                router.push(`/match/${matchId}`);
-            });
-            socket.on('message', (data) => {
-                console.log(data);
-            });
-        }
-    }, [socket]);
+        const handleFoundCompetitor = (data) => {
+            console.log('found_competitor');
+            if (data) {
+                setFoundMatch(true);
+                setData(data);
+            }
+        };
+
+        const handleRejectMatch = ({ success = null }) => {
+            if (success) {
+                setWaitingCompetitor(false);
+                setFoundMatch(false);
+            }
+        };
+
+        const handleStartMatch = ({ matchId, endTime }) => {
+            sessionStorage.setItem('endTime', endTime);
+            router.push(`/match/${matchId}`);
+        };
+
+        const handleMessage = (data) => console.log(data);
+
+        socket.on('found_competitor', handleFoundCompetitor);
+        socket.on('reject_match', handleRejectMatch);
+        socket.on('start_match', handleStartMatch);
+        socket.on('message', handleMessage);
+
+        return () => {
+            socket.off('found_competitor', handleFoundCompetitor);
+            socket.off('reject_match', handleRejectMatch);
+            socket.off('start_match', handleStartMatch);
+            socket.off('message', handleMessage);
+        };
+    }, [socket, router]);
 
     const handleFindMatch = async () => {
         try {
