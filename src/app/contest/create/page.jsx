@@ -221,24 +221,28 @@ const Contest = () => {
                             </div>
                         ) : (
                             testCases.map((testCase, index) => (
-                                <div key={testCase.key} className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg">
-                                    <div className="font-medium text-gray-500 w-8">{index + 1}.</div>
-                                    <input
-                                        type="text"
-                                        className="flex-1 p-2 border rounded-lg"
-                                        placeholder="📥 Input"
-                                        value={testCase.input}
-                                        onChange={(e) => handleEditTestCase(testCase.key, 'input', e.target.value)}
-                                    />
-                                    <input
-                                        type="text"
-                                        className="flex-1 p-2 border rounded-lg"
-                                        placeholder="📤 Expected Output"
-                                        value={testCase.expectedOutput}
-                                        onChange={(e) =>
-                                            handleEditTestCase(testCase.key, 'expectedOutput', e.target.value)
-                                        }
-                                    />
+                                <div key={testCase.key} className="flex gap-2 items-start bg-gray-50 p-3 rounded-lg">
+                                    <div className="font-medium text-gray-500 w-8 mt-2">{index + 1}.</div>
+                                    <div className="flex-1">
+                                        <textarea
+                                            className="w-full p-2 border rounded-lg"
+                                            placeholder="📥 Input"
+                                            value={testCase.input}
+                                            onChange={(e) => handleEditTestCase(testCase.key, 'input', e.target.value)}
+                                            rows={3}
+                                        />
+                                    </div>
+                                    <div className="flex-1 max-w-md">
+                                        <textarea
+                                            className="w-full p-2 border rounded-lg"
+                                            placeholder="📤 Expected Output"
+                                            value={testCase.expectedOutput}
+                                            onChange={(e) =>
+                                                handleEditTestCase(testCase.key, 'expectedOutput', e.target.value)
+                                            }
+                                            rows={3}
+                                        />
+                                    </div>
                                     <button
                                         className="p-2 text-red-500 hover:text-red-700 transition-colors"
                                         onClick={() => handleDeleteTestCase(testCase.key)}
