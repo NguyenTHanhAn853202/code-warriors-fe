@@ -28,7 +28,7 @@ const Contest = () => {
                 if (response.status === 200) {
                     const rankData = response.data.data.ranks.map((rank) => ({
                         value: rank.name,
-                        label: rank.name
+                        label: rank.name,
                     }));
                     setRankOptions(rankData);
                 }
@@ -111,7 +111,9 @@ const Contest = () => {
         };
 
         try {
-            const response = await axios.post('http://localhost:8080/api/v1/contest/createContest', requestData);
+            const response = await axios.post('http://localhost:8080/api/v1/contest/createContest', requestData, {
+                withCredentials: true,
+            });
             if (response.status === 200) {
                 message.success('Contest has been posted successfully!');
                 setTitle('');
@@ -146,12 +148,12 @@ const Contest = () => {
                 {/* Title Section */}
                 <div className="form-group">
                     <label className="block text-gray-700 font-medium mb-2">Title</label>
-                    <Input 
-                        placeholder="Enter title" 
-                        value={title} 
-                        onChange={(e) => setTitle(e.target.value)} 
+                    <Input
+                        placeholder="Enter title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
                         size="large"
-                        className="rounded-lg" 
+                        className="rounded-lg"
                     />
                     {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
                 </div>
@@ -181,12 +183,12 @@ const Contest = () => {
 
                     <div className="form-group">
                         <label className="block text-gray-700 font-medium mb-2">Select Time:</label>
-                        <RangePicker 
-                            showTime 
-                            style={{ width: '100%' }} 
-                            size="large" 
+                        <RangePicker
+                            showTime
+                            style={{ width: '100%' }}
+                            size="large"
                             onChange={(value) => setSelectedTime(value)}
-                            className="rounded-lg" 
+                            className="rounded-lg"
                         />
                         {errors.selectedTime && <p className="text-red-500 text-sm mt-1">{errors.selectedTime}</p>}
                     </div>
@@ -203,9 +205,10 @@ const Contest = () => {
                 <div className="form-group mt-30">
                     <div className="flex justify-between items-center mb-2">
                         <label className="block text-gray-700 font-medium">Test Cases List</label>
-                        <button 
+                        <button
                             className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg transition-colors flex items-center"
-                            onClick={handleAddTestCase}>
+                            onClick={handleAddTestCase}
+                        >
                             <PlusOutlined className="mr-1" /> Add Test Case
                         </button>
                     </div>
@@ -232,10 +235,12 @@ const Contest = () => {
                                         className="flex-1 p-2 border rounded-lg"
                                         placeholder="📤 Expected Output"
                                         value={testCase.expectedOutput}
-                                        onChange={(e) => handleEditTestCase(testCase.key, 'expectedOutput', e.target.value)}
+                                        onChange={(e) =>
+                                            handleEditTestCase(testCase.key, 'expectedOutput', e.target.value)
+                                        }
                                     />
-                                    <button 
-                                        className="p-2 text-red-500 hover:text-red-700 transition-colors" 
+                                    <button
+                                        className="p-2 text-red-500 hover:text-red-700 transition-colors"
                                         onClick={() => handleDeleteTestCase(testCase.key)}
                                     >
                                         <DeleteOutlined />
@@ -247,7 +252,7 @@ const Contest = () => {
                 </div>
 
                 {/* Submit Button */}
-                <button 
+                <button
                     className={`${loading ? 'bg-green-400' : 'bg-green-500 hover:bg-green-600'} text-white px-4 py-3 rounded-lg mt-6 w-full transition-colors font-medium`}
                     onClick={handleSubmit}
                     disabled={loading}
