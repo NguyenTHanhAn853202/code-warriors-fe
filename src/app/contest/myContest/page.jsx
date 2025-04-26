@@ -36,7 +36,9 @@ export default function ContestManagementPage() {
   useEffect(() => {
     const fetchContests = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/v1/contest/viewAllContest');
+        const response = await axios.get('http://localhost:8080/api/v1/contest/viewAllMyContest', {
+          withCredentials: true
+        });
         const contestsData = response.data.data.contests;
         setContests(contestsData);
         calculateStats(contestsData);
