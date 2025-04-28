@@ -11,7 +11,7 @@ function ContextProvider({ children }) {
 
     useEffect(() => {
         const socketInstance = io('http://localhost:8080', {
-            // withCredentials: true,
+            withCredentials: true,
         });
         setSocket(socketInstance);
 
