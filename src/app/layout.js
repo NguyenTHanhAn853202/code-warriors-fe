@@ -7,6 +7,7 @@ import ContextProvider from '@/components/ContextProvider';
 import { useParams, usePathname } from 'next/navigation';
 import { ToastContainer } from 'react-toastify';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -80,16 +81,11 @@ export default function RootLayout({ children }) {
                 <header className="sticky top-0 z-50 bg-white shadow-sm">
                     <div className="container mx-auto px-4 flex justify-between items-center h-16">
                         <div className="flex items-center">
-                            <a 
-                                href={isAuthenticated ? "/home" : "/"} 
+                            <a
+                                href={isAuthenticated ? '/home' : '/'}
                                 className="flex items-center font-semibold text-xl"
                             >
-                                <Image
-                                    src="/logoCode.png"
-                                    alt="LeetCode Logo"
-                                    width={55}
-                                    height={55}
-                                />
+                                <Image src="/logoCode.png" alt="LeetCode Logo" width={55} height={55} />
                                 CodeWars
                             </a>
 
@@ -124,6 +120,12 @@ export default function RootLayout({ children }) {
                                 >
                                     Room Battle
                                 </a>
+                                <Link
+                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                    href={'/room'}
+                                >
+                                    Online Battle
+                                </Link>
                             </nav>
                         </div>
 
@@ -229,7 +231,10 @@ export default function RootLayout({ children }) {
                                     )}
                                 </div>
                             ) : (
-                                <a href="/account/signin" className="text-gray-700 hover:text-orange-500 text-sm font-medium">
+                                <a
+                                    href="/account/signin"
+                                    className="text-gray-700 hover:text-orange-500 text-sm font-medium"
+                                >
                                     Sign In
                                 </a>
                             )}
