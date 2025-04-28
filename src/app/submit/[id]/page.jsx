@@ -14,7 +14,7 @@ import { Button, Popover, Spin } from 'antd';
 import axios from 'axios';
 import DetailProblem from '@/components/DetailProblem';
 import request from '@/utils/server';
-import { toastInfo } from '@/utils/toasty';
+import { toastInfo, toastSuccess } from '@/utils/toasty';
 
 function Submit({ params }) {
     const [fullCodeEditor, setFullCodeEditor] = useState(false);
@@ -66,7 +66,7 @@ function Submit({ params }) {
     const handleSubmit = async () => {
         try {
             if (!editorRef.current.getValue()) {
-                toastInfo('Vui lòng viết mã trước khi chạy');
+                toastInfo('Fill your code, please');
             }
             setIsLoading(true);
             const response = await request.post('/submission', {
@@ -75,6 +75,7 @@ function Submit({ params }) {
                 problemId: problemId,
             });
             if (response.status === 200) {
+                toastSuccess('Submit successfully');
                 setTestResult(response.data);
             }
         } catch (error) {
@@ -87,7 +88,7 @@ function Submit({ params }) {
     const handleRunCode = async () => {
         try {
             if (!editorRef.current.getValue()) {
-                toastInfo('Vui lòng viết mã trước khi chạy');
+                toastInfo('Fill your code, please');
             }
             setIsLoading(true);
             const response = await request.post('/submission/run', {

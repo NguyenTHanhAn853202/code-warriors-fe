@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import TagLevel from './TagLevel';
 import DOMPurify from 'dompurify';
 import request from '../utils/server';
-import { Table } from 'antd';
+import { Space, Table, Tag } from 'antd';
 import formatDate from '../utils/formatDay';
 import fortmantRunTime from '@/utils/fortmatRunTime';
 import { toastInfo } from '@/utils/toasty';
@@ -131,9 +131,10 @@ function DetailProblem({ matchId, languages, endTime, problemId, router }) {
     useEffect(() => {
         if (tag == tags.submissions) {
             async function query() {
-                const response = await request.get('/submission/history/' + matchId);
+                const response = await request.get('/submission/history/' + problemId);
                 if (response.status === 200) {
                     let dataSource = response.data.data;
+
                     dataSource = dataSource.map((item, index) => ({
                         key: index,
                         date: formatDate(item.createdAt),
@@ -148,6 +149,8 @@ function DetailProblem({ matchId, languages, endTime, problemId, router }) {
             query();
         }
     }, [tag]);
+
+    console.log(tag === tags.submissions);
 
     return (
         <div className=" h-full">
@@ -193,11 +196,13 @@ function DetailProblem({ matchId, languages, endTime, problemId, router }) {
                     </div>
                     <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data?.description || '') }}></div>
                 </div>
-            ) : null}
-            {tag === tag.submissions && (
-                <div>
-                    <Table pagination={false} columns={columns} dataSource={submission} onChange={onChange} />
-                </div>
+            ) : (
+                <>
+                    <div className="px-4 py-5 space-y-3 pb-12  h-full">
+                       
+                        <Table pagination={false} columns={columns} dataSource={submission} onChange={onChange} />
+                    </div>
+                </>
             )}
         </div>
     );
