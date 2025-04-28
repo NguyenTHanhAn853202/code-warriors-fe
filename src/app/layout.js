@@ -26,32 +26,31 @@ export default function RootLayout({ children }) {
     const [user, setUser] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
 
-    // Check authentication status when component mounts
-    // useEffect(() => {
-    //     const checkAuth = async () => {
-    //         try {
-    //             const response = await fetch('http://localhost:8080/api/v1/user/info', {
-    //                 method: 'GET',
-    //                 credentials: 'include',
-    //             });
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/user/info', {
+                    method: 'GET',
+                    credentials: 'include',
+                });
 
-    //             if (response.ok) {
-    //                 const userData = await response.json();
-    //                 setIsAuthenticated(true);
-    //                 setUser(userData);
-    //             } else {
-    //                 setIsAuthenticated(false);
-    //                 setUser(null);
-    //             }
-    //         } catch (error) {
-    //             console.error('Auth check failed:', error);
-    //             setIsAuthenticated(false);
-    //             setUser(null);
-    //         }
-    //     };
+                if (response.ok) {
+                    const userData = await response.json();
+                    setIsAuthenticated(true);
+                    setUser(userData);
+                } else {
+                    setIsAuthenticated(false);
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                setIsAuthenticated(false);
+                setUser(null);
+            }
+        };
 
-    //     checkAuth();
-    // }, []);
+        checkAuth();
+    }, []);
 
     const handleLogout = async () => {
         try {
