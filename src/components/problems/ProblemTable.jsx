@@ -1,23 +1,31 @@
+'use client';
+
 import React from 'react';
 import { FaCheck } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 
 const ProblemsTable = ({ problems, loading, getDifficultyColor, getAcceptanceRate, getFrequencyBar }) => {
+    const router = useRouter();
     // Helper function to get difficulty name from difficulty array or object
     const getDifficultyName = (difficulty) => {
         if (!difficulty) return '???';
-        
+
         // If difficulty is an array of objects
         if (Array.isArray(difficulty) && difficulty.length > 0) {
             return difficulty[0].name || '???';
         }
-        
+
         // If difficulty is a single object
         if (typeof difficulty === 'object') {
             return difficulty.name || '???';
         }
-        
+
         // If difficulty is a string
         return difficulty;
+    };
+
+    const handleTakeExam = (problemId) => {
+        router.push('/submit/' + problemId);
     };
 
     return (
@@ -67,7 +75,10 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, getAcceptanceRat
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm font-medium text-gray-900">
+                                    <div
+                                        onClick={() => handleTakeExam(problem._id)}
+                                        className="text-sm font-medium text-gray-900 cursor-pointer"
+                                    >
                                         {index + 1}. {problem.title}
                                     </div>
                                 </td>
@@ -75,7 +86,9 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, getAcceptanceRat
                                     <div className="text-sm text-blue-500 flex justify-center">
                                         {problem.source_code ? (
                                             <span className="text-blue-500 cursor-pointer">📄</span>
-                                        ) : "OK"}
+                                        ) : (
+                                            'OK'
+                                        )}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -83,7 +96,7 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, getAcceptanceRat
                                 </td>
                                 <td
                                     className={`px-6 py-4 whitespace-nowrap text-sm ${getDifficultyColor(
-                                        getDifficultyName(problem.difficulty)
+                                        getDifficultyName(problem.difficulty),
                                     )}`}
                                 >
                                     {getDifficultyName(problem.difficulty)}
