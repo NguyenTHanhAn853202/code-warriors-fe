@@ -122,7 +122,6 @@ function Submit() {
                 const formData = new FormData();
                 formData.append('image', file);
                 const data = await axios.post('http://127.0.0.1:5000/detect', formData, {});
-                console.log(data.data);
                 if (data.data.status === 'Closed') {
                     if (count < countAccept) {
                         setCount((pre) => pre + 1);
@@ -219,9 +218,11 @@ function Submit() {
         const handleVisibilityChange = async () => {
             if (document.visibilityState === 'hidden') {
                 try {
-                    console.log('hidden');
-
-                    // await axios.post('/api/submit', { battleId, userId, code });
+                    socket.emit('submit_match', {
+                        languageId: 72,
+                        sourceCode: '//cheating',
+                        matchId: matchId,
+                    });
                 } catch (error) {
                     console.error('Error submitting code:', error);
                 }

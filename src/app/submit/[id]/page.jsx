@@ -14,6 +14,7 @@ import { Button, Popover, Spin } from 'antd';
 import axios from 'axios';
 import DetailProblem from '@/components/DetailProblem';
 import request from '@/utils/server';
+import { toastInfo } from '@/utils/toasty';
 
 function Submit({ params }) {
     const [fullCodeEditor, setFullCodeEditor] = useState(false);
@@ -64,11 +65,8 @@ function Submit({ params }) {
 
     const handleSubmit = async () => {
         try {
-            if (!problemId) {
-                alert('Vui long chon ngon ngu');
-            }
             if (!editorRef.current.getValue()) {
-                alert('Vui long viet ma truoc khi chay');
+                toastInfo('Vui lòng viết mã trước khi chạy');
             }
             setIsLoading(true);
             const response = await request.post('/submission', {
@@ -88,11 +86,8 @@ function Submit({ params }) {
 
     const handleRunCode = async () => {
         try {
-            if (!problemId) {
-                alert('Vui long chon ngon ngu');
-            }
             if (!editorRef.current.getValue()) {
-                alert('Vui long viet ma truoc khi chay');
+                toastInfo('Vui lòng viết mã trước khi chạy');
             }
             setIsLoading(true);
             const response = await request.post('/submission/run', {
