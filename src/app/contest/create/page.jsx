@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import Description from './Description';
+import Description from './Description'; // TipTap editor for rich text
+import SourceCodeEditor from './SourceCodeEditor'; // Specialized TipTap code editor
 import { DatePicker, Input, Select, message } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import Link from 'next/link';
@@ -10,6 +11,7 @@ import '@ant-design/v5-patch-for-react-19';
 const { RangePicker } = DatePicker;
 
 const Contest = () => {
+
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [sourceCode, setSourceCode] = useState('');
@@ -20,7 +22,6 @@ const Contest = () => {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
-    // Fetch ranks from API
     useEffect(() => {
         const fetchRanks = async () => {
             try {
@@ -41,6 +42,7 @@ const Contest = () => {
         fetchRanks();
     }, []);
 
+    // Helper functions for test case management
     const handleAddTestCase = () => {
         setTestCases([...testCases, { key: Date.now(), input: '', expectedOutput: '' }]);
     };
@@ -53,13 +55,36 @@ const Contest = () => {
         setTestCases((prev) => prev.filter((tc) => tc.key !== key));
     };
 
+    // Clear all form fields
+    const clearFormFields = () => {
+        setTitle('');
+        setDescription('');
+        setSourceCode('<pre><code class="language-javascript">//Input code</code></pre>');
+        setTestCases([]);
+        setSelectedRank(null);
+        setSelectedTime(null);
+    };
+
+    // Extract text from HTML content (for validation)
+    const extractTextFromHtml = (html) => {
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        return temp.textContent || temp.innerText || '';
+    };
+
+    // Validate all form fields before submission
     const validateFields = () => {
         const newErrors = {};
         const currentDate = new Date();
 
         if (!title.trim()) newErrors.title = 'Please enter a title';
-        if (!description.trim()) newErrors.description = 'Please enter a description';
-        if (!sourceCode.trim()) newErrors.sourceCode = 'Please enter source code';
+        
+        const plainDescription = extractTextFromHtml(description);
+        if (!plainDescription.trim()) newErrors.description = 'Please enter a description';
+        
+        const plainSourceCode = extractTextFromHtml(sourceCode);
+        if (!plainSourceCode.trim()) newErrors.sourceCode = 'Please enter source code';
+        
         if (!selectedRank) newErrors.selectedRank = 'Please select a rank';
 
         if (!selectedTime || selectedTime.length !== 2) {
@@ -89,6 +114,7 @@ const Contest = () => {
         return Object.keys(newErrors).length === 0;
     };
 
+    // Handle form submission
     const handleSubmit = async () => {
         if (!validateFields()) {
             message.error('Please fill in all the information!');
@@ -116,12 +142,8 @@ const Contest = () => {
             });
             if (response.status === 200) {
                 message.success('Contest has been posted successfully!');
-                setTitle('');
-                setDescription('');
-                setSourceCode('');
-                setTestCases([]);
-                setSelectedRank(null);
-                setSelectedTime(null);
+                //clearFormFields();
+                window.location.reload();
             } else {
                 message.error('An error occurred, please try again!');
             }
@@ -197,12 +219,12 @@ const Contest = () => {
                 {/* Source Code Section */}
                 <div className="form-group">
                     <label className="block text-gray-700 font-medium mb-2">Source Code</label>
-                    <Description value={sourceCode} setValue={setSourceCode} />
+                    <SourceCodeEditor value={sourceCode} setValue={setSourceCode} />
                     {errors.sourceCode && <p className="text-red-500 text-sm mt-1">{errors.sourceCode}</p>}
                 </div>
 
                 {/* Test Cases Section */}
-                <div className="form-group mt-30">
+                <div className="form-group mt-6">
                     <div className="flex justify-between items-center mb-2">
                         <label className="block text-gray-700 font-medium">Test Cases List</label>
                         <button
