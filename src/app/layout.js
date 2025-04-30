@@ -97,24 +97,6 @@ export default function RootLayout({ children }) {
                                     Home
                                 </a>
                                 <a
-                                    href="/problems"
-                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
-                                >
-                                    Problems
-                                </a>
-                                <a
-                                    href="/contest"
-                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
-                                >
-                                    Contest
-                                </a>
-                                <a
-                                    href="/discuss"
-                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
-                                >
-                                    Discuss
-                                </a>
-                                <a
                                     href="/create-room"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
@@ -126,6 +108,18 @@ export default function RootLayout({ children }) {
                                 >
                                     Online Battle
                                 </Link>
+                                <a
+                                    href="/problems"
+                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                >
+                                    Problems
+                                </a>
+                                <a
+                                    href="/contest"
+                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                >
+                                    Contest
+                                </a>
                             </nav>
                         </div>
 
@@ -326,11 +320,6 @@ export default function RootLayout({ children }) {
                             <div>
                                 <h3 className="font-medium text-gray-800 mb-4">Community</h3>
                                 <ul className="space-y-2">
-                                    <li>
-                                        <a href="#" className="text-sm text-gray-600 hover:text-orange-500">
-                                            Discuss
-                                        </a>
-                                    </li>
                                     <li>
                                         <a href="#" className="text-sm text-gray-600 hover:text-orange-500">
                                             Articles
