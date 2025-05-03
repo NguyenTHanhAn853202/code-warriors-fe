@@ -3,84 +3,61 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import PostForm from './post';
+import PostForm from '../../components/discussion/post';
+import SearchComponent from '../../components/discussion/search'; // Import the search component
 
 export default function SocialMediaPage() {
   const router = useRouter();
   const [likeStatus, setLikeStatus] = useState({});
   const [showPostForm, setShowPostForm] = useState(false);
   const [userInfo, setUserInfo] = useState({
-    avtImage: ""
+    avtImage: "",
+    username: ""
   });
+  const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      author: "Anonymous User",
-      avatar: "/user_1.png",
-      title: "Amazon SDE-2 | Reject",
-      content: "Hey Folks,I just finished my Amazon SDE-2 (Bengaluru, India) loop. Here's how it went.\n\n1. Online Assessment (8 March)\nIt was a 2.5-hour-long assessment & there were 3 types of exercises in the assessment:\nCoding Challenge – this timed section takes 90 minutes\nWork Style Assessment – this timed section takes 15 minutes\nWork Sample Simulation – this timed section takes 45 minutes\n\nThe coding challenge was a standard online assessment with two medium-level questions. I was able to solve both of them within the time limit.",
-      likes: 2,
-      comments: [
-        { id: 1, author: "CodeMaster", content: "Sorry to hear about the rejection. Don't give up!" },
-        { id: 2, author: "JavaDev", content: "Thanks for sharing your experience. Very helpful for those preparing." },
-        { id: 3, author: "AlgoNinja", content: "What kind of coding problems did you face in the interview?" },
-        { id: 4, author: "TechRecruiter", content: "Feel free to connect if you're looking for other opportunities!" }
-      ],
-      commentsCount: 4
-    },
-    {
-      id: 2,
-      author: "work2play111",
-      avatar: "/user_1.png",
-      title: "confused creating VOIP collect call system?(ontario, Canada)",
-      content: "My Project\nNeed a collect call system, voip system, in which users can be given a number generated a system that allows Canadian users to collect call that number. The number has to mimic or be land line, the numbers generated will be system numbers and I need to be able to play a message to the caller and the receiver of the call.\n\nMy main confusion is - is there a specific API or service that specializes in this kind of VOIP functionality? Has anyone implemented something similar before?",
-      likes: 0,
-      comments: [],
-      commentsCount: 0
-    }
-    ,
-    {
-      id: "3",
-      author: "work2play111",
-      avatar: "/user_1.png",
-      title: "confused creating VOIP collect call system?(ontario, Canada)",
-      content: "My Project\nNeed a collect call system, voip system, in which users can be given a number generated a system that allows Canadian users to collect call that number. The number has to mimic or be land line, the numbers generated will be system numbers and I need to be able to play a message to the caller and the receiver of the call.\n\nMy main confusion is - is there a specific API or service that specializes in this kind of VOIP functionality? Has anyone implemented something similar before?",
-      likes: 0,
-      comments: [],
-      commentsCount: 0
-    },
-    {
-      id: "4",
-      author: "work2play111",
-      avatar: "/user_1.png",
-      title: "confused creating VOIP collect call system?(ontario, Canada)",
-      content: "My Project\nNeed a collect call system, voip system, in which users can be given a number generated a system that allows Canadian users to collect call that number. The number has to mimic or be land line, the numbers generated will be system numbers and I need to be able to play a message to the caller and the receiver of the call.\n\nMy main confusion is - is there a specific API or service that specializes in this kind of VOIP functionality? Has anyone implemented something similar before?",
-      likes: 0,
-      comments: [],
-      commentsCount: 0
-    },
-  ]);
+  const [posts, setPosts] = useState([]);
+  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0
+  });
+
+  // Initialize the search component
+  const search = SearchComponent();
 
   // Fetch user info from API using axios
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        // For now, we're just simulating an API call with a timeout
-        // Replace this with actual API call when ready
-        setTimeout(() => {
+        const response = await axios.get('http://localhost:8080/api/v1/user/info', {
+          withCredentials: true
+        });
+        
+        if (response.data && response.data.status === "success") {
+          const userData = response.data.data;
+          setUserInfo({
+            avtImage: userData.avtImage || "/user_1.png",
+            username: userData.username
+          });
+          setCurrentUser(userData);
+        } else {
           setUserInfo({
             avtImage: "/user_1.png",
-            username: "JohnDoe"
+            username: "Guest"
           });
-          setIsLoading(false);
-        }, 1000);
-        
-        // When ready to use real API:
-        // const response = await axios.get('http://localhost:8080/api/v1/user/info');
-        // setUserInfo(response.data);
+        }
       } catch (error) {
         console.error('Error fetching user info:', error);
+        setUserInfo({
+          avtImage: "/user_1.png",
+          username: "Guest"
+        });
+      } finally {
         setIsLoading(false);
       }
     };
@@ -88,21 +65,79 @@ export default function SocialMediaPage() {
     fetchUserInfo();
   }, []);
 
-  // Optional: Fetch posts data from API
+  // Fetch posts data from API with pagination
   useEffect(() => {
-    // Future implementation:
-    // const fetchPosts = async () => {
-    //   try {
-    //     const response = await axios.get('http://localhost:8080/api/v1/posts');
-    //     setPosts(response.data);
-    //   } catch (error) {
-    //     console.error('Error fetching posts:', error);
-    //   }
-    // };
-    // fetchPosts();
-  }, []);
+    if (!isSearchMode) {
+      const fetchPosts = async () => {
+        try {
+          setIsLoading(true);
+          const response = await axios.get('http://localhost:8080/api/v1/discussion', {
+            params: {
+              page: pagination.page,
+              limit: pagination.limit
+            }
+          });
+
+          if (response.data && response.data.status === "success" && response.data.data) {
+            const postsData = response.data.data.result;
+            
+            // Initialize like status for each post
+            const initialLikeStatus = {};
+            
+            // Process each post
+            const processedPosts = postsData.map(post => {
+              // Check if current user has liked this post
+              const isLiked = currentUser && 
+                post.favourite && 
+                post.favourite.includes(currentUser._id);
+                
+              // Store like status for this post
+              if (currentUser) {
+                initialLikeStatus[post._id] = isLiked;
+              }
+              
+              return {
+                ...post,
+                commentsCount: post.comments ? post.comments.length : 0,
+                avatar: post.author && post.author.avtImage ? post.author.avtImage : "/user_1.png",
+                likes: post.favourite ? post.favourite.length : 0,
+                isLiked: isLiked
+              };
+            });
+            
+            setPosts(processedPosts);
+            setLikeStatus(initialLikeStatus);
+            
+            setPagination({
+              page: response.data.data.page,
+              limit: response.data.data.limit,
+              total: response.data.data.total
+            });
+          }
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Error fetching posts:', error);
+          setIsLoading(false);
+        }
+      };
+      
+      fetchPosts();
+    }
+  }, [pagination.page, pagination.limit, isSearchMode, currentUser]); 
+
+  useEffect(() => {
+    if (search.searchResults && search.searchResults.length > 0) {
+      setPosts(search.searchResults);
+      setPagination(search.searchPagination);
+      setIsSearchMode(true);
+    }
+  }, [search.searchResults, search.searchPagination]);
 
   const handleOpenPostForm = () => {
+    if (!currentUser) {
+      setShowLoginModal(true);
+      return;
+    }
     setShowPostForm(true);
   };
 
@@ -114,40 +149,164 @@ export default function SocialMediaPage() {
     router.push(`/home/${postId}`);
   };
 
-  const handleToggleLike = (postId, e) => {
+  const handleToggleLike = async (postId, e) => {
     if (e) {
-      e.stopPropagation(); // Prevent navigating to the post detail
+      e.stopPropagation(); 
     }
     
-    // Update like status for this post
-    setLikeStatus(prev => ({
-      ...prev,
-      [postId]: !prev[postId]
-    }));
-
-    // Update post likes count in the state
-    setPosts(prevPosts => 
-      prevPosts.map(post => {
-        if (post.id === postId) {
-          const increment = likeStatus[postId] ? -1 : 1;
-          return {
-            ...post,
-            likes: post.likes + increment
-          };
-        }
-        return post;
-      })
-    );
-
-    // In the future, you would make an API call here:
-    // axios.post(`http://localhost:8080/api/v1/posts/${postId}/like`, { liked: !likeStatus[postId] });
+    if (!currentUser) {
+      setShowLoginModal(true);
+      return;
+    }
+    
+    try {
+      const previousLikeState = likeStatus[postId] || false;
+      
+      // Optimistically update UI
+      setLikeStatus(prev => ({
+        ...prev,
+        [postId]: !previousLikeState
+      }));
+      
+      setPosts(prevPosts => 
+        prevPosts.map(post => {
+          if (post._id === postId) {
+            const increment = previousLikeState ? -1 : 1;
+            return {
+              ...post,
+              likes: Math.max(0, post.likes + increment),
+              isLiked: !previousLikeState
+            };
+          }
+          return post;
+        })
+      );
+      
+      // Make API call to update like status
+      const response = await axios.put(
+        `http://localhost:8080/api/v1/discussion/${postId}/favourite`,
+        {},
+        { withCredentials: true }
+      );
+      
+      if (response.data.status === "success") {
+        const { favouriteCount, isFavourited } = response.data.data;
+        
+        // Update with actual server data
+        setPosts(prevPosts => 
+          prevPosts.map(post => {
+            if (post._id === postId) {
+              return {
+                ...post,
+                likes: favouriteCount,
+                isLiked: isFavourited
+              };
+            }
+            return post;
+          })
+        );
+        
+        setLikeStatus(prev => ({
+          ...prev,
+          [postId]: isFavourited
+        }));
+      } else {
+        // Revert to previous state if failed
+        setLikeStatus(prev => ({
+          ...prev,
+          [postId]: previousLikeState
+        }));
+        
+        setPosts(prevPosts => 
+          prevPosts.map(post => {
+            if (post._id === postId) {
+              const increment = !previousLikeState ? -1 : 1;
+              return {
+                ...post,
+                likes: Math.max(0, post.likes + increment),
+                isLiked: previousLikeState
+              };
+            }
+            return post;
+          })
+        );
+        
+        console.error('Failed to update like status');
+      }
+    } catch (err) {
+      console.error("Error toggling like:", err);
+      
+      // Revert to previous state
+      setLikeStatus(prev => ({
+        ...prev,
+        [postId]: likeStatus[postId] || false
+      }));
+      
+      console.error('Failed to update like status');
+    }
   };
 
+  const handleClearSearch = () => {
+    setIsSearchMode(false);
+    setPagination({
+      page: 1,
+      limit: 10,
+      total: 0
+    });
+  };
+
+  // Handle page change - using regular posts pagination
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= Math.ceil(pagination.total / pagination.limit)) {
+      setPagination(prev => ({
+        ...prev,
+        page: newPage
+      }));
+    }
+  };
+
+  // Redirect to login page
+  const handleRedirectToLogin = () => {
+    router.push('/account/signin');
+  };
+  
+  // Close login modal
+  const handleCloseLoginModal = () => {
+    setShowLoginModal(false);
+  };
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(pagination.total / pagination.limit);
+
   // Determine avatar image source
-  const avatarSrc = userInfo.avtImage === "" ? "/user_1.png" : userInfo.avtImage;
+  const avatarSrc = userInfo.avtImage || "/user_1.png";
 
   return (
     <div className="bg-gray-100 min-h-screen">
+      {/* Login Modal */}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold mb-4">Login Required</h3>
+            <p className="mb-6">You need to login to perform this action.</p>
+            <div className="flex justify-end space-x-3">
+              <button 
+                onClick={handleCloseLoginModal}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleRedirectToLogin}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Go to Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content - Increased max width */}
       <div className="container mx-auto px-4 py-6 max-w-full">
         <div className="bg-white rounded-lg shadow-sm overflow-hidden max-w-6xl mx-auto">
@@ -225,7 +384,7 @@ export default function SocialMediaPage() {
           {/* Post Form Modal */}
           {showPostForm && <PostForm onClose={handleClosePostForm} />}
 
-          {/* Feed Tabs - Improved styling with marquee effect */}
+          {/* Feed Tabs with Search bar */}
           <div className="flex justify-between items-center border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-3">
             <div className="flex-grow overflow-hidden mr-4">
               <div className="whitespace-nowrap overflow-hidden relative">
@@ -236,73 +395,152 @@ export default function SocialMediaPage() {
                 </div>
               </div>
             </div>
-            <div className="flex-shrink-0">
-              <div className="relative">
-                <input 
-                  type="text" 
-                  placeholder="Search Feed 🔎..." 
-                  className="pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent shadow-sm" 
-                />
-                <i className="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-              </div>
+            <div className="flex-shrink-0 w-64">
+              {search.renderSearchInput()}
             </div>
           </div>
 
-          {/* Forum Posts */}
-          <div className="divide-y divide-gray-200">
-            {posts.map(post => (
-              <div 
-                key={post.id} 
-                className="p-4 hover:bg-gray-50 transition duration-150 cursor-pointer" 
-                onClick={() => handleNavigateToPostDetail(post.id)}
-              >
-                <div className="flex space-x-3">
-                  {/* Avatar */}
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-gray-300 rounded-full overflow-hidden">
-                      <img src={post.avatar} alt={post.author} className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-                  
-                  {/* Content */}
-                  <div className="flex-grow">
-                    {/* Header */}
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="font-medium text-gray-600">{post.author}</span>
-                    </div>
-                    
-                    {/* Title */}
-                    <h3 className="text-xl font-bold mb-2 text-gray-900">{post.title}</h3>
-                    
-                    {/* Preview Text */}
-                    <p className="text-gray-600 mb-3 line-clamp-3">
-                      {post.content}
-                    </p>
-                    
-                    {/* Post Stats */}
-                    <div className="flex items-center space-x-6 text-gray-500">
-                      <div 
-                        className={`flex items-center space-x-1 ${likeStatus[post.id] ? 'text-blue-600' : 'text-gray-500'}`}
-                        onClick={(e) => handleToggleLike(post.id, e)}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill={likeStatus[post.id] ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                        </svg>
-                        <span>{post.likes}</span>
-                      </div>
-
-                      <div className="flex items-center space-x-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        <span>{post.commentsCount}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          {/* Search Status - Only shown when in search mode */}
+          {isSearchMode && (
+            <div className="bg-blue-50 px-6 py-2 border-b border-blue-100 flex justify-between items-center">
+              <div className="text-sm text-blue-700">
+                Showing results for search query
               </div>
-            ))}
-          </div>
+              <button 
+                onClick={handleClearSearch}
+                className="text-xs text-blue-700 hover:text-blue-900 underline"
+              >
+                Clear search and return to Forum
+              </button>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="p-6 text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <p className="mt-2 text-gray-600">Loading discussions...</p>
+            </div>
+          )}
+
+          {/* Forum Posts */}
+          {!isLoading && (
+            <div className="divide-y divide-gray-200">
+              {posts.length > 0 ? (
+                posts.map(post => (
+                  <div 
+                    key={post._id} 
+                    className="p-4 hover:bg-gray-50 transition duration-150 cursor-pointer" 
+                    onClick={() => handleNavigateToPostDetail(post._id)}
+                  >
+                    <div className="flex space-x-3">
+                      {/* Avatar */}
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 bg-gray-300 rounded-full overflow-hidden">
+                          <img src={post.avatar} alt={post.author ? post.author.username : "User"} className="w-full h-full object-cover" />
+                        </div>
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-grow">
+                        {/* Header */}
+                        <div className="flex items-center space-x-2 mb-1">
+                          <span className="font-medium text-gray-600">{post.author ? post.author.username : "Anonymous User"}</span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(post.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        
+                        {/* Title */}
+                        <h3 className="text-xl font-bold mb-2 text-gray-900">{post.title}</h3>
+                        
+                        {/* Preview Text */}
+                        <div className="text-gray-600 mb-3 line-clamp-3" dangerouslySetInnerHTML={{ __html: post.content }} />
+                        
+                        {/* Post Stats */}
+                        <div className="flex items-center space-x-6 text-gray-500">
+                          <div 
+                            className={`flex items-center space-x-1 ${post.isLiked ? 'text-blue-600' : 'text-gray-500'}`}
+                            onClick={(e) => handleToggleLike(post._id, e)}
+                          >
+                            <svg 
+                              xmlns="http://www.w3.org/2000/svg" 
+                              className="h-5 w-5" 
+                              fill={post.isLiked ? "currentColor" : "none"} 
+                              viewBox="0 0 24 24" 
+                              stroke="currentColor"
+                            >
+                              <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={2} 
+                                d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" 
+                              />
+                            </svg>
+                            <span>{post.likes}</span>
+                          </div>
+
+                          <div className="flex items-center space-x-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            <span>{post.commentsCount}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-6 text-center text-gray-500">
+                  {isSearchMode ? 'No results found for your search query.' : 'No discussions found.'}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {!isLoading && posts.length > 0 && (
+            isSearchMode ? 
+            search.renderPagination() : 
+            <div className="flex justify-center items-center px-6 py-4 border-t border-gray-200">
+              <button 
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={pagination.page === 1}
+                className={`px-3 py-1 rounded-md mr-2 ${
+                  pagination.page === 1 
+                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                    : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                }`}
+              >
+                Previous
+              </button>
+              
+              <div className="flex space-x-1">
+                {/* Current page indicator */}
+                <span className="px-3 py-1 bg-blue-500 text-white rounded-md">
+                  {pagination.page}
+                </span>
+                
+                {/* Total pages indicator */}
+                <span className="px-3 py-1 text-gray-600">
+                  of {totalPages}
+                </span>
+              </div>
+              
+              <button 
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={pagination.page >= totalPages}
+                className={`px-3 py-1 rounded-md ml-2 ${
+                  pagination.page >= totalPages 
+                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                    : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
           
           {/* Add CSS for the marquee animation */}
           <style jsx>{`

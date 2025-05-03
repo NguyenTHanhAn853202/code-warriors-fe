@@ -54,7 +54,7 @@ const GlobalRanking = ({ styles }) => {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-1-4 border-yellow-500">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-1-4 border-yellow-500 ">
             {/* Tiêu đề */}
             <div className="p-3 border-b border-yellow-500 flex items-center bg-yellow-500 text-white font-bold">
                 <span className="flex items-center">
@@ -111,12 +111,14 @@ const GlobalRanking = ({ styles }) => {
 
                             {/* Avatar */}
                             <div className="flex-1 flex items-center">
-                                <div className="w-8 h-8 rounded-full bg-gray-300 overflow-hidden mr-3">
+                                <div className="w-8 h-8 rounded-full bg-gray-300 overflow-hidden mr-2">
                                     <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                                 </div>
 
                                 {/* Tên */}
-                                <span className="text-base">{user.name}</span>
+                                <span className="text-base mr-3">
+                                    {user.name.length > 15 ? user.name.slice(0, 12) + '...' : user.name}
+                                </span>
                             </div>
 
                             {/* Điểm số và số cuộc thi */}
