@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 const API_URL = 'http://localhost:8080/api/v1';
 const SOCKET_URL = 'http://localhost:8080';
 
-// Dynamic import để tắt SSR cho component này
+// Dynamic import to disable SSR for this component
 const RoomBattleUI = dynamic(() => import('@/components/roombattle/RoomBattleUI'), {
     ssr: false,
 });
@@ -24,11 +24,11 @@ export default function RoomBattleClient({ roomId }) {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isRedirecting, setIsRedirecting] = useState(false);
-    const [isClient, setIsClient] = useState(false); // Đảm bảo đang ở client-side
+    const [isClient, setIsClient] = useState(false); // Ensure client-side execution
 
-    // Chỉ chạy client-side
+    // Runs only on client-side
     useEffect(() => {
-        setIsClient(true); // Đánh dấu khi component đã được render trên client
+        setIsClient(true); // Mark as client-side
 
         const storedUsername = localStorage.getItem('username');
         const storedRoomId = localStorage.getItem('roomId');
@@ -54,7 +54,7 @@ export default function RoomBattleClient({ roomId }) {
         const fetchRoomData = async () => {
             try {
                 const response = await axios.get(`${API_URL}/rooms/${roomId}`);
-                const roomData = response.data; // Giả sử server trả về dữ liệu phòng
+                const roomData = response.data; // Assuming server returns room data
                 setRoom(roomData.room);
                 setPlayers(roomData.players);
                 setGameStatus(roomData.status);
@@ -65,13 +65,14 @@ export default function RoomBattleClient({ roomId }) {
             }
         };
 
-        fetchRoomData();
-
+         fetchRoomData();
+ 
         const socketHandlers = {
             connect: () => {
                 console.log('Socket connected');
                 newSocket.emit('join_room', { roomId, username: storedUsername });
             },
+            
             room_joined: (roomData) => {
                 console.log('Room joined:', roomData);
                 setRoom(roomData);
@@ -99,6 +100,10 @@ export default function RoomBattleClient({ roomId }) {
                 console.log('Battle started:', battleRoom);
                 setGameStatus('ongoing');
                 setRoom(battleRoom);
+                // if (battleRoom.status === 'ongoing' && typeof window !== 'undefined') {
+                //     const roomId = battleRoom.id;
+                //     window.open(`/battleOngoing/${roomId}`, '_blank');
+                // }
             },
             battle_ended: (endedRoom) => {
                 console.log('Battle ended:', endedRoom);
@@ -160,9 +165,9 @@ export default function RoomBattleClient({ roomId }) {
             await axios.delete(`${API_URL}/rooms/${roomId}/leave`, {
                 data: { username },
             });
-            router.push('/create-room');
+            router.push('/roombattle');
         } catch (error) {
-            setError('Failed to leave room');
+            setError('Trận đấu đang diễn ra');
             setIsRedirecting(false);
         }
     };

@@ -17,7 +17,7 @@ export default function SignInPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
+  
   useEffect(() => {
     const animationInterval = setInterval(() => {
       setImagePosition(Math.sin(Date.now() / 1500) * 4);

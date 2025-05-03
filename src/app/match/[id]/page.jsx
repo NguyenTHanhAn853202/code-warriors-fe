@@ -51,7 +51,7 @@ function Submit() {
             const handleMatchEnded = (data) => {
                 setIsLoading(true);
                 if (!hasSubmission) {
-                    submitButton.current && submitButton.current.click();
+                    submitButton.current && submi1tButton.current.click();
                     setHasSubmission(true);
                 }
             };
