@@ -5,21 +5,46 @@ import Editor from './editor';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 
-export default function Post({ onClose, onSuccess }) {
+export default function EditPage({ discussionId, onClose }) {
   const [postData, setPostData] = useState({
     title: '',
     content: ''
   });
-  const [isPosting, setIsPosting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const router= useRouter();
-  // Focus on title input when form opens
+  const router = useRouter();
+
+  // Fetch the discussion data when component mounts
   useEffect(() => {
-    const titleInput = document.getElementById('post-title');
-    if (titleInput) {
-      titleInput.focus();
+    const fetchDiscussion = async () => {
+      try {
+        setIsLoading(true);
+        // Using the API endpoint shown in the image
+        const response = await axios.get(`http://localhost:8080/api/v1/discussion/comments/${discussionId}`, {
+          withCredentials: true
+        });
+
+        if (response.data.status === 'success') {
+          // Access the discussion data from the correct path in the response
+          const discussionData = response.data.data.discussion;
+          setPostData({
+            title: discussionData.title || '',
+            content: discussionData.content || ''
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching discussion:', err);
+        setError('Failed to load discussion. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (discussionId) {
+      fetchDiscussion();
     }
-  }, []);
+  }, [discussionId]);
 
   const handleTitleChange = (e) => {
     setPostData(prev => ({
@@ -35,20 +60,21 @@ export default function Post({ onClose, onSuccess }) {
       content: html
     }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsPosting(true);
+    setIsSubmitting(true);
     setError(null);
 
     if (!postData.title.trim()) {
       setError('Title is required');
-      setIsPosting(false);
+      setIsSubmitting(false);
       return;
     }
 
     if (!postData.content.trim()) {
       setError('Content is required');
-      setIsPosting(false);
+      setIsSubmitting(false);
       return;
     }
 
@@ -60,50 +86,48 @@ export default function Post({ onClose, onSuccess }) {
         },
         withCredentials: true
       });
-      const response = await apiClient.post('/discussion', postData);
+      const response = await apiClient.put(`/discussion/${discussionId}`, postData);
 
-      // Handle success
-      console.log('Post created successfully:', response.data);
-      toast.success('Posted successfully');
+
+      console.log('Discussion updated successfully:', response.data);
+      toast.success('Discussion updated successfully');
             
       setTimeout(() => {
-        router.push('/home');
-        window.location.href = '/home';
       }, 1500);
-
-      // Reset form
-      setPostData({
-        title: '',
-        content: ''
-      });
-
-      // Notify parent component of success
-      if (onSuccess) {
-        onSuccess(response.data);
+      if (onClose) {
+        onClose();
       }
-
-      // Close form
-      onClose();
     } catch (error) {
-      console.error('Error creating post:', error);
+      console.error('Error updating discussion:', error);
 
       // Display backend error message if available
       if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
       } else {
-        setError('An error occurred while creating the post. Please try again.');
+        setError('An error occurred while updating the discussion. Please try again.');
       }
     } finally {
-      setIsPosting(false);
+      setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-white/10 backdrop-blur-md flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 p-6 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading discussion...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-white/10 backdrop-blur-md flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 flex-shrink-0">
-          <h3 className="text-lg font-semibold text-gray-800">Create Discussion</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Edit Discussion</h3>
           <button 
             type="button"
             className="text-gray-500 hover:text-gray-700 text-xl focus:outline-none"
@@ -164,13 +188,13 @@ export default function Post({ onClose, onSuccess }) {
             <button
               type="submit"
               className={`px-4 py-2 rounded-md bg-blue-500 text-white font-medium hover:bg-blue-600 transition ${
-                isPosting || !postData.title.trim() || !postData.content.trim()
+                isSubmitting || !postData.title.trim() || !postData.content.trim()
                   ? 'opacity-70 cursor-not-allowed' 
                   : ''
               }`}
-              disabled={isPosting || !postData.title.trim() || !postData.content.trim()}
+              disabled={isSubmitting || !postData.title.trim() || !postData.content.trim()}
             >
-              {isPosting ? 'Posting...' : 'Post'}
+              {isSubmitting ? 'Updating...' : 'Update'}
             </button>
           </div>
         </form>

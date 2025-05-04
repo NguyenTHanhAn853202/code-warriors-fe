@@ -52,8 +52,12 @@ const FeaturedContests = ({ styles, contests }) => {
         return <p className="text-center text-gray-500">No featured contests available.</p>;
     }
 
-    // Filter contests that are not ended yet
-    const upcomingContests = contests.filter((contest) => new Date(contest.endDate).getTime() > new Date().getTime());
+    // Filter contests that have not ended yet
+    const upcomingContests = contests.filter((contest) => {
+        const now = new Date().getTime();
+        const endTime = new Date(contest.endDate).getTime();
+        return endTime > now;
+    });
 
     if (upcomingContests.length === 0) {
         return <p className="text-center text-gray-500">No upcoming contests available.</p>;
@@ -70,36 +74,56 @@ const FeaturedContests = ({ styles, contests }) => {
                     const rank = contest.difficulty?.[0]?.name?.toLowerCase();
                     const backgroundImage = getBackgroundImage(rank);
                     const { days, hours, minutes, seconds } = useCountdown(contest.endDate);
-
+                    
+                    // Check if contest has started
+                    const now = new Date().getTime();
+                    const startTime = new Date(contest.startDate).getTime();
+                    const hasStarted = startTime <= now;
+                    
                     return (
                         <div
                             key={contest._id}
-                            className={`bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer ${styles?.contestCard}`}
+                            className={`bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-200 ${hasStarted ? 'cursor-pointer' : 'cursor-default'} ${styles?.contestCard}`}
                         >
-                            <img
-                                src={backgroundImage}
-                                alt={contest.title}
-                                className="w-full h-40 object-cover"
-                                onClick={() => {
-                                    if (new Date(contest.startDate) <= new Date()) {
-                                        router.push(`/contest/${contest._id}`);
-                                    }
-                                }}
-                            />
+                            <div className="relative">
+                                <img
+                                    src={backgroundImage}
+                                    alt={contest.title}
+                                    className={`w-full h-40 object-cover ${hasStarted ? '' : 'opacity-80'}`}
+                                    onClick={() => {
+                                        if (hasStarted) {
+                                            router.push(`/contest/${contest._id}`);
+                                        }
+                                    }}
+                                />
+                                {!hasStarted && (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="bg-black bg-opacity-50 text-white font-bold py-2 px-4 rounded-lg">
+                                            COMING SOON
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                             <div className="p-2 text-left bg-white bg-opacity-50 text-black">
                                 <h3
-                                    className="font-semibold text-base hover:underline cursor-pointer"
+                                    className={`font-semibold text-base ${hasStarted ? 'hover:underline cursor-pointer' : 'cursor-default'}`}
                                     onClick={() => {
-                                        if (new Date(contest.startDate) <= new Date()) {
+                                        if (hasStarted) {
                                             router.push(`/contest/${contest._id}`);
                                         }
                                     }}
                                 >
                                     {contest.title}
                                 </h3>
-                                <p className="text-sm">
-                                    ⌛ Time remaining: {days}d {hours}h {minutes}m {seconds}s
-                                </p>
+                                {hasStarted ? (
+                                    <p className="text-sm">
+                                        ⌛ Time remaining: {days}d {hours}h {minutes}m {seconds}s
+                                    </p>
+                                ) : (
+                                    <p className="text-sm">
+                                        🕒 Starts in: {Math.floor((startTime - now) / (1000 * 60 * 60 * 24))}d {Math.floor(((startTime - now) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))}h
+                                    </p>
+                                )}
                             </div>
                         </div>
                     );

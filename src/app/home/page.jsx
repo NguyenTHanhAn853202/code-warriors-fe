@@ -309,7 +309,7 @@ export default function SocialMediaPage() {
 
       {/* Main Content - Increased max width */}
       <div className="container mx-auto px-4 py-6 max-w-full">
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden max-w-6xl mx-auto">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden max-w-full mx-auto">
           
           {/* Banner Image */}
           <Link href="/contest">
