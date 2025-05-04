@@ -151,7 +151,6 @@ export default function ContestManagementPage() {
             // description: contest.description,
             rank: contest.difficulty?.[0]?._id,
             dateRange: [dayjs(contest.startDate), dayjs(contest.endDate)],
-            sourceCode: contest.source_code || '',
             testCases: formattedTestCases,
         });
 
@@ -452,15 +451,6 @@ export default function ContestManagementPage() {
                         rules={[{ required: true, message: 'Please select time range!' }]}
                     >
                         <RangePicker showTime format="DD/MM/YYYY HH:mm" style={{ width: '100%' }} />
-                    </Form.Item>
-
-                    <Form.Item label="Source Code Template" name="sourceCode">
-                        <Input.TextArea
-                            className="code-editor"
-                            autoSize={{ minRows: 6, maxRows: 12 }}
-                            style={{ fontFamily: 'monospace', fontSize: '14px' }}
-                            placeholder="Enter starter code template here..."
-                        />
                     </Form.Item>
 
                     <Divider orientation="left">Test Cases</Divider>

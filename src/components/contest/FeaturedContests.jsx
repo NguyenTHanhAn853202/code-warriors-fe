@@ -80,12 +80,20 @@ const FeaturedContests = ({ styles, contests }) => {
                                 src={backgroundImage}
                                 alt={contest.title}
                                 className="w-full h-40 object-cover"
-                                onClick={() => router.push(`/contest/${contest._id}`)}
+                                onClick={() => {
+                                    if (new Date(contest.startDate) <= new Date()) {
+                                        router.push(`/contest/${contest._id}`);
+                                    }
+                                }}
                             />
                             <div className="p-2 text-left bg-white bg-opacity-50 text-black">
                                 <h3
                                     className="font-semibold text-base hover:underline cursor-pointer"
-                                    onClick={() => router.push(`/contest/${contest._id}`)}
+                                    onClick={() => {
+                                        if (new Date(contest.startDate) <= new Date()) {
+                                            router.push(`/contest/${contest._id}`);
+                                        }
+                                    }}
                                 >
                                     {contest.title}
                                 </h3>

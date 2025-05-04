@@ -24,7 +24,7 @@ const ContestList = ({ contests }) => {
 
     // Lọc các contest có ngày bắt đầu trong tương lai
     const upcomingContests = useMemo(() => {
-        return contests.filter((contest) => new Date(contest.startDate) >= new Date());
+        return contests.filter((contest) => new Date(contest.endDate) >= new Date());
     }, [contests]);
 
     const totalPages = Math.ceil(upcomingContests.length / itemsPerPage);
@@ -55,7 +55,11 @@ const ContestList = ({ contests }) => {
                     return (
                         <div
                             key={contest._id || index}
-                            onClick={() => router.push(`/contest/${contest._id}`)}
+                            onClick={() => {
+                                if (new Date(contest.startDate) <= new Date()) {
+                                    router.push(`/contest/${contest._id}`);
+                                }
+                            }}
                             className="border border-gray-400 overflow-hidden shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer p-4 flex items-center space-x-4 rounded-lg"
                         >
                             <div
@@ -84,17 +88,23 @@ const ContestList = ({ contests }) => {
                                     )}
                                 </p>
                             </div>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    router.push(`/contest/${contest._id}`);
-                                }}
-                                className="px-4 py-2 rounded-lg font-medium transition-all duration-200 
-                            bg-blue-500 text-white border border-blue-600 
-                            hover:bg-blue-600 hover:border-blue-700 hover:shadow-md"
-                            >
-                                Join
-                            </button>
+                            {new Date(contest.startDate) <= new Date() ? (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        router.push(`/contest/${contest._id}`);
+                                    }}
+                                    className="px-4 py-2 rounded-lg font-medium transition-all duration-200 
+        bg-blue-500 text-white border border-blue-600 
+        hover:bg-blue-600 hover:border-blue-700 hover:shadow-md"
+                                >
+                                    Join
+                                </button>
+                            ) : (
+                                <span className="px-4 py-2 text-sm font-medium text-gray-500 border border-gray-300 rounded-lg">
+                                    ⏳ Coming soon
+                                </span>
+                            )}
                         </div>
                     );
                 })}
