@@ -106,6 +106,36 @@ function Submit({ params }) {
         }
     };
 
+    useEffect(() => {
+        (async () => {
+            const response = await request.get(`/problems/${problemId}`);
+            const data = response.data.data;
+            const text = `
+            Tạo đoạn code mẫu cho một bài lập trình như sau:
+
+Đề bài: ${data.description}
+
+Yêu cầu:
+
+- Có một hàm rỗng solve() để người dùng tự viết lời giải.
+- hàm solve để trống, và có comment write code here
+- Hàm main() đã được viết sẵn để xử lý input/output.
+
+-  không thay đổi hàm main().
+- lưu ý: bạn không viết code ở hàm solve(đặc biệt lưu ý), nhưng có truyền tham số cho hàm
+
+Ngôn ngữ: ${idLanguage.name}
+
+Chỉ trả về code thuần dạng text, không có blockcode, không có đánh dấu ngôn ngữ, không có markdown.
+            `;
+            const source = await request.post('/user/chatbot', {
+                text: text,
+            });
+            editorRef.current.setValue(source.data.data.response.candidates[0].content.parts[0].text);
+            // setSourceCode(source.data.data.response.candidates[0].content.parts[0].text);
+        })();
+    }, [idLanguage.id]);
+
     return (
         <div className="min-h-[88vh] relative bg-gray-100">
             <PanelGroup className="!h-[88vh]" direction="horizontal">
@@ -191,7 +221,7 @@ function Submit({ params }) {
                                 <Editor
                                     className="h-full"
                                     defaultLanguage={(idLanguage?.name || '').toUpperCase()}
-                                    defaultValue="// Type your code here..."
+                                    defaultValue={sourseCode}
                                     theme="dark"
                                     onMount={handleEditorDidMount}
                                     onChange={(value) => {
