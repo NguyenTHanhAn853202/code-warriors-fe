@@ -65,14 +65,13 @@ export default function RoomBattleClient({ roomId }) {
             }
         };
 
-         fetchRoomData();
- 
+        fetchRoomData();
+
         const socketHandlers = {
             connect: () => {
                 console.log('Socket connected');
                 newSocket.emit('join_room', { roomId, username: storedUsername });
             },
-            
             room_joined: (roomData) => {
                 console.log('Room joined:', roomData);
                 setRoom(roomData);
@@ -100,10 +99,7 @@ export default function RoomBattleClient({ roomId }) {
                 console.log('Battle started:', battleRoom);
                 setGameStatus('ongoing');
                 setRoom(battleRoom);
-                // if (battleRoom.status === 'ongoing' && typeof window !== 'undefined') {
-                //     const roomId = battleRoom.id;
-                //     window.open(`/battleOngoing/${roomId}`, '_blank');
-                // }
+                router.push(`/battleOngoing/${storedRoomId}`);
             },
             battle_ended: (endedRoom) => {
                 console.log('Battle ended:', endedRoom);
@@ -133,14 +129,14 @@ export default function RoomBattleClient({ roomId }) {
         });
 
         return () => {
-            if (newSocket) {
+            if (socket) {
                 Object.keys(socketHandlers).forEach((event) => {
-                    newSocket.off(event);
+                    socket.off(event); // dùng socket thay vì newSocket
                 });
-                if (roomId && storedUsername) {
-                    newSocket.emit('leave_room', { roomId, username: storedUsername });
+                if (roomId && username) {
+                    socket.emit('leave_room', { roomId, username });
                 }
-                newSocket.disconnect();
+                socket.disconnect();
             }
         };
     }, [roomId, router]);
@@ -175,7 +171,7 @@ export default function RoomBattleClient({ roomId }) {
     if (loading || !isClient) {
         return (
             <div className="flex flex-col justify-center items-center h-screen">
-                <p className="text-xl mb-4">Loading room...</p>
+                <p className="text-xl mb-4">Đang tải phòng...</p>
                 <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
             </div>
         );

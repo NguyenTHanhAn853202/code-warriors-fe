@@ -2,242 +2,273 @@
 
 import { Editor } from '@monaco-editor/react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import { FaCode, FaPlay } from 'react-icons/fa6';
+import { FaCode } from 'react-icons/fa6';
 import { RiFullscreenLine } from 'react-icons/ri';
-import { IoIosArrowUp, IoIosArrowDown } from 'react-icons/io';
+import { IoIosArrowUp } from 'react-icons/io';
 import { LuTerminal } from 'react-icons/lu';
+import { FaPlay } from 'react-icons/fa6';
 import { MdOutlineCloudUpload } from 'react-icons/md';
+import { IoIosArrowDown } from 'react-icons/io';
 import { useEffect, useRef, useState } from 'react';
 import { Button, Popover, Spin } from 'antd';
 import axios from 'axios';
-import { useRouter, useSearchParams } from 'next/navigation';
 import request from '@/utils/server';
+import { useSocket } from '@/components/ContextProvider';
+import { useRouter, useParams } from 'next/navigation';
+import { toastError, toastInfo, toastSuccess } from '@/utils/toasty';
+import ChatMatch from '@/components/ChatMatch';
+import Webcam from 'react-webcam';
+import DetailProblemsRoombattle from '@/components/roombattle/DetailProblemsRoombattle';
 
-export default function BattlePage() {
+const countAccept = 3;
 
+function Submit() {
     const [fullCodeEditor, setFullCodeEditor] = useState(false);
-    const [languages, setLanguages] = useState([]);
-    const [idLanguage, setIdLanguage] = useState({});
+    const [languages, setLanguges] = useState([]);
+    const [idLanguage, setIdlanguage] = useState({});
     const [open, setOpen] = useState(false);
-    const [sourceCode, setSourceCode] = useState('// Type your code here...');
-    const [isLoading, setIsLoading] = useState(true);
-    const [testResult, setTestResult] = useState(null);
-    const [problem, setProblem] = useState(null);
-    const [hasSubmission, setHasSubmission] = useState(false);
-    
-    // Refs
+    const [sourseCode, setSourceCode] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const editorRef = useRef(null);
-    const submitButtonRef = useRef(null);
-    
-    // Hooks
+    const [testResult, setTestResult] = useState(null);
+    const endTime = sessionStorage.getItem('endTime');
+    const socket = useSocket();
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const matchId = searchParams.get('matchId');
+    const params = useParams();
+    const [hasSubmission, setHasSubmission] = useState(false);
+    const { id: matchId } = params;
+    const submitButton = useRef(null);
+    const webcamRef = useRef(null);
+    const [count, setCount] = useState(0);
+    const [idInterval, setIdInterval] = useState();
 
-    // Editor setup
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
     }
 
-    // Fetch languages
+    useEffect(() => {
+        if (socket) {
+            const handleMatchEnded = (data) => {
+                setIsLoading(true);
+                if (!hasSubmission) {
+                    submitButton.current && submitButton.current.click();
+                    setHasSubmission(true);
+                }
+            };
+
+            const handleFinishMatch = (data) => {
+                router.push(`/matchResult/${matchId}`);
+                console.log('finish');
+            };
+
+            const handleCompetitorSubmission = (data) => {
+                toastInfo('The competitor was submission');
+            };
+
+            // Đăng ký sự kiện
+            socket.on('match_ended', handleMatchEnded);
+            socket.on('finish_match', handleFinishMatch);
+            socket.on('competitor_submission', handleCompetitorSubmission);
+
+            // Cleanup: Xóa listener khi component unmount hoặc `socket` thay đổi
+            return () => {
+                socket.off('match_ended', handleMatchEnded);
+                socket.off('finish_match', handleFinishMatch);
+                socket.off('competitor_submission', handleCompetitorSubmission);
+            };
+        }
+    }, [socket, submitButton.current]); // Chạy lại khi `socket` thay đổi
+
     useEffect(() => {
         (async () => {
-            try {
-                const response = await axios.get('https://ce.judge0.com/languages');
-                if (response.status === 200) {
-                    let data = response.data || [];
-                    data = data.reverse();
-                    const dataDic = {};
-                    data.forEach((item) => {
-                        const name = item.name.split(' ')[0];
-                        if (!dataDic.hasOwnProperty(name)) {
-                            dataDic[name] = item.id;
-                        }
-                    });
-                    data = [];
-                    for (const item in dataDic) {
-                        data.push({
-                            id: dataDic[item],
-                            name: item,
-                        });
+            const response = await axios.get('https://ce.judge0.com/languages');
+            if (response.status === 200) {
+                let data = response.data || [];
+                data = data.reverse();
+                const dataDic = {};
+                data.forEach((item) => {
+                    const name = item.name.split(' ')[0];
+                    if (!dataDic.hasOwnProperty(name)) {
+                        dataDic[name] = item.id;
                     }
-                    data = data.reverse();
-                    setLanguages(data);
-                    setIdLanguage({
-                        id: data[4].id,
-                        name: data[4].name,
+                });
+                data = [];
+                for (const item in dataDic) {
+                    data.push({
+                        id: dataDic[item],
+                        name: item,
                     });
                 }
-            } catch (error) {
-                console.error('Error fetching languages:', error);
+                data = data.reverse();
+                setLanguges(data);
+                setIdlanguage({
+                    id: data[4].id,
+                    name: data[4].name,
+                });
             }
         })();
     }, []);
 
-    // Fetch problem data
-    useEffect(() => {
-        if (!matchId) return;
+    const captureAndSend = async () => {
+        if (!webcamRef.current || !webcamRef.current?.getScreenshot) return;
+        const imageSrcs = webcamRef.current.getScreenshot();
+        if (imageSrcs) {
+            try {
+                const blob = await fetch(imageSrcs).then((res) => res.blob());
+                const file = new File([blob], 'webcam-image.jpg', {
+                    type: 'image/jpeg',
+                });
 
-        const fetchProblem = async () => {
-            //kết nối api random bài toán ở be
-        };
+                const formData = new FormData();
+                formData.append('image', file);
+                const data = await axios.post('http://127.0.0.1:5000/detect', formData, {});
+                if (data.data.status === 'Closed') {
+                    if (count < countAccept) {
+                        setCount((pre) => pre + 1);
+                    }
+                } else {
+                    if (count > 0) {
+                        setCount((pre) => pre - 1);
+                    }
+                }
+            } catch (error) {
+                console.error('Error sending image:', error);
+            }
+        }
+    };
 
-        fetchProblem();
-    }, [matchId]);
-
-    // Run code function
     const handleRunCode = async () => {
         try {
             setIsLoading(true);
+            const problemId = await request.post('/match/get-problemId', {
+                matchId: matchId,
+            });
+            console.log(problemId);
+
             const response = await request.post('/submission/run', {
                 sourceCode: editorRef.current.getValue(),
                 languageId: idLanguage.id,
-                problemId: problem?.id,
+                problemId: problemId.data?.data,
             });
-            
             if (response.status === 200) {
                 setTestResult(response.data);
             }
         } catch (error) {
-            console.error('Error running code:', error);
+            console.log(error);
         } finally {
             setIsLoading(false);
         }
     };
-
-    // Submit solution function
     const handleSubmit = async () => {
         try {
             setIsLoading(true);
             setHasSubmission(true);
-            
-            const response = await request.post('/submission/submit', {
+            socket.emit('submit_match', {
                 languageId: idLanguage.id,
                 sourceCode: editorRef.current.getValue(),
                 matchId: matchId,
             });
-            
-            if (response.status === 200) {
-                alert('Submission successful!');
-            }
+            toastSuccess('Submission is successfully');
         } catch (error) {
-            console.error('Error submitting code:', error);
-            alert('Submission failed. Please try again.');
+            console.log(error);
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Handle page exit
+    useEffect(() => {
+        let id = setInterval(() => {
+            captureAndSend();
+        }, 3000);
+        setIdInterval(id);
+        return () => {
+            clearInterval(id);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (count > countAccept) {
+            toastInfo('We found you cheating, your assignment will be submited with black page!');
+            (async () => {
+                try {
+                    setIsLoading(true);
+                    setHasSubmission(true);
+                    // socket.emit('submit_match', {
+                    //     languageId: idLanguage.id,
+                    //     sourceCode: '// cheating',
+                    //     matchId: matchId,
+                    // });
+                    toastSuccess('Submission is successfully');
+                } catch (error) {
+                    console.log(error);
+                } finally {
+                    setIsLoading(false);
+                }
+            })();
+            clearInterval(idInterval);
+        }
+    }, [count]);
+
     useEffect(() => {
         const handleBeforeUnload = (event) => {
-            if (!hasSubmission) {
-                event.preventDefault();
-                return (event.returnValue = 'Are you sure you want to leave? Your progress will be lost.');
+            event.preventDefault();
+            router.push('/');
+        };
+
+        const handleVisibilityChange = async () => {
+            if (document.visibilityState === 'hidden') {
+                try {
+                    socket.emit('submit_match', {
+                        languageId: 72,
+                        sourceCode: '//cheating',
+                        matchId: matchId,
+                    });
+                } catch (error) {
+                    console.error('Error submitting code:', error);
+                }
             }
         };
 
+        document.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('beforeunload', handleBeforeUnload);
-        
+
         return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('beforeunload', handleBeforeUnload);
         };
-    }, [hasSubmission]);
-
-    // Loading state
-    if (isLoading && !problem) {
-        return (
-            <div className="min-h-[88vh] flex items-center justify-center">
-                <Spin size="large" />
-                <span className="ml-2">Loading problem...</span>
-            </div>
-        );
-    }
+    }, []);
 
     return (
         <div className="min-h-[88vh] relative bg-gray-100">
+            {/* <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" className="absolute -z-10" /> */}
             <PanelGroup className="!h-[88vh]" direction="horizontal">
-                {/* Problem description panel */}
-                <Panel defaultSize={fullCodeEditor ? 0 : 50}>
-                    <div className="bg-white h-full rounded-lg overflow-hidden shadow-md p-4">
-                        {problem ? (
-                            <div className="h-full overflow-y-auto">
-                                <h1 className="text-2xl font-bold mb-4">{problem.title}</h1>
-                                <div className="mb-4 p-2 bg-gray-50 rounded">
-                                    <p className="text-sm text-gray-500">
-                                        Difficulty: <span className="font-medium text-yellow-600">{problem.difficulty || 'Medium'}</span>
-                                    </p>
-                                    <p className="text-sm text-gray-500">
-                                        Time Limit: <span className="font-medium">{problem.timeLimit || '1000ms'}</span>
-                                    </p>
-                                    <p className="text-sm text-gray-500">
-                                        Memory Limit: <span className="font-medium">{problem.memoryLimit || '256MB'}</span>
-                                    </p>
-                                </div>
-                                <div className="prose max-w-none">
-                                    <h2 className="text-lg font-semibold">Description</h2>
-                                    <p className="whitespace-pre-line">{problem.description}</p>
-                                    
-                                    {problem.inputDescription && (
-                                        <>
-                                            <h2 className="text-lg font-semibold mt-4">Input</h2>
-                                            <p className="whitespace-pre-line">{problem.inputDescription}</p>
-                                        </>
-                                    )}
-                                    
-                                    {problem.outputDescription && (
-                                        <>
-                                            <h2 className="text-lg font-semibold mt-4">Output</h2>
-                                            <p className="whitespace-pre-line">{problem.outputDescription}</p>
-                                        </>
-                                    )}
-                                    
-                                    {problem.sampleTestcases && problem.sampleTestcases.length > 0 && (
-                                        <div className="mt-4">
-                                            <h2 className="text-lg font-semibold">Sample Cases</h2>
-                                            {problem.sampleTestcases.map((testcase, index) => (
-                                                <div key={index} className="mt-2">
-                                                    <div className="bg-gray-50 p-3 rounded-md">
-                                                        <h3 className="text-md font-medium">Sample Input {index + 1}</h3>
-                                                        <pre className="bg-gray-100 p-2 rounded overflow-x-auto">{testcase.input}</pre>
-                                                    </div>
-                                                    <div className="bg-gray-50 p-3 rounded-md mt-2">
-                                                        <h3 className="text-md font-medium">Sample Output {index + 1}</h3>
-                                                        <pre className="bg-gray-100 p-2 rounded overflow-x-auto">{testcase.output}</pre>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                    
-                                    {problem.notes && (
-                                        <>
-                                            <h2 className="text-lg font-semibold mt-4">Notes</h2>
-                                            <p className="whitespace-pre-line">{problem.notes}</p>
-                                        </>
-                                    )}
-                                </div>
+                <Panel>
+                    <PanelGroup>
+                        <Panel defaultSize={fullCodeEditor ? 0 : 50}>
+                            <div className="bg-white h-full rounded-lg overflow-hidden relative min-h-full">
+                                <DetailProblemsRoombattle
+                                    router={router}
+                                    endTime={endTime}
+                                    languages={languages}
+                                    matchId={matchId}
+                                />
                             </div>
-                        ) : (
-                            <div className="flex items-center justify-center h-full">
-                                Problem not found
-                            </div>
-                        )}
-                    </div>
+                        </Panel>
+                        <PanelResizeHandle className="w-full h-3 bg-transparent cursor-ew-resize" />
+                        {/* <Panel className="min-h-[47px]">
+                            <ChatMatch matchId={matchId} />
+                        </Panel> */}
+                    </PanelGroup>
                 </Panel>
-                
                 <PanelResizeHandle className="w-3 bg-transparent cursor-ew-resize" />
-                
-                {/* Code editor panel */}
                 <Panel defaultSize={fullCodeEditor ? 100 : 50}>
-                    <PanelGroup direction="vertical">
+                    <PanelGroup>
                         <Panel defaultSize={95}>
-                            <div className="bg-white rounded-lg overflow-hidden relative h-full shadow-md">
-                                {/* Code editor header */}
-                                <div className="flex bg-gray-100 items-center justify-between h-[30px] space-x-3 px-3 py-2">
+                            <div className="bg-white rounded-lg overflow-hidden relative h-full">
+                                <div className="flex bg-gray-100 items-center justify-between h-[30px] space-x-3 px-3 py-2 ">
                                     <div className="flex items-center space-x-4">
                                         <div className="flex items-center space-x-1">
-                                            <FaCode className="text-green-500 text-xl" />
+                                            <FaCode className="text-green-500 text-xl " />
                                             <span>Code</span>
                                         </div>
                                         <button
@@ -249,7 +280,7 @@ export default function BattlePage() {
                                             <span className="text-base">Run</span>
                                         </button>
                                         <button
-                                            ref={submitButtonRef}
+                                            ref={submitButton}
                                             disabled={hasSubmission}
                                             onClick={handleSubmit}
                                             className="flex items-center text-green-500 space-x-1 hover:opacity-60 hover:bg-gray-200 px-2"
@@ -260,7 +291,9 @@ export default function BattlePage() {
                                     </div>
                                     <div className="flex items-center space-x-3">
                                         <button
-                                            onClick={() => setFullCodeEditor(!fullCodeEditor)}
+                                            onClick={() => {
+                                                setFullCodeEditor(!fullCodeEditor);
+                                            }}
                                         >
                                             <RiFullscreenLine className="text-xl" />
                                         </button>
@@ -269,33 +302,30 @@ export default function BattlePage() {
                                         </button>
                                     </div>
                                 </div>
-                                
-                                {/* Language selector */}
                                 <div>
                                     <Popover
                                         open={open}
-                                        onOpenChange={() => setOpen(!open)}
+                                        onOpenChange={(newOpen) => setOpen(newOpen)}
                                         placement="bottomLeft"
                                         content={
                                             <div className="max-h-[300px] overflow-y-scroll space-y-1">
                                                 {languages.map((item) => (
                                                     <button
-                                                        key={item.id}
                                                         onClick={() => {
-                                                            setIdLanguage({
+                                                            setIdlanguage({
                                                                 id: item.id,
                                                                 name: item.name,
                                                             });
                                                             setOpen(!open);
                                                         }}
-                                                        className="block hover:opacity-60 p-1"
+                                                        className="block hover:opacity-60"
                                                     >
                                                         {item.name}
                                                     </button>
                                                 ))}
                                             </div>
                                         }
-                                        title="Select Language"
+                                        title="Title"
                                         trigger="click"
                                     >
                                         <Button
@@ -303,55 +333,47 @@ export default function BattlePage() {
                                             iconPosition="end"
                                             icon={<IoIosArrowDown />}
                                         >
-                                            {idLanguage.name || "Select Language"}
+                                            {idLanguage.name}
                                         </Button>
                                     </Popover>
                                 </div>
-                                
-                                {/* Monaco editor */}
                                 <Editor
                                     className="h-full"
-                                    defaultLanguage={(idLanguage?.name || '').toLowerCase()}
-                                    defaultValue={sourceCode}
-                                    theme="vs-dark"
+                                    defaultLanguage={(idLanguage?.name || '').toUpperCase()}
+                                    defaultValue="// Type your code here..."
+                                    theme="dark"
                                     onMount={handleEditorDidMount}
-                                    onChange={(value) => setSourceCode(value)}
+                                    onChange={(value) => {
+                                        setSourceCode(value);
+                                    }}
                                     options={{
-                                        lineNumbers: 'on',
-                                        minimap: { enabled: true },
-                                        automaticLayout: true,
-                                        scrollBeyondLastLine: false,
-                                        fontSize: 14,
+                                        lineNumbers: 'on', // Hiển thị số dòng
+                                        minimap: { enabled: true }, // Hiển thị bản đồ thu nhỏ
                                     }}
                                 />
                             </div>
                         </Panel>
-                        
                         <PanelResizeHandle className="w-full h-3 bg-transparent cursor-ew-resize" />
-                        
-                        {/* Test results panel */}
                         <Panel className="min-h-[47px]">
-                            <div className="bg-white h-full rounded-lg overflow-y-auto shadow-md">
+                            <div className="bg-white h-full rounded-lg overflow-y-scroll">
                                 <div className="bg-gray-200 p-3">
                                     {isLoading ? (
                                         <Spin />
                                     ) : (
-                                        <div className="flex items-center">
+                                        <button className="flex items-center">
                                             <LuTerminal className="text-xl text-green-500" />
-                                            <span className="text-sm ml-1">Test Result</span>
-                                        </div>
+                                            <span className="text-sm">Test Result</span>
+                                        </button>
                                     )}
                                 </div>
-                                
                                 {testResult && testResult.status === 'success' && (
                                     <div className="p-4">
                                         <h2 className="text-green-600 text-3xl">Success</h2>
                                         <h3 className="mt-2 text-yellow-600">Memory: {testResult.data.memory}(KB)</h3>
                                         <h3 className="text-purple-600">Time: {testResult.data.time}(ms)</h3>
-                                        <h3 className="text-sky-600">Point: {testResult.data.score}</h3>
+                                        <h3 className="text-sky-600">point: {testResult.data.score}</h3>
                                     </div>
                                 )}
-                                
                                 {testResult && testResult.status === 'warning' && (
                                     <div className="p-4">
                                         <h2 className="text-red-600 text-3xl">Error</h2>
@@ -361,18 +383,13 @@ export default function BattlePage() {
                                                 Input: <span>{testResult?.data?.testcase?.input}</span>
                                             </h3>
                                             <h3 className="text-purple-600">
-                                                Expected output: <span>{testResult?.data?.testcase?.expectedOutput}</span>
+                                                Expected output:{' '}
+                                                <span>{testResult?.data?.testcase?.expectedOutput}</span>
                                             </h3>
                                             <h3 className="text-sky-600">
                                                 Actual output: <span>{testResult?.data?.result?.stdout}</span>
                                             </h3>
                                         </div>
-                                    </div>
-                                )}
-                                
-                                {!testResult && !isLoading && (
-                                    <div className="p-4 text-gray-500">
-                                        Run your code to see the results here
                                     </div>
                                 )}
                             </div>
@@ -383,3 +400,5 @@ export default function BattlePage() {
         </div>
     );
 }
+
+export default Submit;
