@@ -93,10 +93,10 @@ export default function RootLayout({ children }) {
 
                             <nav className="hidden md:flex ml-10">
                                 <a
-                                    href="/home"
+                                    href="/contest"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
-                                    Home
+                                    Contest
                                 </a>
                                 <a
                                     href="/create-room"
@@ -117,10 +117,10 @@ export default function RootLayout({ children }) {
                                     Problems
                                 </a>
                                 <a
-                                    href="/contest"
+                                    href="/discussion"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
-                                    Contest
+                                    Discuss
                                 </a>
                             </nav>
                         </div>
@@ -161,26 +161,24 @@ export default function RootLayout({ children }) {
                                     aria-expanded={showDropdown}
                                     aria-haspopup="true"
                                     >
-                                    <div className="w-9 h-9 bg-gradient-to-br from-green-400 to-orange-600 rounded-full flex items-center justify-center overflow-hidden ring-2 ring-white shadow-sm">
-                                        {user && (user.avatarImage || user.avtImage) ? (
-                                        <Image
-                                            src={user.avatarImage || user.avtImage}
-                                            alt="User Avatar"
-                                            width={36}
-                                            height={36}
-                                            className="rounded-full object-cover w-full h-full"
-                                            onError={(e) => {
-                                            e.target.style.display = 'none';
-                                            e.target.parentNode.classList.add('flex', 'items-center', 'justify-center');
-                                            }}
-                                        />
+                                    <div className="w-9 h-9 bg-gradient-to-br from-green-400 to-orange-600 rounded-full flex items-center justify-center overflow-hidden ring-2 ring-white shadow-sm">                                      
+                                        {!user.avtImage ? (
+                                            <Image
+                                                src="/user_1.png"
+                                                alt="User Avatar"
+                                                width={36}
+                                                height={36}
+                                                className="rounded-full object-cover w-full h-full"
+                                            />
                                         ) : (
-                                        <span className="text-white font-medium text-sm">
-                                            {user?.username?.charAt(0)?.toUpperCase() || 
-                                            user?.name?.charAt(0)?.toUpperCase() || 
-                                            user?.email?.charAt(0)?.toUpperCase() || 'U'}
-                                        </span>
-                                        )}
+                                            <img
+                                                src={user.avtImage}
+                                                alt="Fallback Avatar"
+                                                className="rounded-full object-cover w-full h-full"
+                                                width={36}
+                                                height={36}
+                                            />
+                                        )}                                        
                                     </div>
                                     <div className="flex flex-col items-start">
                                         <span className="font-medium text-sm truncate max-w-[100px]">
@@ -209,21 +207,27 @@ export default function RootLayout({ children }) {
                                         <div className="px-4 py-3">
                                         <div className="flex items-center space-x-3">
                                             <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center ring-4 ring-orange-100 overflow-hidden">
-                                            {user && (user.avatarImage || user.avtImage) ? (
-                                                <Image
-                                                src={user.avatarImage || user.avtImage}
-                                                alt="User Avatar"
-                                                width={56}
-                                                height={56}
-                                                className="rounded-full object-cover w-full h-full"
-                                                />
-                                            ) : (
-                                                <span className="text-white font-medium text-2xl">
-                                                {user?.username?.charAt(0)?.toUpperCase() || 
-                                                user?.name?.charAt(0)?.toUpperCase() || 
-                                                user?.email?.charAt(0)?.toUpperCase() || 'U'}
-                                                </span>
-                                            )}
+                                                {!user.avtImage ? (
+                                                    <Image
+                                                        src="/user_1.png"
+                                                        alt="User Avatar"
+                                                        width={56}
+                                                        height={56}
+                                                        className="rounded-full object-cover w-full h-full"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                            e.target.parentNode.classList.add('flex', 'items-center', 'justify-center');
+                                                        }}
+                                                    />
+                                                ) : ( 
+                                                    <img
+                                                        src={user.avtImage}
+                                                        alt="Fallback Avatar"
+                                                        className="rounded-full object-cover w-full h-full"
+                                                        width={56}
+                                                        height={56}
+                                                    />
+                                                )}  
                                             </div>
                                             <div className="flex flex-col">
                                             <span className="font-medium text-gray-900 truncate max-w-[180px]">
