@@ -82,8 +82,8 @@ export default function SignInPage() {
       toast.success('Login successful!');
       
       setTimeout(() => {
-        router.push('/home');
-        window.location.href = '/home';
+        router.push('/contest');
+        window.location.href = '/contest';
       }, 1500);
       
     } catch (error) {
