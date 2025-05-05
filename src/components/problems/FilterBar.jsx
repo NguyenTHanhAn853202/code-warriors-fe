@@ -1,73 +1,116 @@
-import React from 'react';
-import { FaChevronDown, FaSearch, FaCog, FaRandom } from 'react-icons/fa';
+'use client';
+
+import React, { useState, useRef, useEffect } from 'react';
+import { FaChevronDown, FaSearch, FaRandom } from 'react-icons/fa';
 
 const FilterBar = ({ filters, handleFilterChange }) => {
-  return (
-    <div className="flex flex-wrap gap-2 mb-6 items-center">
-      <div className="relative">
-        <button className="flex items-center px-4 py-2 border rounded-md">
-          Lists <FaChevronDown className="ml-2" />
-        </button>
-      </div>
+    const [difficultyOpen, setDifficultyOpen] = useState(false);
+    const [statusOpen, setStatusOpen] = useState(false);
+    const difficultyRef = useRef(null);
+    const statusRef = useRef(null);
 
-      <div className="relative">
-        <button
-          className="flex items-center px-4 py-2 border rounded-md"
-          onClick={() => {
-            const nextDifficulty =
-              filters.difficulty === 'easy'
-                ? 'medium'
-                : filters.difficulty === 'medium'
-                  ? 'hard'
-                  : filters.difficulty === 'hard'
-                    ? ''
-                    : 'easy';
-            handleFilterChange('difficulty', nextDifficulty);
-          }}
-        >
-          Difficulty:{' '}
-          {filters.difficulty
-            ? filters.difficulty.charAt(0).toUpperCase() + filters.difficulty.slice(1)
-            : 'All'}{' '}
-          <FaChevronDown className="ml-2" />
-        </button>
-      </div>
+    const difficultyOptions = ['All', 'Bronze', 'Silver', 'Gold', 'Platinum'];
 
-      <div className="relative">
-        <button className="flex items-center px-4 py-2 border rounded-md">
-          Status <FaChevronDown className="ml-2" />
-        </button>
-      </div>
+    const statusOptions = ['All', 'Solved', 'Unsolved'];
 
-      <div className="relative">
-        <button className="flex items-center px-4 py-2 border rounded-md">
-          Tags <FaChevronDown className="ml-2" />
-        </button>
-      </div>
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (difficultyRef.current && !difficultyRef.current.contains(event.target)) {
+                setDifficultyOpen(false);
+            }
+            if (statusRef.current && !statusRef.current.contains(event.target)) {
+                setStatusOpen(false);
+            }
+        }
 
-      <div className="flex-grow relative">
-        <div className="flex items-center border rounded-md px-3 py-2 bg-white">
-          <FaSearch className="text-gray-400 mr-2" />
-          <input
-            type="text"
-            placeholder="Search questions"
-            className="w-full outline-none"
-            value={filters.title}
-            onChange={(e) => handleFilterChange('title', e.target.value)}
-          />
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    return (
+        <div className="flex flex-wrap gap-2 mb-6 items-center">
+            {/* Difficulty Filter Dropdown */}
+            <div className="relative" ref={difficultyRef}>
+                <button
+                    className="flex items-center px-4 py-2 border rounded-md bg-white"
+                    onClick={() => {
+                        setDifficultyOpen(!difficultyOpen);
+                        setStatusOpen(false);
+                    }}
+                >
+                    Difficulty: {filters.difficulty || 'All'} <FaChevronDown className="ml-2" />
+                </button>
+
+                {difficultyOpen && (
+                    <div className="absolute top-full left-0 mt-1 z-50 bg-white border rounded-md shadow-lg w-40">
+                        {difficultyOptions.map((option) => (
+                            <div
+                                key={option}
+                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onClick={() => {
+                                    handleFilterChange('difficulty', option === 'All' ? '' : option);
+                                    setDifficultyOpen(false);
+                                }}
+                            >
+                                {option}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div className="relative" ref={statusRef}>
+                <button
+                    className="flex items-center px-4 py-2 border rounded-md bg-white"
+                    onClick={() => {
+                        setStatusOpen(!statusOpen);
+                        setDifficultyOpen(false);
+                    }}
+                >
+                    Status: {filters.status || 'All'} <FaChevronDown className="ml-2" />
+                </button>
+
+                {statusOpen && (
+                    <div className="absolute top-full left-0 mt-1 z-50 bg-white border rounded-md shadow-lg w-40">
+                        {statusOptions.map((option) => (
+                            <div
+                                key={option}
+                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onClick={() => {
+                                    handleFilterChange('status', option === 'All' ? '' : option);
+                                    setStatusOpen(false);
+                                }}
+                            >
+                                {option}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Search Box */}
+            <div className="flex-grow relative">
+                <div className="flex items-center border rounded-md px-3 py-2 bg-white">
+                    <FaSearch className="text-gray-400 mr-2" />
+                    <input
+                        type="text"
+                        placeholder="Search questions"
+                        className="w-full outline-none"
+                        value={filters.title || ''}
+                        onChange={(e) => handleFilterChange('title', e.target.value)}
+                    />
+                </div>
+            </div>
+
+            {/* Random Problem Button */}
+            <button className="flex items-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors">
+                <FaRandom className="mr-2" />
+                Pick One
+            </button>
         </div>
-      </div>
-
-      <button className="p-2 border rounded-md">
-        <FaCog />
-      </button>
-
-      <button className="flex items-center bg-green-500 text-white px-4 py-2 rounded-md">
-        <FaRandom className="mr-2" />
-        Pick One
-      </button>
-    </div>
-  );
+    );
 };
 
 export default FilterBar;
