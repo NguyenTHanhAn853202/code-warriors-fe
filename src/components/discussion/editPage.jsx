@@ -124,7 +124,7 @@ export default function EditPage({ discussionId, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-white/10 backdrop-blur-md flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-lg w-full max-w-4xl mx-4 overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 flex-shrink-0">
           <h3 className="text-lg font-semibold text-gray-800">Edit Discussion</h3>

@@ -8,6 +8,7 @@ import axios from 'axios';
 export default function ContestDetail() {
     const [contestData, setContestData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [top3, setTop3] = useState([]);
     const [error, setError] = useState(null);
     const [isContestActive, setIsContestActive] = useState(true);
     const router = useRouter();
@@ -28,12 +29,14 @@ export default function ContestDetail() {
                 const response = await axios.get(`http://localhost:8080/api/v1/contest/viewDetailContest/${id}`);
                 setContestData(response.data.data.contest);
 
-                // Check if contest is still active based on end date
                 if (response.data.data.contest.endDate) {
                     const currentDate = new Date();
                     const endDate = new Date(response.data.data.contest.endDate);
                     setIsContestActive(currentDate <= endDate);
                 }
+
+                const top3Response = await axios.get(`http://localhost:8080/api/v1/submission/top3/${id}`);
+                setTop3(top3Response.data.data); // Set top 3 participants
             } catch (err) {
                 setError(err.response?.data?.message || err.message);
                 console.error('Error fetching contest details:', err);
@@ -44,6 +47,8 @@ export default function ContestDetail() {
 
         fetchContestDetails();
     }, [id]);
+
+    console.log(top3);
 
     const handleBackToContests = () => {
         router.push('/contest');
@@ -113,7 +118,7 @@ export default function ContestDetail() {
     return (
         <div className="bg-gray-100 min-h-screen p-4">
             {/* Header */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
+            <div className="bg-white rounded-lg p-4 shadow-sm ">
                 {/* Back button */}
                 <div className="mb-4">
                     <button
@@ -155,10 +160,51 @@ export default function ContestDetail() {
           </button> */}
                 </div>
 
+                {/* TOP 3 Ranking */}
+                <div className="flex items-end gap-6 max-w-md w-full justify-center">
+                    {top3.map((participant, index) => {
+                        const rank = index + 1; // Rank 1, 2, 3 based on index
+                        const baseHeight = 180 - index * 20; // Dynamic height based on rank
+                        const baseBarHeight = 110 - index * 10; // Bar height changes based on rank
+                        const bgColor = [
+                            'bg-gray-300 bg-opacity-30', // 3rd place: gray
+                            'bg-yellow-400', // 2nd place: yellow
+                            'bg-yellow-800 bg-opacity-80', // 1st place: darker yellow
+                        ][index];
+                        const circleBg = [
+                            'bg-gray-400 text-gray-900', // 3rd place: gray
+                            'bg-yellow-300 text-yellow-900', // 2nd place: yellow
+                            'bg-yellow-900 text-yellow-300', // 1st place: darker yellow
+                        ][index];
+                        const fontSize = ['text-lg', 'text-xl', 'text-2xl'][index]; // Font size adjusted based on rank
+
+                        return (
+                            <div
+                                key={rank}
+                                className={`flex flex-col items-center ${bgColor} rounded-t-xl shadow-lg`}
+                                style={{ height: `${baseHeight}px`, width: '96px' }}
+                            >
+                                <div
+                                    className={`${circleBg} ${fontSize} font-bold rounded-full w-12 h-12 flex items-center justify-center -mt-6 shadow-md select-none`}
+                                >
+                                    {rank}
+                                </div>
+                                <div className="mt-auto mb-4 font-semibold text-center">
+                                    {participant ? participant.user.username : '—'}
+                                </div>
+                                <div
+                                    className={`${circleBg.split(' ')[0]} rounded-t-xl w-full`}
+                                    style={{ height: `${baseBarHeight}px` }}
+                                ></div>
+                            </div>
+                        );
+                    })}
+                </div>
+
                 {/* Contest Description */}
-                <div className="mb-6">
+                <div className="mb-6 mt-6">
                     <div className="mb-6">
-                        <h2 className="text-xl font-medium text-gray-800 mb-2">Welcome to {contestData.title}</h2>
+                        <h1 className="text-3xl font-bold mb-2">{contestData.title}</h1>
                         <p
                             className="text-gray-700 mb-4"
                             dangerouslySetInnerHTML={{

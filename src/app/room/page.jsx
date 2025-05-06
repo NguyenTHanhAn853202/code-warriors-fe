@@ -2,6 +2,7 @@
 
 import { useSocket } from '@/components/ContextProvider';
 import fortmantRunTime from '@/utils/fortmatRunTime';
+import request from '@/utils/server';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -13,6 +14,7 @@ function Room() {
     const [data, setData] = useState();
     const [countdown, setCountdown] = useState(100);
     const [waitingCompetitor, setWaitingCompetitor] = useState(false);
+    const [user, setUser] = useState();
 
     const router = useRouter();
 
@@ -111,6 +113,13 @@ function Room() {
     }, [isFindingMatch]);
 
     useEffect(() => {
+        (async () => {
+            const user = await request.get('/user/rank');
+            setUser(user.data?.data);
+        })();
+    }, []);
+
+    useEffect(() => {
         let id;
         if (foundMatch) {
             id = setInterval(() => {
@@ -184,10 +193,12 @@ function Room() {
                 <div>
                     <div className="relative w-52 h-[500px] bg-gray-900 border rounded-b-3xl border-gray-700 flex flex-col items-center p-4">
                         {/* Summoner Name */}
-                        <div className="mt-10 text-yellow-400 font-bold text-lg">Thanh An</div>
+                        <div className="mt-10 text-yellow-400 font-bold text-lg">
+                            {localStorage.getItem('username')}
+                        </div>
 
                         {/* Club Name */}
-                        <div className="text-gray-400 text-sm">Vàng</div>
+                        <div className="text-gray-400 text-sm">{user?.name}</div>
 
                         {/* Rank Icon */}
                         <div className="relative mt-4">
