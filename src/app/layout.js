@@ -87,7 +87,7 @@ export default function RootLayout({ children }) {
                     <div className="container mx-auto px-4 flex justify-between items-center h-16">
                         <div className="flex items-center">
                             <a
-                                href={isAuthenticated ? '/home' : '/'}
+                                href='/'
                                 className="flex items-center font-semibold text-xl"
                             >
                                 <Image src="/logoCode.png" alt="LeetCode Logo" width={55} height={55} />
@@ -95,36 +95,36 @@ export default function RootLayout({ children }) {
                             </a>
 
                             <nav className="hidden md:flex ml-10">
-                                <a
-                                    href="/home"
+                                <Link
+                                    href="/contest"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
-                                    Home
-                                </a>
-                                <a
+                                    Contest
+                                </Link>
+                                <Link
                                     href="/create-room"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
                                     Room Battle
-                                </a>
+                                </Link>
                                 <Link
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                     href={'/room'}
                                 >
                                     Online Battle
                                 </Link>
-                                <a
+                                <Link
                                     href="/problems"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
                                     Problems
-                                </a>
-                                <a
-                                    href="/contest"
+                                </Link>
+                                <Link
+                                    href="/discussion"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
-                                    Contest
-                                </a>
+                                    Discuss
+                                </Link>
                             </nav>
                         </div>
 
@@ -159,99 +159,90 @@ export default function RootLayout({ children }) {
                             {isAuthenticated ? (
                                 <div className="relative">
                                     <button
-                                        onClick={toggleDropdown}
-                                        className="flex items-center space-x-2 text-gray-700 hover:text-orange-500 transition-colors duration-200 rounded-full py-1 px-2 hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-200"
-                                        aria-expanded={showDropdown}
-                                        aria-haspopup="true"
+                                    onClick={toggleDropdown}
+                                    className="flex items-center space-x-2 text-gray-700 hover:text-orange-500 transition-colors duration-200 rounded-full py-1 px-2 hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                                    aria-expanded={showDropdown}
+                                    aria-haspopup="true"
                                     >
-                                        <div className="w-9 h-9 bg-gradient-to-br from-green-400 to-orange-600 rounded-full flex items-center justify-center overflow-hidden ring-2 ring-white shadow-sm">
-                                            {user && (user.avatarImage || user.avtImage) ? (
-                                                <Image
-                                                    src={user.avatarImage || user.avtImage}
-                                                    alt="User Avatar"
-                                                    width={36}
-                                                    height={36}
-                                                    className="rounded-full object-cover w-full h-full"
-                                                    onError={(e) => {
-                                                        e.target.style.display = 'none';
-                                                        e.target.parentNode.classList.add(
-                                                            'flex',
-                                                            'items-center',
-                                                            'justify-center',
-                                                        );
-                                                    }}
-                                                />
-                                            ) : (
-                                                <span className="text-white font-medium text-sm">
-                                                    {user?.username?.charAt(0)?.toUpperCase() ||
-                                                        user?.name?.charAt(0)?.toUpperCase() ||
-                                                        user?.email?.charAt(0)?.toUpperCase() ||
-                                                        'U'}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="flex flex-col items-start">
-                                            <span className="font-medium text-sm truncate max-w-[100px]">
-                                                {user?.username || (user?.email && user.email.split('@')[0]) || 'User'}
-                                            </span>
-                                        </div>
-                                        <svg
-                                            className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${showDropdown ? 'transform rotate-180' : ''}`}
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                                d="M19 9l-7 7-7-7"
+                                    <div className="w-9 h-9 bg-gradient-to-br from-green-400 to-orange-600 rounded-full flex items-center justify-center overflow-hidden ring-2 ring-white shadow-sm">                                      
+                                        {!user.avtImage ? (
+                                            <Image
+                                                src="/user_1.png"
+                                                alt="User Avatar"
+                                                width={36}
+                                                height={36}
+                                                className="rounded-full object-cover w-full h-full"
                                             />
-                                        </svg>
+                                        ) : (
+                                            <img
+                                                src={user.avtImage}
+                                                alt="Fallback Avatar"
+                                                className="rounded-full object-cover w-full h-full"
+                                                width={36}
+                                                height={36}
+                                            />
+                                        )}                                        
+                                    </div>
+                                    <div className="flex flex-col items-start">
+                                        <span className="font-medium text-sm truncate max-w-[100px]">
+                                        {user?.username || (user?.email && user.email.split('@')[0]) || 'User'}
+                                        </span>
+                                    </div>
+                                    <svg
+                                        className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${showDropdown ? 'transform rotate-180' : ''}`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
                                     </button>
 
                                     {/* Dropdown Panel with Animation */}
                                     {showDropdown && (
-                                        <div
-                                            className="absolute right-0 mt-2 w-72 origin-top-right bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none divide-y divide-gray-100 transform transition-all duration-150 ease-out z-50"
-                                            role="menu"
-                                            aria-orientation="vertical"
-                                            aria-labelledby="user-menu"
-                                        >
-                                            {/* User Info Section */}
-                                            <div className="px-4 py-3">
-                                                <div className="flex items-center space-x-3">
-                                                    <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center ring-4 ring-orange-100 overflow-hidden">
-                                                        {user && (user.avatarImage || user.avtImage) ? (
-                                                            <Image
-                                                                src={user.avatarImage || user.avtImage}
-                                                                alt="User Avatar"
-                                                                width={56}
-                                                                height={56}
-                                                                className="rounded-full object-cover w-full h-full"
-                                                            />
-                                                        ) : (
-                                                            <span className="text-white font-medium text-2xl">
-                                                                {user?.username?.charAt(0)?.toUpperCase() ||
-                                                                    user?.name?.charAt(0)?.toUpperCase() ||
-                                                                    user?.email?.charAt(0)?.toUpperCase() ||
-                                                                    'U'}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="font-medium text-gray-900 truncate max-w-[180px]">
-                                                            {user?.username ||
-                                                                user?.name ||
-                                                                (user?.email && user.email.split('@')[0]) ||
-                                                                'User'}
-                                                        </span>
-                                                        <span className="text-sm text-gray-500 truncate max-w-[180px]">
-                                                            {user?.email || ''}
-                                                        </span>
-                                                    </div>
-                                                </div>
+                                    <div 
+                                        className="absolute right-0 mt-2 w-72 origin-top-right bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none divide-y divide-gray-100 transform transition-all duration-150 ease-out z-50"
+                                        role="menu"
+                                        aria-orientation="vertical"
+                                        aria-labelledby="user-menu"
+                                    >
+                                        {/* User Info Section */}
+                                        <div className="px-4 py-3">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center ring-4 ring-orange-100 overflow-hidden">
+                                                {!user.avtImage ? (
+                                                    <Image
+                                                        src="/user_1.png"
+                                                        alt="User Avatar"
+                                                        width={56}
+                                                        height={56}
+                                                        className="rounded-full object-cover w-full h-full"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                            e.target.parentNode.classList.add('flex', 'items-center', 'justify-center');
+                                                        }}
+                                                    />
+                                                ) : ( 
+                                                    <img
+                                                        src={user.avtImage}
+                                                        alt="Fallback Avatar"
+                                                        className="rounded-full object-cover w-full h-full"
+                                                        width={56}
+                                                        height={56}
+                                                    />
+                                                )}  
                                             </div>
+                                            <div className="flex flex-col">
+                                            <span className="font-medium text-gray-900 truncate max-w-[180px]">
+                                                {user?.username || user?.name || (user?.email && user.email.split('@')[0]) || 'User'}
+                                            </span>
+                                            <span className="text-sm text-gray-500 truncate max-w-[180px]">
+                                                {user?.email || ''}
+                                            </span>
+                                            </div>
+                                        </div>
+                                        </div>
+
 
                                             {/* Menu Items */}
                                             <div className="py-1">

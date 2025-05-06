@@ -1,9 +1,59 @@
 "use client";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 
 export default function Home() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/v1/user/info', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          console.log('User data received:', userData);
+          console.log('Avatar image path:', userData.data?.avatarImage || userData.data?.avtImage); // Kiểm tra đường dẫn ảnh
+          setIsAuthenticated(true);
+          setUser(userData.data);
+        } else {
+          setIsAuthenticated(false);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  // Function to handle logout - though we're not showing the button
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/v1/user/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        setIsAuthenticated(false);
+        setUser(null);
+      } else {
+        console.error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+  
   // Add mouse movement effect
   useEffect(() => {
     const container = document.querySelector(`.${styles.container}`);
@@ -133,16 +183,18 @@ export default function Home() {
         Enhance your coding skills by practicing with peers through challenging exercises that continuously refine your expertise.
         </p>
         
-        {/* Login and Sign Up buttons */}
-        <div className={styles.buttonContainer}>
-          <Link href="/account/signin">
-            <button className={styles.primaryButton}>Sign In</button>
-          </Link>
-          
-          <Link href="/account/signup">
-            <button className={styles.secondaryButton}>Sign Up</button>
-          </Link>
-        </div>
+        {/* Conditionally render buttons only if not authenticated */}
+        {!isAuthenticated && (
+          <div className={styles.buttonContainer}>
+            <Link href="/account/signin">
+              <button className={styles.primaryButton}>Sign In</button>
+            </Link>
+            
+            <Link href="/account/signup">
+              <button className={styles.secondaryButton}>Sign Up</button>
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Features section - What can I use Codewars for? */}

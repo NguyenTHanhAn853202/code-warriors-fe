@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import PostForm from '../../components/discussion/post';
+import PostForm from './post/page';
 import SearchComponent from '../../components/discussion/search';
 import PostComponent from '../../components/discussion/discussion';
 import {
@@ -150,7 +150,7 @@ export default function SocialMediaPage() {
             setShowLoginModal(true);
             return;
         }
-        setShowPostForm(true);
+        router.push(`/discussion/post`);
     };
 
     const handleClosePostForm = () => {
@@ -160,6 +160,7 @@ export default function SocialMediaPage() {
     const handleNavigateToPostDetail = (postId) => {
         router.push(`/discussion/${postId}`);
     };
+
 
     const handleToggleLike = async (postId, e) => {
         if (e) {
@@ -321,7 +322,7 @@ export default function SocialMediaPage() {
             {/* Login Modal */}
             {showLoginModal && (
                 <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl border border-gray-100">
+                    <div className="bg-white rounded-xl p-6 max-w-md w-full border border-gray-100">
                         <h3 className="text-xl font-bold mb-4 text-gray-800">Login Required</h3>
                         <p className="mb-6 text-gray-600">You need to login to perform this action.</p>
                         <div className="flex justify-end space-x-3">
@@ -333,7 +334,7 @@ export default function SocialMediaPage() {
                             </button>
                             <button
                                 onClick={handleRedirectToLogin}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 Go to Login
                             </button>
@@ -362,12 +363,12 @@ export default function SocialMediaPage() {
                 <div className="container mx-auto px-4 py-16 relative z-10">
                     <div className="max-w-5xl mx-auto text-center">
                         <div className="flex items-center justify-center mb-4">
-                            <div className="bg-white bg-opacity-20 p-3 rounded-xl shadow-lg backdrop-blur-md">
+                            <div className="bg-white bg-opacity-20 p-3 rounded-xl backdrop-blur-md">
                                 <img src="/logoCode.png" alt="CodeWars Logo" className="h-14 w-14 object-contain" />
                             </div>
                         </div>
 
-                        <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4 drop-shadow-md">
+                        <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
                             CodeWars Forum
                         </h1>
 
@@ -381,7 +382,7 @@ export default function SocialMediaPage() {
                             {languageCategories.map((lang, index) => (
                                 <div
                                     key={index}
-                                    className={`${lang.color} flex items-center px-4 py-2 rounded-full shadow-md transition-transform hover:scale-105`}
+                                    className={`${lang.color} flex items-center px-4 py-2 rounded-full transition-transform hover:scale-105`}
                                 >
                                     {lang.icon}
                                     <span className="ml-2 font-medium text-sm">{lang.name}</span>
@@ -392,12 +393,12 @@ export default function SocialMediaPage() {
                 </div>
 
                 {/* Clean bottom border with slight curve */}
-                <div className="h-16 bg-white relative -mb-8 rounded-t-3xl shadow-inner"></div>
+                <div className="h-16 bg-white relative -mb-8 rounded-t-3xl"></div>
             </div>
 
             {/* Main Content - Elegant card design */}
             <div className="container mx-auto px-4 max-w-5xl pt-4 pb-12">
-                <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                <div className="bg-white rounded-xl overflow-hidden border border-gray-100">
                     {/* Status Update Input - Modern clean design */}
                     <div className="flex items-center space-x-4 px-6 py-5 border-b border-gray-100">
                         {isLoading ? (
@@ -405,27 +406,27 @@ export default function SocialMediaPage() {
                         ) : (
                             <img
                                 src={avatarSrc}
-                                className="w-10 h-10 rounded-full object-cover border-2 border-blue-100 shadow-sm"
+                                className="w-10 h-10 rounded-full object-cover border-2 border-blue-100"
                                 alt="Avatar"
                             />
                         )}
                         <div
                             onClick={handleOpenPostForm}
-                            className="bg-gray-50 flex-grow py-3 px-5 rounded-full text-gray-500 cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 border border-gray-200 shadow-sm flex items-center"
+                            className="bg-gray-50 flex-grow py-3 px-5 rounded-full text-gray-500 cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 border border-gray-200 flex items-center"
                         >
                             <Edit3 className="w-4 h-4 mr-2 text-gray-400" />
                             <span>What are you thinking?</span>
                         </div>
                         <button
                             onClick={handleOpenPostForm}
-                            className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-md flex-shrink-0"
+                            className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors flex-shrink-0"
                         >
                             <PlusCircle className="w-5 h-5" />
                         </button>
                     </div>
 
                     {/* Post Form Modal */}
-                    {showPostForm && <PostForm onClose={handleClosePostForm} />}
+                    {showPostForm && <PostForm />}
 
                     {/* Feed Header with Search bar */}
                     <div className="flex justify-between items-center border-b border-gray-100 bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4">
@@ -445,7 +446,7 @@ export default function SocialMediaPage() {
                             </div>
                             <button
                                 onClick={handleClearSearch}
-                                className="text-xs px-3 py-1 bg-white text-blue-700 hover:text-blue-900 rounded-full border border-blue-200 shadow-sm"
+                                className="text-xs px-3 py-1 bg-white text-blue-700 hover:text-blue-900 rounded-full border border-blue-200"
                             >
                                 Clear Search
                             </button>
@@ -502,7 +503,7 @@ export default function SocialMediaPage() {
                             <div className="px-6 py-5 border-t border-gray-100 bg-gray-50">
                                 <div className="flex justify-center items-center">
                                     <nav
-                                        className="relative z-0 inline-flex shadow-sm rounded-md overflow-hidden"
+                                        className="relative z-0 inline-flex rounded-md overflow-hidden"
                                         aria-label="Pagination"
                                     >
                                         {/* Previous Page Button */}

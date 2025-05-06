@@ -34,7 +34,7 @@ const Tooltip = ({ content, children }) => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded shadow-lg -left-2 -top-8 whitespace-nowrap"
+            className="absolute z-50 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded -left-2 -top-8 whitespace-nowrap"
           >
             {content}
             <div className="absolute w-2 h-2 bg-gray-900 rotate-45 -bottom-1 left-4"></div>
@@ -257,23 +257,34 @@ export default function PostDetailPage() {
       });
       
       if (response.data.status === "success") {
-        toast.success('Comment posted successfully');
-
-        const newComment = response.data.data;
+        // Get the new comment data from the API response
+        const newCommentData = response.data.data.comment;
         
-        if (newComment && newComment.author) {
-          setComments(prev => [...prev, newComment]);
-          
-          // Update comment count
-          setPost(prevPost => ({
-            ...prevPost,
-            commentsCount: prevPost.commentsCount + 1
-          }));
-          
-          setCommentText('');
-        } else {
-          fetchLatestComments();
-        }
+        // Create a properly formatted comment object with current user's information
+        const newComment = {
+          ...newCommentData,
+          author: {
+            _id: currentUser._id,
+            username: currentUser.username,
+            avtImage: currentUser.avtImage || '/user_1.png'
+          }
+        };
+        
+        // Add the new comment to the list
+        setComments(prev => [...prev, newComment]);
+        
+        // Update comment count
+        setPost(prevPost => ({
+          ...prevPost,
+          commentsCount: prevPost.commentsCount + 1
+        }));
+        
+        setCommentText('');
+        toast.success('Comment posted successfully');
+        
+        // No need to reload the page - this improves user experience
+        // window.location.reload();
+        // window.scrollTo(0, 0);
       } else {
         toast.error('Failed to post comment');
       }
@@ -354,19 +365,38 @@ export default function PostDetailPage() {
     }
   };
 
-  // Helper function to fetch latest comments after posting
-  const fetchLatestComments = async () => {
-    try {
-      const response = await axios.get(`http://localhost:8080/api/v1/discussion/comments/${postId}`);
-      
-      if (response.data.status === "success") {
-        const { comments } = response.data.data;
-        setComments(comments);
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/v1/discussion/comments/${postId}`);
+  
+        if (response.data.status === "success") {
+          const { discussion, comments } = response.data.data;
+  
+          // Kiểm tra người dùng đã like chưa
+          const isLiked = currentUser && discussion.favourite.includes(currentUser._id);
+  
+          setPost({
+            ...discussion,
+            isLiked,
+            likes: discussion.favourite.length
+          });
+          setLikeStatus(isLiked);
+          setComments(comments);
+        }
+      } catch (err) {
+        console.error("Error fetching post:", err);
+        setError(err);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error("Error fetching updated comments:", err);
+    };
+  
+    if (postId && currentUser) {
+      fetchPost();
     }
-  };
+  }, [postId, currentUser]);  
+  
 
   // Redirect to login page
   const handleRedirectToLogin = () => {
@@ -402,7 +432,7 @@ export default function PostDetailPage() {
   if (error || !post) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-        <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 border border-red-100">
+        <div className="max-w-3xl mx-auto bg-white rounded-xl p-8 border border-red-100">
           <div className="flex items-center space-x-3 text-red-500 mb-6">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -410,10 +440,10 @@ export default function PostDetailPage() {
             <h1 className="text-2xl font-bold">Error</h1>
           </div>
           <p className="text-gray-700 mb-6">{error || "Post not found. It may have been deleted or moved."}</p>
-          <Link href="/home">
+          <Link href="/discussion">
             <div className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
               <ChevronLeft className="h-4 w-4 mr-2" />
-              Return to Home
+              Return to Discussion
             </div>
           </Link>
         </div>
@@ -449,7 +479,7 @@ export default function PostDetailPage() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
+              className="bg-white rounded-2xl p-8 max-w-md w-full"
             >
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-bold text-gray-800">Login Required</h3>
@@ -509,7 +539,7 @@ export default function PostDetailPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100"
+          className="bg-white rounded-2xl overflow-hidden border border-gray-100"
         >
 
           {/* Post header with enhanced styling */}
@@ -521,7 +551,7 @@ export default function PostDetailPage() {
                 <div className="relative">
                   <img 
                     src={post.author?.avtImage || '/user_1.png'} 
-                    className="w-13 h-13 rounded-full object-cover border-4 border-white shadow-lg" 
+                    className="w-13 h-13 rounded-full object-cover border-4 border-white" 
                     alt="Author Avatar" 
                   />
                 </div>
@@ -545,16 +575,18 @@ export default function PostDetailPage() {
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
             
-            {/* Interaction bar - Modified to show thumbs up instead of heart and put comment count next to like count */}
+            {/* Interaction bar */}
+            {post && (
             <div className="flex items-center py-4 border-t border-b border-gray-200 mb-6">
               <div className="flex items-center space-x-4">
                 <motion.button 
-                  onClick={() => handleToggleLike(post.id)}
+                
+                  onClick={() => handleToggleLike(post._id)}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-full ${
-                    likeStatus ? 'text-blue-600 bg-blue-50' : 'text-gray-600 bg-gray-50 hover:bg-gray-100'
+                    post.isLiked ? 'text-blue-600 bg-blue-50' : 'text-gray-600 bg-gray-50 hover:bg-gray-100'
                   } transition-all duration-200`}
                   whileTap={{ scale: 0.95 }}
-                  aria-label={likeStatus ? "Unlike this post" : "Like this post"}
+                  aria-label={post.isLiked ? "Unlike this post" : "Like this post"}
                 >
                   <motion.div
                     animate={isLikeAnimating ? {
@@ -563,18 +595,20 @@ export default function PostDetailPage() {
                     } : {}}
                   >
                     <ThumbsUp 
-                      className={`h-5 w-5 ${likeStatus ? 'fill-current' : ''}`} 
+                      className={`h-5 w-5 ${post.isLiked ? 'fill-current' : ''}`} 
                     />
                   </motion.div>
                   <span className="font-medium">{post.likes}</span>
                 </motion.button>
-                
+
                 <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-50 text-gray-600">
                   <MessageCircle className="h-5 w-5" />
-                  <span className="font-medium">{post.commentsCount}</span>
+                  <span className="font-medium">{post.commentCount || comments.length}</span>
                 </div>
               </div>
             </div>
+          )}
+
             
             {/* Comments Section */}
             <div className="mb-6">
@@ -594,20 +628,20 @@ export default function PostDetailPage() {
                       transition={{ duration: 0.3 }}
                       className={`bg-white p-4 rounded-xl ${
                         currentUser && comment.author && comment.author._id === currentUser._id 
-                          ? 'border-l-4 border-indigo-400 shadow-md' 
-                          : 'border border-gray-200 shadow-sm'
+                          ? 'border-l-4 border-indigo-400' 
+                          : 'border border-gray-200'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <img 
                             src={comment.author?.avtImage || '/user_1.png'} 
-                            className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" 
+                            className="w-10 h-10 rounded-full object-cover border-2 border-white" 
                             alt="User Avatar" 
                           />
                           <div>
                             <span className="font-semibold text-gray-800">
-                            {comment.author?.username}
+                            {comment.author?.username || 'Unknown User'}
                             </span>
                             <p className="text-xs text-gray-500">
                               {formatDate(comment.createdAt)}
@@ -635,7 +669,7 @@ export default function PostDetailPage() {
                                   animate={{ opacity: 1, scale: 1, y: 0 }}
                                   exit={{ opacity: 0, scale: 0.95, y: -5 }}
                                   transition={{ duration: 0.15 }}
-                                  className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-10 overflow-hidden border border-gray-200"
+                                  className="absolute right-0 mt-2 w-48 bg-white rounded-lg z-10 overflow-hidden border border-gray-200"
                                 >
                                   <button
                                     onClick={() => {
@@ -717,7 +751,7 @@ export default function PostDetailPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="bg-white rounded-xl shadow-md p-4 border border-gray-200"
+                className="bg-white rounded-xl p-4 border border-gray-200"
               >
                 <h4 className="font-medium text-gray-700 mb-3">Add your comment</h4>
                 <form onSubmit={handleAddComment}>

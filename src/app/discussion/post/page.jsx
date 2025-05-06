@@ -1,11 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import Editor from './editor';
+import Editor from '../../../components/discussion/editor';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 
-export default function Post({ onClose, onSuccess }) {
+export default function Post({ onSuccess }) {
     const [postData, setPostData] = useState({
         title: '',
         content: '',
@@ -13,6 +13,7 @@ export default function Post({ onClose, onSuccess }) {
     const [isPosting, setIsPosting] = useState(false);
     const [error, setError] = useState(null);
     const router = useRouter();
+    
     // Focus on title input when form opens
     useEffect(() => {
         const titleInput = document.getElementById('post-title');
@@ -35,79 +36,74 @@ export default function Post({ onClose, onSuccess }) {
             content: html,
         }));
     };
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsPosting(true);
-        setError(null);
+  // Modified handleSubmit function in Post component
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsPosting(true);
+    setError(null);
 
-        if (!postData.title.trim()) {
-            setError('Title is required');
-            setIsPosting(false);
-            return;
+    if (!postData.title.trim()) {
+        setError('Title is required');
+        setIsPosting(false);
+        return;
+    }
+
+    if (!postData.content.trim()) {
+        setError('Content is required');
+        setIsPosting(false);
+        return;
+    }
+
+    try {
+        const apiClient = axios.create({
+            baseURL: 'http://localhost:8080/api/v1',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            withCredentials: true,
+        });
+        const response = await apiClient.post('/discussion', postData);
+
+        // Handle success
+        console.log('Post created successfully:', response.data);
+        toast.success('Posted successfully');
+        
+        // Reset form
+        setPostData({
+            title: '',
+            content: '',
+        });
+
+        // Notify parent component of success if provided
+        if (onSuccess) {
+            onSuccess(response.data);
         }
+  
+        router.push('/discussion');
+    } catch (error) {
+        console.error('Error creating post:', error);
 
-        if (!postData.content.trim()) {
-            setError('Content is required');
-            setIsPosting(false);
-            return;
+        // Display backend error message if available
+        if (error.response && error.response.data && error.response.data.message) {
+            setError(error.response.data.message);
+        } else {
+            setError('An error occurred while creating the post. Please try again.');
         }
-
-        try {
-            const apiClient = axios.create({
-                baseURL: 'http://localhost:8080/api/v1',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                withCredentials: true,
-            });
-            const response = await apiClient.post('/discussion', postData);
-
-            // Handle success
-            console.log('Post created successfully:', response.data);
-            toast.success('Posted successfully');
-
-            // setTimeout(() => {
-            //   router.push('/home');
-            //   window.location.href = '/home';
-            // }, 1500);
-
-            // Reset form
-            setPostData({
-                title: '',
-                content: '',
-            });
-
-            // Notify parent component of success
-            if (onSuccess) {
-                onSuccess(response.data);
-            }
-
-            // Close form
-            onClose();
-        } catch (error) {
-            console.error('Error creating post:', error);
-
-            // Display backend error message if available
-            if (error.response && error.response.data && error.response.data.message) {
-                setError(error.response.data.message);
-            } else {
-                setError('An error occurred while creating the post. Please try again.');
-            }
-        } finally {
-            setIsPosting(false);
-        }
-    };
+    } finally {
+        setIsPosting(false);
+    }
+};
 
     return (
         <div className="fixed inset-0 bg-white/10 backdrop-blur-md flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+            <div className="bg-white rounded-lg w-full max-w-4xl mx-4 overflow-hidden max-h-[90vh] flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 flex-shrink-0">
                     <h3 className="text-lg font-semibold text-gray-800">Create Discussion</h3>
                     <button
                         type="button"
                         className="text-gray-500 hover:text-gray-700 text-xl focus:outline-none"
-                        onClick={onClose}
+                        onClick={() => router.back()} 
                     >
                         ❌
                     </button>
@@ -151,7 +147,7 @@ export default function Post({ onClose, onSuccess }) {
                         <button
                             type="button"
                             className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition"
-                            onClick={onClose}
+                            onClick={() => router.back()} 
                         >
                             Cancel
                         </button>

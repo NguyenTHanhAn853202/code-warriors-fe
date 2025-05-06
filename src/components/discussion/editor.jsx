@@ -43,10 +43,17 @@ export default function Editor({ value, onChange }) {
         inline: true,
       }),
     ],
+    editorProps: {
+      attributes: {
+        class: 'focus:outline-none focus:border-none',
+      },
+    },
     content: value,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+        // Set immediatelyRender to false to avoid hydration mismatches
+        immediatelyRender: false
   });
 
   const setLink = useCallback(() => {
@@ -190,7 +197,7 @@ export default function Editor({ value, onChange }) {
       </div>
       <EditorContent 
         editor={editor} 
-        className="prose max-w-full h-full p-4 min-h-64 focus:outline-none" 
+        className="prose max-w-full h-full p-4 min-h-62 focus:outline-none" 
       />
     </div>
   );

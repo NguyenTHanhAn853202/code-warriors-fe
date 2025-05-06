@@ -4,17 +4,17 @@ import { useState } from 'react';
 export default function PostComponent({ post, currentUser, onToggleLike, onPostClick }) {
     return (
         <div
-            className="p-5 hover:bg-blue-50 transition duration-200 cursor-pointer mb-4 border-b-[1px]"
+            className="p-5 hover:bg-bluea-50 transition duration-200 cursor-pointer mb-4 border-b-[1px]"
             onClick={() => onPostClick(post._id)}
         >
             <div className="flex space-x-4">
-                {/* Avatar */}
+                {/* Avatar with white border */}
                 <div className="flex-shrink-0">
-                    <div className="w-[50px] h-[50px] bg-transparent   overflow-hidden ">
+                    <div className="w-12 h-12 bg-transparent overflow-hidden rounded-full p-1">
                         <img
                             src={post.avatar}
                             alt={post.author ? post.author.username : 'User'}
-                            className="w-[50px] h-[50px] rounded-[100%] block"
+                            className="w-full h-full rounded-full object-cover"
                         />
                     </div>
                 </div>
@@ -24,13 +24,13 @@ export default function PostComponent({ post, currentUser, onToggleLike, onPostC
                     {/* Header */}
                     <div className="mb-1">
                         <div className="font-medium text-gray-700">
-                            {post.author ? post.author.username : 'Anonymous User'}
+                            {post.author ? post.author.username : 'Guest'}
                         </div>
-                        <div className="text-xs  text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</div>
+                        <div className="text-xs text-gray-500 ">{new Date(post.createdAt).toLocaleDateString()}</div>
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-xl font-bold mb-2 text-gray-900 hover:text-blue-700 transition duration-200">
+                    <h3 className="text-xl font-bold boder-b boder-gray-200 mb-2 text-gray-900 hover:text-blue-700 transition duration-200">
                         {post.title}
                     </h3>
 
