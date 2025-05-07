@@ -30,6 +30,7 @@ const ProblemList = () => {
 
     useEffect(() => {
         fetchProblems();
+        fetchAlgorithmTypes();
     }, []);
 
     useEffect(() => {
@@ -55,14 +56,23 @@ const ProblemList = () => {
             setLoading(false);
         }
     };
+    const fetchAlgorithmTypes = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/api/v1/algorithmTypes/ViewalgorithmTypes');
+            const allAlgorithmTypes = response.data.data || [];
+            setAlgorithmTypes(allAlgorithmTypes);
+        } catch (error) {
+            console.error('Error fetching algorithm types:', error);
+        }
+    };
 
     const applyFilters = () => {
         let filtered = [...problems];
 
         if (filters.difficulty) {
             filtered = filtered.filter((problem) => {
-                const difficulties = problem.difficulty.map((d) => d.name.toLowerCase()); // Lấy mảng tên từ difficulty
-                return difficulties.includes(filters.difficulty.toLowerCase()); // Kiểm tra nếu difficulty lọc khớp
+                const difficulties = problem.difficulty.map((d) => d.name.toLowerCase());
+                return difficulties.includes(filters.difficulty.toLowerCase());
             });
         }
 
