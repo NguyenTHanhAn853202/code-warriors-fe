@@ -7,7 +7,6 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import '@ant-design/v5-patch-for-react-19';
 import Description from '@/app/contest/create/Description';
-import SourceCodeEditor from '@/app/contest/create/SourceCodeEditor';
 import { useRouter } from 'next/navigation';
 const CreateProblems = () => {
     const [title, setTitle] = useState('');
@@ -95,7 +94,7 @@ const CreateProblems = () => {
                 expectedOutput: tc.expectedOutput,
             })),
             source_code: sourceCode,
-            author: "",
+            author: '',
         };
 
         try {
@@ -105,7 +104,7 @@ const CreateProblems = () => {
             } else {
                 message.error('An error occurred, please try again!');
             }
-            router.push("/problems/manageProblems");
+            router.push('/problems/manageProblems');
         } catch (error) {
             console.error('Error:', error);
             message.error('Failed to send data, please check the server!');
@@ -138,14 +137,12 @@ const CreateProblems = () => {
                     />
                     {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
                 </div>
-
                 {/* Description Section */}
                 <div className="form-group">
                     <label className="block text-gray-700 font-medium mb-2">Description</label>
                     <Description value={description} setValue={setDescription} />
                     {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
                 </div>
-
                 {/* Rank Section */}
                 <div className="form-group">
                     <label className="block text-gray-700 font-medium mb-2">Select Rank:</label>
@@ -160,14 +157,7 @@ const CreateProblems = () => {
                     />
                     {errors.selectedRank && <p className="text-red-500 text-sm mt-1">{errors.selectedRank}</p>}
                 </div>
-
-                {/* Source Code Section */}
-                <div className="form-group">
-                    <label className="block text-gray-700 font-medium mb-2">Source Code (optional)</label>
-                    <SourceCodeEditor value={sourceCode} setValue={setSourceCode} />
-                </div>
-
-                {/* Test Cases Section */}
+                \{/* Test Cases Section */}
                 <div className="form-group mt-6">
                     <div className="flex justify-between items-center mb-2">
                         <label className="block text-gray-700 font-medium">Test Cases List</label>
@@ -226,7 +216,6 @@ const CreateProblems = () => {
                         )}
                     </div>
                 </div>
-
                 {/* Submit Button */}
                 <div className="mt-6">
                     <button
