@@ -316,9 +316,15 @@ export default function ContestManagementPage() {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="max-w-xs truncate" title={contest.description}>
-                                            {contest.description}
-                                        </div>
+                                        <div
+                                            className="max-w-xs w-full h-6 overflow-hidden whitespace-nowrap text-ellipsis"
+                                            title={contest.description}
+                                            dangerouslySetInnerHTML={{
+                                                __html:
+                                                    contest.description ||
+                                                    'This CodeWars contest is sponsored by FunPlus.',
+                                            }}
+                                        ></div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">{contest.difficulty?.[0]?.name}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">📄</td>

@@ -36,7 +36,7 @@ export default function ContestDetail() {
                 }
 
                 const top3Response = await axios.get(`http://localhost:8080/api/v1/submission/top3/${id}`);
-                setTop3(top3Response.data.data); // Set top 3 participants
+                setTop3(top3Response.data.data);
             } catch (err) {
                 setError(err.response?.data?.message || err.message);
                 console.error('Error fetching contest details:', err);
@@ -100,7 +100,6 @@ export default function ContestDetail() {
         timeZoneName: 'short',
     });
 
-    // Format end date if available
     let formattedEndDate = '';
     if (contestData.endDate) {
         const endDate = new Date(contestData.endDate);
@@ -162,21 +161,43 @@ export default function ContestDetail() {
 
                 {/* TOP 3 Ranking */}
                 <div className="flex items-end gap-6 max-w-md w-full justify-center">
-                    {top3.map((participant, index) => {
-                        const rank = index + 1; // Rank 1, 2, 3 based on index
-                        const baseHeight = 180 - index * 20; // Dynamic height based on rank
-                        const baseBarHeight = 110 - index * 10; // Bar height changes based on rank
-                        const bgColor = [
-                            'bg-gray-300 bg-opacity-30', // 3rd place: gray
-                            'bg-yellow-400', // 2nd place: yellow
-                            'bg-yellow-800 bg-opacity-80', // 1st place: darker yellow
-                        ][index];
-                        const circleBg = [
-                            'bg-gray-400 text-gray-900', // 3rd place: gray
-                            'bg-yellow-300 text-yellow-900', // 2nd place: yellow
-                            'bg-yellow-900 text-yellow-300', // 1st place: darker yellow
-                        ][index];
-                        const fontSize = ['text-lg', 'text-xl', 'text-2xl'][index]; // Font size adjusted based on rank
+                    {[top3[1], top3[0], top3[2]].map((participant, index) => {
+                        if (!participant) return null;
+
+                        const actualTop3 = top3.filter(Boolean);
+                        const count = actualTop3.length;
+
+                        const rankMap = [2, 1, 3];
+                        const rank = rankMap[index];
+
+                        let colorRank;
+                        if (count === 1) {
+                            colorRank = 2;
+                        } else if (count === 2) {
+                            const orderedParticipants = [top3[0], top3[1]].filter(Boolean);
+                            const realRank = orderedParticipants.findIndex((p) => p === participant) + 1;
+                            colorRank = realRank === 1 ? 2 : 1;
+                        } else {
+                            colorRank = rank;
+                        }
+
+                        const baseHeight = { 1: 180, 2: 160, 3: 140 }[rank];
+                        const baseBarHeight = { 1: 110, 2: 100, 3: 90 }[rank];
+                        const bgColor = {
+                            3: 'bg-yellow-800 bg-opacity-80',
+                            2: 'bg-yellow-400',
+                            1: 'bg-gray-300 bg-opacity-30',
+                        }[colorRank];
+                        const circleBg = {
+                            3: 'bg-yellow-900 text-yellow-300',
+                            2: 'bg-yellow-300 text-yellow-900',
+                            1: 'bg-gray-400 text-gray-900',
+                        }[colorRank];
+                        const fontSize = {
+                            1: 'text-2xl',
+                            2: 'text-xl',
+                            3: 'text-lg',
+                        }[colorRank];
 
                         return (
                             <div
@@ -190,7 +211,7 @@ export default function ContestDetail() {
                                     {rank}
                                 </div>
                                 <div className="mt-auto mb-4 font-semibold text-center">
-                                    {participant ? participant.user.username : '—'}
+                                    {participant.user.username}
                                 </div>
                                 <div
                                     className={`${circleBg.split(' ')[0]} rounded-t-xl w-full`}

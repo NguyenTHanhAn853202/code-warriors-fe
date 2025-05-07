@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Description from './Description'; // TipTap editor for rich text
-import SourceCodeEditor from './SourceCodeEditor'; // Specialized TipTap code editor
 import { DatePicker, Input, Select, message } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import Link from 'next/link';
@@ -11,10 +10,8 @@ import '@ant-design/v5-patch-for-react-19';
 const { RangePicker } = DatePicker;
 
 const Contest = () => {
-
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [sourceCode, setSourceCode] = useState('');
     const [testCases, setTestCases] = useState([]);
     const [rankOptions, setRankOptions] = useState([]);
     const [selectedRank, setSelectedRank] = useState(null);
@@ -59,7 +56,6 @@ const Contest = () => {
     const clearFormFields = () => {
         setTitle('');
         setDescription('');
-        setSourceCode('<pre><code class="language-javascript">//Input code</code></pre>');
         setTestCases([]);
         setSelectedRank(null);
         setSelectedTime(null);
@@ -78,13 +74,10 @@ const Contest = () => {
         const currentDate = new Date();
 
         if (!title.trim()) newErrors.title = 'Please enter a title';
-        
+
         const plainDescription = extractTextFromHtml(description);
         if (!plainDescription.trim()) newErrors.description = 'Please enter a description';
-        
-        const plainSourceCode = extractTextFromHtml(sourceCode);
-        if (!plainSourceCode.trim()) newErrors.sourceCode = 'Please enter source code';
-        
+
         if (!selectedRank) newErrors.selectedRank = 'Please select a rank';
 
         if (!selectedTime || selectedTime.length !== 2) {
@@ -133,7 +126,6 @@ const Contest = () => {
                 input: tc.input,
                 expectedOutput: tc.expectedOutput,
             })),
-            source_code: sourceCode,
         };
 
         try {
@@ -214,13 +206,6 @@ const Contest = () => {
                         />
                         {errors.selectedTime && <p className="text-red-500 text-sm mt-1">{errors.selectedTime}</p>}
                     </div>
-                </div>
-
-                {/* Source Code Section */}
-                <div className="form-group">
-                    <label className="block text-gray-700 font-medium mb-2">Source Code</label>
-                    <SourceCodeEditor value={sourceCode} setValue={setSourceCode} />
-                    {errors.sourceCode && <p className="text-red-500 text-sm mt-1">{errors.sourceCode}</p>}
                 </div>
 
                 {/* Test Cases Section */}
