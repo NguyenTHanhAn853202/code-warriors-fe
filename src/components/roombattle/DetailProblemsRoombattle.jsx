@@ -71,8 +71,11 @@ function DetailProblemsRoombattle({ matchId, languages, endTime, problemId, rout
         description: '',
     });
     const [submission, setSubmission] = useState([]);
-    const [time, setTime] = useState(Math.max(Math.floor((new Date(endTime).getTime() - Date.now()) / 1000), 0));
-    const isFetched = useRef(false);
+    const [time, setTime] = useState(
+        Math.max(Math.floor((new Date(endTime).getTime() - Date.now()) / 1000), 0)
+    );
+    const isFetchedProblem = useRef(false);
+    const isFetchedSubmission = useRef(false);
 
     const onChange = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
@@ -82,17 +85,16 @@ function DetailProblemsRoombattle({ matchId, languages, endTime, problemId, rout
         for (let item of languages) {
             if (item.id == languageId) return item.name;
         }
+        return 'Unknown';
     };
 
     useEffect(() => {
-        if (isFetched.current || !problemId) return;
-        isFetched.current = true;
+        if (isFetchedProblem.current || !problemId) return;
+        isFetchedProblem.current = true;
 
         const fetchData = async () => {
             try {
-                const response = await axios.get(`/viewOneProblems/${problemId}`);
-                console.log('response view one ', response);
-
+                const response = await axios.get(`/problems/viewOneProblems/${problemId}`);
                 if (response.status === 200) {
                     setData(response.data.data);
                 }
@@ -102,7 +104,7 @@ function DetailProblemsRoombattle({ matchId, languages, endTime, problemId, rout
         };
 
         fetchData();
-    }, [matchId, problemId]);
+    }, [problemId]);
 
     useEffect(() => {
         let id = setInterval(() => {
@@ -111,7 +113,6 @@ function DetailProblemsRoombattle({ matchId, languages, endTime, problemId, rout
                     clearInterval(id);
                     return 0;
                 }
-
                 return prev - 1;
             });
         }, 1000);
@@ -121,34 +122,36 @@ function DetailProblemsRoombattle({ matchId, languages, endTime, problemId, rout
     }, [endTime]);
 
     useEffect(() => {
-        if (tag === tags.submissions) {
-            async function query() {
-                const response = await request.get('/submission/history/' + problemId);
-                if (response.status === 200) {
-                    let dataSource = response.data.data;
+        if (tag === tags.submissions && problemId && !isFetchedSubmission.current) {
+            isFetchedSubmission.current = true;
 
-                    dataSource = dataSource.map((item, index) => ({
-                        key: index,
-                        date: formatDate(item.createdAt),
-                        language: checkLanguage(item.languageId),
-                        runtime: item.time,
-                        memory: item.memory,
-                        score: item.score,
-                    }));
-                    setSubmission(dataSource);
+            async function query() {
+                try {
+                    const response = await axios.get('/submission/history/' + problemId);
+                    if (response.status === 200) {
+                        let dataSource = response.data.data.map((item, index) => ({
+                            key: index,
+                            date: formatDate(item.createdAt),
+                            language: checkLanguage(item.languageId),
+                            runtime: item.time,
+                            memory: item.memory,
+                            score: item.score,
+                        }));
+                        setSubmission(dataSource);
+                    }
+                } catch (err) {
+                    console.error('Lỗi khi fetch submissions:', err);
                 }
             }
             query();
         }
-    }, [tag]);
+    }, [tag, problemId]);
 
     return (
         <div className="h-full">
             <div className="flex bg-gray-50 items-center h-[30px] space-x-3 px-3 py-2">
                 <button
-                    onClick={(e) => {
-                        setTag(e.currentTarget.value);
-                    }}
+                    onClick={(e) => setTag(e.currentTarget.value)}
                     value={tags.description}
                     className={'flex items-center cursor-pointer ' + `${tag !== tags.description ? 'opacity-60' : ''}`}
                 >
@@ -156,11 +159,11 @@ function DetailProblemsRoombattle({ matchId, languages, endTime, problemId, rout
                     <span className="block ml-1 text-sm ">Description</span>
                 </button>
                 <div className="h-[20px] w-[2px] rounded-lg bg-gray-300 "></div>
-                {!matchId ? (
+                {matchId ? (
+                    <span className="text-green-600">{fortmantRunTime(time)}</span>
+                ) : (
                     <button
-                        onClick={(e) => {
-                            setTag(e.currentTarget.value);
-                        }}
+                        onClick={(e) => setTag(e.currentTarget.value)}
                         value={tags.submissions}
                         className={
                             'flex items-center cursor-pointer ' + `${tag !== tags.submissions ? 'opacity-60' : ''}`
@@ -169,14 +172,13 @@ function DetailProblemsRoombattle({ matchId, languages, endTime, problemId, rout
                         <GrPowerCycle className="text-xl text-amber-300" />
                         <span className="block ml-2 text-sm">Submissions</span>
                     </button>
-                ) : (
-                    <span className="text-green-600">{fortmantRunTime(time)}</span>
                 )}
             </div>
+
             {tag === tags.description ? (
                 <div className="px-4 py-5 space-y-3 overflow-y-scroll pb-12 h-full">
                     <h1 className="text-3xl">
-                        {'#' + data._id.slice(data._id.length - 6, data._id.length) + '. ' + data?.title}
+                        {'#' + data._id.slice(-6) + '. ' + data?.title}
                     </h1>
                     <div>
                         <span className="text-base font-light">Level: </span>

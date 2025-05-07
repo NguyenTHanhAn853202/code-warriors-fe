@@ -24,11 +24,11 @@ export default function RoomBattleClient({ roomId }) {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isRedirecting, setIsRedirecting] = useState(false);
-    const [isClient, setIsClient] = useState(false); // Ensure client-side execution
+    const [isClient, setIsClient] = useState(false); 
 
-    // Runs only on client-side
+
     useEffect(() => {
-        setIsClient(true); // Mark as client-side
+        setIsClient(true); 
 
         const storedUsername = localStorage.getItem('username');
         const storedRoomId = localStorage.getItem('roomId');
@@ -99,7 +99,7 @@ export default function RoomBattleClient({ roomId }) {
                 console.log('Battle started:', battleRoom);
                 setGameStatus('ongoing');
                 setRoom(battleRoom);
-                router.push(`/battleOngoing/${storedRoomId}`);
+                router.push(`/battleOngoing/${storedRoomId}?problemId=${battleRoom.problemId}`);
             },
             battle_ended: (endedRoom) => {
                 console.log('Battle ended:', endedRoom);
@@ -131,7 +131,7 @@ export default function RoomBattleClient({ roomId }) {
         return () => {
             if (socket) {
                 Object.keys(socketHandlers).forEach((event) => {
-                    socket.off(event); // dùng socket thay vì newSocket
+                    socket.off(event); 
                 });
                 if (roomId && username) {
                     socket.emit('leave_room', { roomId, username });

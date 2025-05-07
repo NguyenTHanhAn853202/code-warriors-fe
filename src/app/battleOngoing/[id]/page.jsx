@@ -36,7 +36,7 @@ function Submit() {
     const router = useRouter();
     const params = useParams();
     const [hasSubmission, setHasSubmission] = useState(false);
-    const { id: matchId } = params;
+    const { matchId } = useParams();
     const submitButton = useRef(null);
     const webcamRef = useRef(null);
     const [count, setCount] = useState(0);
@@ -140,15 +140,14 @@ function Submit() {
     const handleRunCode = async () => {
         try {
             setIsLoading(true);
-            const problemId = await request.post('/match/get-problemId', {
-                matchId: matchId,
-            });
-            console.log(problemId);
+            const {
+                data: { problem },
+            } = await request.get(`/problems/viewOneProblems/${matchId}`);
 
             const response = await request.post('/submission/run', {
                 sourceCode: editorRef.current.getValue(),
                 languageId: idLanguage.id,
-                problemId: problemId.data?.data,
+                problemId: problem._id,
             });
             if (response.status === 200) {
                 setTestResult(response.data);
