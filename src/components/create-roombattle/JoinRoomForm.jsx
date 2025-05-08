@@ -93,11 +93,11 @@ export default function JoinRoomForm({ onError, loading, setLoading }) {
 
     return (
         <div className="bg-gradient-to-r from-indigo-800 to-purple-700 p-8 rounded-xl shadow-2xl max-w-md mx-auto">
-            <h2 className="text-2xl font-bold mb-6 text-white text-center">Tham gia phòng</h2>
+            <h2 className="text-2xl font-bold mb-6 text-white text-center">Join Room</h2>
 
             <form onSubmit={handleJoinRoom} className="space-y-5">
                 <div className="bg-blue-800 bg-opacity-40 p-5 rounded-lg backdrop-blur-sm border border-blue-600">
-                    <label className="block text-blue-200 text-sm font-medium mb-2">Tên người chơi</label>
+                    <label className="block text-blue-200 text-sm font-medium mb-2">Player Name</label>
                     <input
                         type="text"
                         name="username"
@@ -109,15 +109,15 @@ export default function JoinRoomForm({ onError, loading, setLoading }) {
                     />
                 </div>
 
-                <div className="bg-white bg-opacity-10 p-5 rounded-lg backdrop-blur-sm">
-                    <label className="block text-white text-sm font-medium mb-2">ID Phòng</label>
+                <div className="bg-blue-800 bg-opacity-10 p-5 rounded-lg backdrop-blur-sm border border-blue-600">
+                    <label className="block text-blue-200 text-sm font-medium mb-2">Room ID</label>
                     <input
                         type="text"
                         name="roomId"
                         value={formData.roomId}
                         onChange={handleChange}
                         className="w-full px-4 py-3 bg-indigo-100 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-indigo-900"
-                        placeholder="Nhập ID phòng"
+                        placeholder="Enter Room ID"
                         required
                     />
                 </div>
@@ -131,20 +131,20 @@ export default function JoinRoomForm({ onError, loading, setLoading }) {
                         className="w-4 h-4 text-indigo-600 border-indigo-300 rounded focus:ring-indigo-500"
                     />
                     <label htmlFor="privateRoom" className="ml-2 text-sm font-medium text-white">
-                        Phòng riêng tư (có mật khẩu)
+                        Private Room (with password)
                     </label>
                 </div>
 
                 {isPrivateRoom && (
-                    <div className="bg-white bg-opacity-10 p-5 rounded-lg backdrop-blur-sm">
-                        <label className="block text-white text-sm font-medium mb-2">Mật khẩu phòng</label>
+                    <div className="bg-blue-800 bg-opacity-10 p-5 rounded-lg backdrop-blur-sm border border-blue-600">
+                        <label className="block text-blue-200 text-sm font-medium mb-2">Room Password</label>
                         <input
                             type="password"
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
                             className="w-full px-4 py-3 bg-indigo-100 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-indigo-900"
-                            placeholder="Nhập mật khẩu phòng"
+                            placeholder="Enter Room Password"
                         />
                     </div>
                 )}
@@ -176,15 +176,15 @@ export default function JoinRoomForm({ onError, loading, setLoading }) {
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            Đang tham gia...
+                            Joining...
                         </div>
                     ) : (
-                        'Tham gia phòng'
+                        'Join Room'
                     )}
                 </button>
             </form>
 
-            <div className="mt-6 text-center text-indigo-200 text-sm">Chưa có phòng? Bạn có thể tạo phòng mới.</div>
+            <div className="mt-6 text-center text-indigo-200 text-sm">Don't have a room? You can create a new one.</div>
         </div>
     );
 }
