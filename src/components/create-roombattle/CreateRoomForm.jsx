@@ -76,13 +76,13 @@ export default function CreateRoomForm({ onError, loading, setLoading }) {
     return (
         <div className="bg-gradient-to-br from-blue-900 to-indigo-800 p-8 rounded-xl shadow-2xl max-w-md mx-auto border border-blue-700">
             <div className="mb-6 text-center">
-                <h2 className="text-2xl font-bold text-white">Tạo phòng mới</h2>
+                <h2 className="text-2xl font-bold text-white">Create New Room</h2>
                 <div className="h-1 w-16 bg-blue-400 mx-auto mt-2 rounded-full"></div>
             </div>
 
             <form onSubmit={handleCreateRoom} className="space-y-5">
                 <div className="bg-blue-800 bg-opacity-40 p-5 rounded-lg backdrop-blur-sm border border-blue-600">
-                    <label className="block text-blue-200 text-sm font-medium mb-2">Tên người chơi</label>
+                    <label className="block text-blue-200 text-sm font-medium mb-2">Player Name</label>
                     <input
                         type="text"
                         name="username"
@@ -95,7 +95,7 @@ export default function CreateRoomForm({ onError, loading, setLoading }) {
                 </div>
 
                 <div className="bg-blue-800 bg-opacity-40 p-5 rounded-lg backdrop-blur-sm border border-blue-600">
-                    <label className="block text-blue-200 text-sm font-medium mb-2">Số người chơi tối đa</label>
+                    <label className="block text-blue-200 text-sm font-medium mb-2">Maximum Number of Players</label>
                     <div className="relative">
                         <select
                             name="maxPlayers"
@@ -103,9 +103,9 @@ export default function CreateRoomForm({ onError, loading, setLoading }) {
                             onChange={handleInputChange}
                             className="appearance-none w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-900 pr-10"
                         >
-                            <option value="2">2 người</option>
-                            <option value="3">3 người</option>
-                            <option value="4">4 người</option>
+                            <option value="2">2 players</option>
+                            <option value="3">3 players</option>
+                            <option value="4">	4 players</option>
                         </select>
                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-700">
                             <svg
@@ -136,20 +136,20 @@ export default function CreateRoomForm({ onError, loading, setLoading }) {
                                 className={`absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-200 transform ${formData.isPrivate ? 'translate-x-6' : ''}`}
                             ></div>
                         </div>
-                        <span className="ml-3 text-blue-200 font-medium">Phòng riêng tư</span>
+                        <span className="ml-3 text-blue-200 font-medium">Private Room</span>
                     </label>
                 </div>
 
                 {formData.isPrivate && (
                     <div className="bg-blue-800 bg-opacity-40 p-5 rounded-lg backdrop-blur-sm border border-blue-600 animate-fadeIn">
-                        <label className="block text-blue-200 text-sm font-medium mb-2">Mật khẩu phòng</label>
+                        <label className="block text-blue-200 text-sm font-medium mb-2">Room Password</label>
                         <input
                             type="password"
                             name="password"
                             value={formData.password}
                             onChange={handleInputChange}
                             className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-900"
-                            placeholder="Tạo mật khẩu phòng"
+                            placeholder="Set room password"
                             required
                         />
                     </div>
@@ -182,18 +182,18 @@ export default function CreateRoomForm({ onError, loading, setLoading }) {
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            Đang tạo phòng...
+                            Creating Room...
                         </div>
                     ) : (
                         <>
                             <span className="inline-block mr-2">✨</span>
-                            Tạo phòng mới
+                            Create New Room
                         </>
                     )}
                 </button>
             </form>
 
-            <div className="mt-6 text-center text-blue-200 text-sm">Tạo phòng xong, bạn sẽ trở thành chủ phòng</div>
+            <div className="mt-6 text-center text-blue-200 text-sm">Once created, you will become the host</div>
         </div>
     );
 }
