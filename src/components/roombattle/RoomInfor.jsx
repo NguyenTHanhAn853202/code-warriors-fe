@@ -6,7 +6,7 @@ export default function RoomInfo({ roomData }) {
         <div className="room-info bg-indigo-800 bg-opacity-40 rounded-lg p-4 mb-6 border border-indigo-500">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">
-                    <span className="text-yellow-300">Phòng:</span> {roomData.roomId}
+                    <span className="text-yellow-300">Room:</span> {roomData.roomId}
                 </h2>
                 {roomData?.isPrivate && (
                     <div className="bg-yellow-600 text-white text-sm px-3 py-1 rounded-full">
@@ -16,7 +16,7 @@ export default function RoomInfo({ roomData }) {
             </div>
             
             <div className="players-list">
-                <p className="text-lg font-semibold mb-3 text-gray-300">Người chơi:</p>
+                <p className="text-lg font-semibold mb-3 text-gray-300">Player:</p>
                 <div className="grid grid-cols-2 gap-3">
                     {roomData?.players?.map((player, index) => (
                         <div 
@@ -31,7 +31,7 @@ export default function RoomInfo({ roomData }) {
                             <div>
                                 <p className="font-medium">{player}</p>
                                 {roomData.createdBy === player && (
-                                    <span className="text-xs text-yellow-300">Chủ phòng</span>
+                                    <span className="text-xs text-yellow-300">Host</span>
                                 )}
                             </div>
                         </div>

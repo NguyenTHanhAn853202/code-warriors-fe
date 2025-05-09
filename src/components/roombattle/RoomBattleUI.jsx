@@ -38,7 +38,7 @@ export default function RoomBattleUI({
             ) : (
                 <div className="flex justify-center items-center p-8">
                     <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-white"></div>
-                    <p className="ml-3 text-gray-300">Đang tải thông tin phòng, vui lòng đợi...</p>
+                    <p className="ml-3 text-gray-300">Loading room information, please wait...</p>
                 </div>
             )}
 

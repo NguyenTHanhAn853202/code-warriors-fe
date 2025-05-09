@@ -105,7 +105,7 @@ export default function CreateRoomForm({ onError, loading, setLoading }) {
                         >
                             <option value="2">2 players</option>
                             <option value="3">3 players</option>
-                            <option value="4">	4 players</option>
+                            <option value="4">4 players</option>
                         </select>
                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-700">
                             <svg
