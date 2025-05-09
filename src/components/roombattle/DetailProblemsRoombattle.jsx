@@ -9,6 +9,7 @@ import fortmantRunTime from '@/utils/fortmatRunTime';
 import { DOMPurify } from '@chatui/core';
 import { Table } from 'antd';
 import axios from 'axios';
+import request from '@/utils/server';
 
 const tags = {
     description: 'description',
@@ -71,9 +72,7 @@ function DetailProblemsRoombattle({ matchId, languages, endTime, problemId, rout
         description: '',
     });
     const [submission, setSubmission] = useState([]);
-    const [time, setTime] = useState(
-        Math.max(Math.floor((new Date(endTime).getTime() - Date.now()) / 1000), 0)
-    );
+    const [time, setTime] = useState(Math.max(Math.floor((new Date(endTime).getTime() - Date.now()) / 1000), 0));
     const isFetchedProblem = useRef(false);
     const isFetchedSubmission = useRef(false);
 
@@ -94,9 +93,11 @@ function DetailProblemsRoombattle({ matchId, languages, endTime, problemId, rout
 
         const fetchData = async () => {
             try {
-                const response = await axios.get(`/problems/viewOneProblems/${problemId}`);
+                const response = await request.get(`/problems/viewOneProblems/${problemId}`);
+                console.log('res 1 ', response);
+
                 if (response.status === 200) {
-                    setData(response.data.data);
+                    setData(response.data.problem);
                 }
             } catch (err) {
                 console.error('Lỗi khi fetch problem:', err);
@@ -177,9 +178,7 @@ function DetailProblemsRoombattle({ matchId, languages, endTime, problemId, rout
 
             {tag === tags.description ? (
                 <div className="px-4 py-5 space-y-3 overflow-y-scroll pb-12 h-full">
-                    <h1 className="text-3xl">
-                        {'#' + data._id.slice(-6) + '. ' + data?.title}
-                    </h1>
+                    <h1 className="text-3xl">{'#' + data?._id?.slice(-6) + '. ' + data?.title}</h1>
                     <div>
                         <span className="text-base font-light">Level: </span>
                         <TagLevel />
