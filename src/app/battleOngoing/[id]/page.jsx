@@ -19,6 +19,7 @@ import { toastError, toastInfo, toastSuccess } from '@/utils/toasty';
 import ChatMatch from '@/components/ChatMatch';
 import Webcam from 'react-webcam';
 import DetailProblemsRoombattle from '@/components/roombattle/DetailProblemsRoombattle';
+import { useSearchParams } from 'next/navigation';
 
 const countAccept = 3;
 
@@ -41,6 +42,8 @@ function Submit() {
     const webcamRef = useRef(null);
     const [count, setCount] = useState(0);
     const [idInterval, setIdInterval] = useState();
+
+    const problemId = useSearchParams().get('problemId');
 
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
@@ -149,6 +152,7 @@ function Submit() {
                 languageId: idLanguage.id,
                 problemId: problem._id,
             });
+
             if (response.status === 200) {
                 setTestResult(response.data);
             }
@@ -250,6 +254,7 @@ function Submit() {
                                     endTime={endTime}
                                     languages={languages}
                                     matchId={matchId}
+                                    problemId={problemId}
                                 />
                             </div>
                         </Panel>
