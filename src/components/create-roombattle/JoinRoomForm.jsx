@@ -27,7 +27,7 @@ export default function JoinRoomForm({ onError, loading, setLoading }) {
                 setFormData((pre) => ({ ...pre, username: res.data?.data?.username || 'Người chơi' }));
             } catch (err) {
                 console.error('Lỗi khi lấy thông tin người dùng:', err);
-                onError('Không thể lấy thông tin người dùng');
+                onError('Không thể lấy thông tin người dùng ... Vui lòng thử lại sau.');
             }
         };
         fetchUserDate();
