@@ -166,14 +166,24 @@ function Submit() {
         try {
             setIsLoading(true);
             setHasSubmission(true);
-            socket.emit('submit_match', {
-                languageId: idLanguage.id,
-                sourceCode: editorRef.current.getValue(),
-                matchId: matchId,
-            });
-            toastSuccess('Submission is successfully');
+            socket.emit(
+                'submit_room',
+                {
+                    languageId: idLanguage.id,
+                    sourceCode: editorRef.current.getValue(),
+                    roomId: matchId,
+                },
+                (response) => {
+                    if (response.status === 'success') {
+                        toastSuccess(response.message);
+                    } else {
+                        toastError(response.message);
+                    }
+                },
+            );
         } catch (error) {
             console.log(error);
+            toastError('An error occurred during submission.');
         } finally {
             setIsLoading(false);
         }
