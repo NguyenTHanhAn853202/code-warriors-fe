@@ -72,9 +72,14 @@ export default function SignInPage() {
                 localStorage.removeItem('rememberedEmail');
                 localStorage.removeItem('rememberedPassword');
             }
-            localStorage.setItem('username', data.username);
             localStorage.setItem('isAuthenticated', 'true');
+            if(data.data){
+            localStorage.setItem('avatar', data.data.avtImage);
+            localStorage.setItem('username', data?.data?.username);
+                
+            }
             if (data.user) {
+                
                 localStorage.setItem('userData', JSON.stringify(data.user));
             }
 
@@ -83,7 +88,7 @@ export default function SignInPage() {
 
             setTimeout(() => {
                 router.push('/contest');
-                window.location.href = '/contest';
+                // window.location.href = '/contest';
             }, 1500);
         } catch (error) {
             setError(error.message || 'Invalid email or password');
