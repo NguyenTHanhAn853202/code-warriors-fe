@@ -73,13 +73,11 @@ export default function SignInPage() {
                 localStorage.removeItem('rememberedPassword');
             }
             localStorage.setItem('isAuthenticated', 'true');
-            if(data.data){
-            localStorage.setItem('avatar', data.data.avtImage);
-            localStorage.setItem('username', data?.data?.username);
-                
+            if (data.data) {
+                localStorage.setItem('avatar', data.data.avtImage);
+                localStorage.setItem('username', data?.data?.username);
             }
             if (data.user) {
-                
                 localStorage.setItem('userData', JSON.stringify(data.user));
             }
 
@@ -87,7 +85,7 @@ export default function SignInPage() {
             toast.success('Login successful!');
 
             setTimeout(() => {
-                router.push('/contest');
+                router.push('/');
                 // window.location.href = '/contest';
             }, 1500);
         } catch (error) {

@@ -1,85 +1,99 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { useSocket } from '@/components/ContextProvider'; // Hook để sử dụng socket
-import { Spin } from 'antd';
+import { Table } from 'antd';
+import { useEffect, useState } from 'react';
+import { useSocket } from '../contexts/SocketContext';
 
-const SubmissionResult = () => {
-    const router = useRouter();
-    const { id: roomId } = router.query; // Lấy roomId từ URL
-    const socket = useSocket(); // Kết nối socket
-    const [results, setResults] = useState([]);
-    const [loading, setLoading] = useState(true);
+const columns = [
+  {
+    title: 'Rank',
+    dataIndex: 'rank',
+    key: 'rank',
+    width: '10%',
+    render: (_, __, index) => index + 1
+  },
+  {
+    title: 'Player',
+    dataIndex: 'username',
+    key: 'username',
+  },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+    render: (status) => (
+      <span className={
+        status === 'Accepted' ? 'text-green-500' : 
+        status === 'Wrong Answer' ? 'text-red-500' : 
+        'text-yellow-500'
+      }>
+        {status}
+      </span>
+    )
+  },
+  {
+    title: 'Score',
+    dataIndex: 'score',
+    key: 'score',
+    sorter: (a, b) => b.score - a.score
+  },
+  {
+    title: 'Time',
+    dataIndex: 'time',
+    key: 'time',
+    render: (time) => `${time}ms`
+  },
+  {
+    title: 'Memory',
+    dataIndex: 'memory',
+    key: 'memory',
+    render: (memory) => `${memory}KB`
+  }
+];
 
-    useEffect(() => {
-        if (socket && roomId) {
-            // Gửi yêu cầu lấy kết quả phòng
-            socket.emit('get_room_results', { roomId });
+export default function RoomLeaderboard({ roomId }) {
+  const [leaderboard, setLeaderboard] = useState([]);
+  const socket = useSocket();
 
-            // Lắng nghe sự kiện trả về kết quả
-            socket.on('room_results', (data) => {
-                setResults(data.results);
-                setLoading(false);
-            });
+  useEffect(() => {
+    if (socket) {
+      // Lắng nghe sự kiện có người nộp bài mới
+      socket.on('submission_update', (data) => {
+        setLeaderboard(prev => {
+          const newBoard = [...prev];
+          const existingIndex = newBoard.findIndex(p => p.username === data.username);
+          
+          if (existingIndex !== -1) {
+            newBoard[existingIndex] = data;
+          } else {
+            newBoard.push(data);
+          }
+          
+          return newBoard.sort((a, b) => b.score - a.score || a.time - b.time);
+        });
+      });
 
-            // Lắng nghe lỗi
-            socket.on('error', (message) => {
-                console.error('Error:', message);
-                setLoading(false);
-            });
-
-            // Cleanup khi component unmount
-            return () => {
-                socket.off('room_results');
-                socket.off('error');
-            };
-        }
-    }, [socket, roomId]);
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <Spin size="large" />
-            </div>
-        );
+      // Lắng nghe sự kiện kết thúc phòng
+      socket.on('finish_room', ({ results }) => {
+        setLeaderboard(results.sort((a, b) => b.score - a.score || a.time - b.time));
+      });
     }
 
-    return (
-        <div className="max-w-3xl mx-auto p-6 space-y-6">
-            <h1 className="text-xl font-bold text-center">Room Results</h1>
-            <div className="bg-white p-4 shadow-lg rounded-lg">
-                <table className="w-full border-collapse border border-gray-300">
-                    <thead>
-                        <tr>
-                            <th className="border border-gray-300 p-2">Player</th>
-                            <th className="border border-gray-300 p-2">Status</th>
-                            <th className="border border-gray-300 p-2">Grade</th>
-                            <th className="border border-gray-300 p-2">Execution Time</th>
-                            <th className="border border-gray-300 p-2">Memory Usage</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {results.map((result, index) => (
-                            <tr key={index}>
-                                <td className="border border-gray-300 p-2">{result.username}</td>
-                                <td className="border border-gray-300 p-2">
-                                    {result.grade !== null ? 'Submitted' : 'Waiting'}
-                                </td>
-                                <td className="border border-gray-300 p-2">
-                                    {result.grade !== null ? result.grade : '-'}
-                                </td>
-                                <td className="border border-gray-300 p-2">
-                                    {result.executionTime !== null ? `${result.executionTime} ms` : '-'}
-                                </td>
-                                <td className="border border-gray-300 p-2">
-                                    {result.memoryUsage !== null ? `${result.memoryUsage} KB` : '-'}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-};
+    return () => {
+      if (socket) {
+        socket.off('submission_update');
+        socket.off('finish_room');
+      }
+    };
+  }, [socket]);
 
-export default SubmissionResult;
+  return (
+    <div className="bg-white rounded-lg p-4">
+      <h2 className="text-xl font-bold mb-4">Room Rankings</h2>
+      <Table 
+        columns={columns} 
+        dataSource={leaderboard}
+        rowKey="username"
+        pagination={false}
+      />
+    </div>
+  );
+}
