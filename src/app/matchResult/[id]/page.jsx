@@ -1,189 +1,174 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Spin } from 'antd';
-import { FaTrophy, FaClock, FaMemory, FaStopwatch, FaMedal } from 'react-icons/fa6';
-import { useRouter } from 'next/navigation';
-import { toastError } from '@/utils/toasty';
 import request from '@/utils/server';
+import { Tooltip } from 'antd';
+import { MessageSquare } from 'lucide-react';
+import { useRouter, useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-// Thêm hàm helper để tính thời gian làm bài
-const calculateSolvingTime = (startTime, submitTime) => {
-    const start = new Date(startTime).getTime();
-    const end = new Date(submitTime).getTime();
-    const diffSeconds = Math.floor((end - start) / 1000);
-
-    const minutes = Math.floor(diffSeconds / 60);
-    const seconds = diffSeconds % 60;
-
-    return `${minutes}m ${seconds}s`;
-};
-
-export default function BattleResult({ params }) {
-    const [result, setResult] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const router = useRouter();
-    const roomId = params.id;
-
-    const fetchBattleResult = async () => {
-        try {
-            const response = await request.get(`/submission/matchResult/${roomId}`);
-
-            if (response.data.status === 'success') {
-                const room = response.data.data;
-
-                if (!room.endedAt) {
-                    return;
-                }
-
-                setResult({
-                    roomId: room.roomId,
-                    submissions: room.rankings.map((rank) => ({
-                        username: rank.username,
-                        status: rank.status,
-                        grade: rank.points,
-                        executionTime: rank.executionTime,
-                        memoryUsage: rank.memoryUsage,
-                        timeSubmission: rank.duration,
-                        submittedAt: rank.submittedAt,
-                        solvingTime: calculateSolvingTime(room.startedAt, rank.submittedAt),
-                        rank: rank.rank,
-                    })),
-                    winner: room.winner,
-                    startedAt: new Date(room.startedAt).toLocaleString('en-US'),
-                    endedAt: room.endedAt ? new Date(room.endedAt).toLocaleString('en-US') : null,
-                });
-                setLoading(false);
-            }
-        } catch (error) {
-            console.error('Error fetching battle result:', error);
-            toastError('Could not fetch battle results');
-        }
-    };
-
+const MatchResult = () => {
+    const params = useParams();
+    const [data, setData] = useState({});
+    const matchId = params.id;
     useEffect(() => {
-        // Initial fetch
-        fetchBattleResult();
-
-        // Set interval to reload every 3s
-        const interval = setInterval(fetchBattleResult, 3000);
-
-        // Cleanup interval
-        return () => clearInterval(interval);
-    }, [roomId]);
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center min-h-screen">
-                <Spin size="large" />
-            </div>
-        );
-    }
+        (async () => {
+            try {
+                const response = await request.get('/match/result/' + matchId);
+                if (response.status === 200) {
+                    setData(response.data.data);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        })();
+    }, [matchId]);
+    console.log(data);
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                    {/* Header with battle time */}
-                    <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
-                        <h1 className="text-2xl font-bold text-white">Battle Results</h1>
-                        <p className="text-blue-100">Room: {roomId}</p>
-                        <div className="mt-2 text-blue-100 text-sm">
-                            <p>Started: {result?.startedAt}</p>
-                            <p>Ended: {result?.endedAt}</p>
-                        </div>
-                    </div>
+        <div className="max-w-3xl mx-auto p-6 space-y-6">
+            {/* Header */}
+            <h1 className="text-xl font-bold text-center">Match Result</h1>
 
-                    {/* Results Grid */}
-                    <div className="grid gap-6 p-6">
-                        {result?.submissions
-                            ?.sort((a, b) => a.rank - b.rank)
-                            .map((submission, index) => (
-                                <div
-                                    key={submission.username}
-                                    className={`p-6 rounded-lg border ${
-                                        result.winner === submission.username
-                                            ? 'border-yellow-400 bg-yellow-50'
-                                            : 'border-gray-200'
-                                    }`}
+            {/* Match Overview */}
+            <div className="bg-white p-4 shadow-lg rounded-lg text-center">
+                <div className="flex items-center justify-between">
+                    <div className="flex flex-col items-center">
+                        <img className="w-16 h-16" src="/user_1.png" alt="Team 1" />
+                        <Tooltip title={data?.player1?.username}>
+                            <span className="text-md truncate font-light block max-w-[200px]  overflow-hidden">
+                                {data?.player1?.username}
+                            </span>
+                        </Tooltip>
+                    </div>
+                    <div className="text-3xl font-bold">
+                        {data?.winner ? (
+                            <>
+                                <span
+                                    className={`${data?.winner === data?.player1?._id ? 'text-green-600' : 'text-red-600'}`}
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-4">
-                                            {/* Rank medals */}
-                                            <div className="flex items-center">
-                                                {index === 0 && <FaTrophy className="text-yellow-400 text-2xl" />}
-                                                {index === 1 && <FaMedal className="text-gray-400 text-2xl" />}
-                                                {index === 2 && <FaMedal className="text-amber-600 text-2xl" />}
-                                                <span className="ml-2 text-lg font-semibold text-gray-600">
-                                                    #{submission.rank}
-                                                </span>
-                                            </div>
-
-                                            <div>
-                                                <h2 className="text-xl font-semibold">
-                                                    {submission.username}
-                                                    {result.winner === submission.username && ' (Winner)'}
-                                                </h2>
-                                                <p
-                                                    className={`text-sm ${
-                                                        submission.status === 'Accepted'
-                                                            ? 'text-green-600'
-                                                            : 'text-red-600'
-                                                    }`}
-                                                >
-                                                    {submission.status}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-2xl font-bold text-blue-600">
-                                                {submission.grade} points
-                                            </p>
-                                            <p className="text-sm text-gray-500">
-                                                Submitted at: {submission.submittedAt}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Performance metrics */}
-                                    <div className="mt-4 grid grid-cols-3 gap-4">
-                                        <div className="flex items-center space-x-2">
-                                            <FaClock className="text-gray-400" />
-                                            <div>
-                                                <span className="text-sm font-semibold">Execution Time</span>
-                                                <p className="text-sm text-gray-600">{submission.executionTime} ms</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <FaMemory className="text-gray-400" />
-                                            <div>
-                                                <span className="text-sm font-semibold">Memory Usage</span>
-                                                <p className="text-sm text-gray-600">{submission.memoryUsage} KB</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <FaStopwatch className="text-gray-400" />
-                                            <div>
-                                                <span className="text-sm font-semibold">Solving Time</span>
-                                                <p className="text-sm text-gray-600">{submission.solvingTime}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                                    {data?.winner === data?.player1?._id ? 'Win' : 'Lose'}
+                                </span>{' '}
+                                -{' '}
+                                <span
+                                    className={`${data?.winner === data?.player2?._id ? 'text-green-600' : 'text-red-600'}`}
+                                >
+                                    {data?.winner === data?.player2?._id ? 'Win' : 'Lose'}
+                                </span>
+                            </>
+                        ) : (
+                            <span className="text-orange-600">Drew</span>
+                        )}
                     </div>
-
-                    {/* Actions */}
-                    <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-4">
-                        <button
-                            onClick={() => router.push('/dashboard')}
-                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-                        >
-                            Back to Dashboard
-                        </button>
+                    <div className="flex flex-col items-center">
+                        <img className="w-16 h-16" src="/user_1.png" alt="Team 2" />
+                        <Tooltip title={data?.player2?.username}>
+                            <span className="text-md truncate font-light block max-w-[200px]  overflow-hidden">
+                                {data?.player2?.username}
+                            </span>
+                        </Tooltip>
                     </div>
                 </div>
             </div>
+
+            {/* Match Stats */}
+            <div className="bg-white p-4 shadow-lg rounded-lg">
+                <h2 className="text-lg font-semibold mb-3">Match statistic</h2>
+                <div className="space-y-2">
+                    <div className="flex justify-between">
+                        <span>Point</span>
+                        <span>
+                            {data?.player1Submissions?.grade} - {data?.player2Submissions?.grade}
+                        </span>
+                    </div>
+                    <div className="w-full bg-gray-200 h-2 rounded mb-7">
+                        <div
+                            className="bg-blue-500 h-2 rounded"
+                            style={{
+                                width:
+                                    Math.floor(
+                                        (data?.player1Submissions?.grade /
+                                            (data?.player1Submissions?.grade + data?.player2Submissions?.grade)) *
+                                            100,
+                                    ) + '%',
+                            }}
+                        ></div>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>Execute time</span>
+                        <span>
+                            {data?.player1Submissions?.executionTime?.toFixed(3)}(ms) -{' '}
+                            {data?.player2Submissions?.executionTime?.toFixed(3)}(ms)
+                        </span>
+                    </div>
+                    <div className="w-full bg-gray-200 h-2 rounded mb-7">
+                        <div
+                            className="bg-blue-500 h-2 rounded"
+                            style={{
+                                width:
+                                    Math.floor(
+                                        (data?.player1Submissions?.executionTime /
+                                            (data?.player1Submissions?.executionTime +
+                                                data?.player2Submissions?.executionTime)) *
+                                            100,
+                                    ) + '%',
+                            }}
+                        ></div>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>Memory</span>
+                        <span>
+                            {data?.player1Submissions?.memoryUsage?.toFixed(3)}(B) -{' '}
+                            {data?.player2Submissions?.memoryUsage?.toFixed(3)}(B)
+                        </span>
+                    </div>
+                    <div className="w-full bg-gray-200 h-2 rounded mb-7">
+                        <div
+                            className="bg-blue-500 h-2 rounded"
+                            style={{
+                                width:
+                                    Math.floor(
+                                        (data?.player1Submissions?.memoryUsage /
+                                            (data?.player1Submissions?.memoryUsage +
+                                                data?.player2Submissions?.memoryUsage)) *
+                                            100,
+                                    ) + '%',
+                            }}
+                        ></div>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>submission time</span>
+                        <span>
+                            {data?.player1Submissions?.timeSubmission?.toFixed(0)}(s) -{' '}
+                            {data?.player2Submissions?.timeSubmission?.toFixed(0)}(s)
+                        </span>
+                    </div>
+                    <div className="w-full bg-gray-200 h-2 rounded mb-7">
+                        <div
+                            className="bg-blue-500 h-2 rounded"
+                            style={{
+                                width:
+                                    Math.floor(
+                                        (data?.player1Submissions?.timeSubmission /
+                                            (data?.player1Submissions?.timeSubmission +
+                                                data?.player2Submissions?.timeSubmission)) *
+                                            100,
+                                    ) + '%',
+                            }}
+                        ></div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Comments Section */}
+            {/* <div className="bg-white p-4 shadow-lg rounded-lg">
+                <h2 className="text-lg font-semibold mb-3">Bình luận</h2>
+                <div className="flex items-center space-x-2">
+                    <MessageSquare size={20} />
+                    <span className="text-sm text-gray-500">Chưa có bình luận nào</span>
+                </div>
+            </div> */}
         </div>
     );
-}
+};
+
+export default MatchResult;
