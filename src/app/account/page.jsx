@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { Edit, Save, X } from 'lucide-react';
 import axios from 'axios';
 import MyDiscussions from '../../components/discussion/myDiscussion';
-import request from '@/utils/server';
 
 const ProfilePage = () => {
   const [user, setUser] = useState({
@@ -21,7 +20,6 @@ const ProfilePage = () => {
   const [tempValue, setTempValue] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [base64Image, setBase64Image] = useState("");
 
   useEffect(() => {
     fetchUserInfo();
@@ -325,31 +323,6 @@ const parseBirthday = (formattedDate) => {
     return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>;
   }
 
-  
-  
-
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const base64 = await convertToBase64(file);
-      setBase64Image(base64); 
-      await request.post("/user/update-image",{
-        image:base64
-      })
-      localStorage.setItem("avatar",base64)
-    }
-  };
-
-
-   const convertToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -359,17 +332,16 @@ const parseBirthday = (formattedDate) => {
           <div className="relative">
             <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200">
               <Image 
-                src={base64Image?base64Image : localStorage.getItem("avatar")} 
+                src={user.avatar} 
                 alt="Profile avatar"
                 width={128}
                 height={128}
                 className="object-cover"
               />
             </div>
-            <input onChange={handleImageChange} type='file' id='image-user' className='hidden' />
-            <label htmlFor="image-user" className="absolute bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
+            <button className="absolute bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
               <Edit size={16} />
-            </label>
+            </button>
           </div>
           
           <div className="flex-1 text-center sm:text-left">

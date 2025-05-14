@@ -72,6 +72,7 @@ export default function SignInPage() {
                 localStorage.removeItem('rememberedEmail');
                 localStorage.removeItem('rememberedPassword');
             }
+            localStorage.setItem('username', data.username);
             localStorage.setItem('isAuthenticated', 'true');
             if (data.data) {
                 localStorage.setItem('avatar', data.data.avtImage);
