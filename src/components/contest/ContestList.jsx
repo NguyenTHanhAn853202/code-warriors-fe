@@ -121,6 +121,8 @@ const ContestList = ({ contests: initialContests }) => {
         setSearchTerm('');
         setSelectedRank('');
     };
+    console.log("All contests:", contests);
+
 
     return (
         <div className="p-4">
@@ -192,7 +194,12 @@ const ContestList = ({ contests: initialContests }) => {
                                         ></div>
 
                                         <div className="flex-1 space-y-2">
-                                            <h3 className="text-lg font-semibold">{contest.title}</h3>
+                                            <h3 className="text-lg font-semibold">
+                                            {contest.title.length > 25
+                                                ? `${contest.title.substring(0, 25)}...`
+                                                : contest.title}
+                                            </h3>
+
                                             <p className="text-sm">
                                                 ⏲️ Start Date: <span className="rounded">{formatDate(contest.startDate)}</span>
                                             </p>

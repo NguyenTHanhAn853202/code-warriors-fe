@@ -10,6 +10,7 @@ const { RangePicker } = DatePicker;
 import dayjs from 'dayjs';
 import '@ant-design/v5-patch-for-react-19';
 import Description from '../create/Description';
+import truncateHTML from '@/utils/truncateHTML';
 
 export default function ContestManagementPage() {
     const [contests, setContests] = useState([]);
@@ -288,9 +289,6 @@ export default function ContestManagementPage() {
                                     Rank
                                 </th>
                                 <th className="px-6 py-3 text-left font-medium text-xs text-blue-500 uppercase">
-                                    Source Code
-                                </th>
-                                <th className="px-6 py-3 text-left font-medium text-xs text-blue-500 uppercase">
                                     Test Case
                                 </th>
                                 <th className="px-6 py-3 text-left font-medium text-xs text-blue-500 uppercase">
@@ -311,8 +309,8 @@ export default function ContestManagementPage() {
                             {currentContests.map((contest) => (
                                 <tr key={contest._id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="max-w-xs truncate" title={contest.title}>
-                                            {contest.title}
+                                        <div className="max-w-xs truncate"  title={contest.title}>
+                                             {truncateHTML(contest.title, 15)}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -320,14 +318,11 @@ export default function ContestManagementPage() {
                                             className="max-w-xs w-full h-6 overflow-hidden whitespace-nowrap text-ellipsis"
                                             title={contest.description}
                                             dangerouslySetInnerHTML={{
-                                                __html:
-                                                    contest.description ||
-                                                    'This CodeWars contest is sponsored by FunPlus.',
+                                            __html:truncateHTML(contest.description || 'This CodeWars contest is sponsored by FunPlus.',15),
                                             }}
                                         ></div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">{contest.difficulty?.[0]?.name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">📄</td>
                                     <td className="px-6 py-4 whitespace-nowrap">{contest.testCases?.length ?? 0}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         {new Date(contest.startDate).toLocaleString()}

@@ -72,7 +72,6 @@ export default function SignInPage() {
                 localStorage.removeItem('rememberedEmail');
                 localStorage.removeItem('rememberedPassword');
             }
-            localStorage.setItem('username', data.username);
             localStorage.setItem('isAuthenticated', 'true');
             if (data.data) {
                 localStorage.setItem('avatar', data.data.avtImage);
@@ -85,10 +84,8 @@ export default function SignInPage() {
             setSuccessMessage('Login successful! Redirecting...');
             toast.success('Login successful!');
 
-            setTimeout(() => {
-                router.push('/');
-                // window.location.href = '/contest';
-            }, 1500);
+            window.location.href = '/';
+   
         } catch (error) {
             setError(error.message || 'Invalid email or password');
             toast.error(error.message || 'Login failed');
