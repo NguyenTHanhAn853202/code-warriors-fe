@@ -95,6 +95,15 @@ export default function RootLayout({ children }) {
                             </a>
 
                             <nav className="hidden md:flex ml-10">
+                                {/* Admin Dashboard Menu Item - Only shown for users with admin role */}
+                                    {isAdmin && (
+                                            <Link
+                                                href="/dashboard"    
+                                                className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                            >
+                                                Dashboard
+                                            </Link>
+                                    )}
                                 <Link
                                     href="/contest"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
@@ -156,9 +165,9 @@ export default function RootLayout({ children }) {
                                 />
                             </div>
 
-                            <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-medium mr-4">
+                            {/* <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-medium mr-4">
                                 Premium
-                            </button>
+                            </button> */}
 
                             {isAuthenticated ? (
                                 <div className="relative">
@@ -345,30 +354,6 @@ export default function RootLayout({ children }) {
                                                     </svg>
                                                     Manage Problems
                                                 </a>
-                                                    {/* Admin Dashboard Menu Item - Only shown for users with admin role */}
-                                                {isAdmin && (
-                                                    <a
-                                                        href="/dashboard"
-                                                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-800"
-                                                        role="menuitem"
-                                                    >
-                                                        <svg
-                                                            className="mr-3 h-5 w-5 text-gray-500"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke="currentColor"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth="2"
-                                                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                                                            />
-                                                        </svg>
-                                                        Dashboard
-                                                    </a>
-                                                )}
                                                 <a
                                                     href="/settings"
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600"
