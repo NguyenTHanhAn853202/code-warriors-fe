@@ -75,6 +75,9 @@ export default function RootLayout({ children }) {
             console.error('Logout failed:', error);
         }
     };
+     // Check if user has admin role
+    const isAdmin = user?.role === "admin";
+
 
     const toggleDropdown = () => {
         setShowDropdown(!showDropdown);
@@ -92,24 +95,37 @@ export default function RootLayout({ children }) {
                             </a>
 
                             <nav className="hidden md:flex ml-10">
+                                {/* Admin Dashboard Menu Item - Only shown for users with admin role */}
+                                    {isAdmin && (
+                                            <Link
+                                                href="/dashboard"    
+                                                className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                            >
+                                                Dashboard
+                                            </Link>
+                                    )}
                                 <Link
                                     href="/contest"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
                                 >
                                     Contest
                                 </Link>
-                                <Link
-                                    href="/create-room"
-                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
-                                >
-                                    Room Battle
-                                </Link>
-                                <Link
-                                    className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
-                                    href={'/room'}
-                                >
-                                    Online Battle
-                                </Link>
+                                {isAuthenticated && (
+                                    <>
+                                        <Link
+                                            href="/create-room"
+                                            className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                        >
+                                            Room Battle
+                                        </Link>
+                                        <Link
+                                            className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                            href={'/room'}
+                                        >
+                                            Online Battle
+                                        </Link>
+                                    </>
+                                )}
                                 <Link
                                     href="/problems"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
@@ -149,9 +165,9 @@ export default function RootLayout({ children }) {
                                 />
                             </div>
 
-                            <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-medium mr-4">
+                            {/* <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-medium mr-4">
                                 Premium
-                            </button>
+                            </button> */}
 
                             {isAuthenticated ? (
                                 <div className="relative">
@@ -273,7 +289,7 @@ export default function RootLayout({ children }) {
                                                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                                                         />
                                                     </svg>
-                                                    Your Profile
+                                                    Profile
                                                 </a>
                                                 <a
                                                     href="/account/submissions"

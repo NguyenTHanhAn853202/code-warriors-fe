@@ -105,16 +105,21 @@ const FeaturedContests = ({ styles, contests }) => {
                                 )}
                             </div>
                             <div className="p-2 text-left bg-white bg-opacity-50 text-black">
-                                <h3
-                                    className={`font-semibold text-base ${hasStarted ? 'hover:underline cursor-pointer' : 'cursor-default'}`}
+                               <h3 className={`font-semibold text-base ${hasStarted ? 'hover:underline cursor-pointer' : 'cursor-default'} overflow-hidden text-ellipsis`}
+                                    style={{
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 4,
+                                        WebkitBoxOrient: 'vertical',
+                                    }}
                                     onClick={() => {
                                         if (hasStarted) {
-                                            router.push(`/contest/${contest._id}`);
+                                        router.push(`/contest/${contest._id}`);
                                         }
                                     }}
-                                >
+                                    >
                                     {contest.title}
                                 </h3>
+
                                 {hasStarted ? (
                                     <p className="text-sm">
                                         ⌛ Time remaining: {days}d {hours}h {minutes}m {seconds}s

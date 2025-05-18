@@ -130,26 +130,56 @@ export default function ContestDetail() {
                 </div>
 
                 {/* Contest Title */}
-                <h1 className="text-3xl font-bold text-orange-500 mb-2">{contestData.title}</h1>
-                <div className="text-gray-600 mb-4 flex flex-col">
-                    <span>⏲️ Start: {formattedDate}</span>
-                    {contestData.endDate && <span>⏲️ End: {formattedEndDate}</span>}
-                    {!isContestActive && contestData.endDate && (
-                        <span className="text-red-500 mt-1">This contest has ended</span>
+                <h1 className="text-3xl font-bold text-orange-500 mb-2 overflow-hidden text-ellipsis"
+                    style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 4,
+                        WebkitBoxOrient: 'vertical',
+                    }}
+                    >
+                    {contestData.title}
+                    </h1>
+                <div className="rounded-lg p-4 mb-6">
+                    {/* Start date on timeline */}
+                    <div className="relative border-l-2 border-blue-400 pl-6 pb-2">
+                        <div className="absolute -left-2 top-0">
+                        <div className="bg-blue-500 rounded-full w-4 h-4"></div>
+                        </div>
+                        <span className="text-sm text-gray-500">Start</span>
+                        <div className="font-medium">{formattedDate}</div>
+                    </div>
+                    
+                    {/* End date on timeline */}
+                    {contestData.endDate && (
+                        <div className="relative border-l-2 border-purple-400 pl-6 mt-4">
+                        <div className="absolute -left-2 top-0">
+                            <div className="bg-purple-500 rounded-full w-4 h-4"></div>
+                        </div>
+                        <span className="text-sm text-gray-500">End</span>
+                        <div className="font-medium">{formattedEndDate}</div>
+                        </div>
                     )}
-                </div>
+                    
+                    {/* Contest ended notice */}
+                    {!isContestActive && contestData.endDate && (
+                        <div className="mt-4 bg-red-50 p-2 rounded-md border border-red-100 flex items-center">
+                        <AlertCircle size={16} className="text-red-500 mr-2" />
+                        <span className="text-red-600 text-sm">This contest has ended</span>
+                        </div>
+                    )}
+                    </div>
 
                 {/* Contest Type and Action Buttons */}
                 <div className="mb-6 flex gap-3">
                     <button
                         onClick={handleStartChallenge}
                         className={`${
-                            isContestActive ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-400 cursor-not-allowed'
+                            isContestActive ? 'bg-blue-600 hover:bg-green-500' : 'bg-gray-400 cursor-not-allowed'
                         } text-white rounded-full px-4 py-2 flex items-center transition-colors`}
                         disabled={!isContestActive}
                     >
                         <PlayCircle size={18} className="mr-2" />
-                        <span>{isContestActive ? 'Start Challenge' : 'Contest Ended'}</span>
+                        <span>{isContestActive ? 'Start Contest' : 'Contest Ended'}</span>
                     </button>
                     {/* <button className="p-2 rounded-full hover:bg-gray-100">
             <MessageSquare size={20} className="text-gray-500" />
@@ -225,14 +255,21 @@ export default function ContestDetail() {
                 {/* Contest Description */}
                 <div className="mb-6 mt-6">
                     <div className="mb-6">
-                        <h1 className="text-3xl font-bold mb-2">{contestData.title}</h1>
-                        <p
-                            className="text-gray-700 mb-4"
+                        <div
+                            className="text-gray-700 mb-4 overflow-hidden text-ellipsis"
+                            style={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 100,
+                            WebkitBoxOrient: 'vertical',
+                            }}
                             dangerouslySetInnerHTML={{
-                                __html: contestData.description || 'This CodeWars contest is sponsored by FunPlus.',
+                            __html:
+                                contestData.description ||
+                                'This CodeWars contest is sponsored by FunPlus.',
                             }}
                         />
                     </div>
+
                     {/* Difficulty and Author Info */}
                     <div className="flex gap-4 mb-4">
                         <div className="bg-blue-100 px-3 py-1 rounded-full text-blue-700">

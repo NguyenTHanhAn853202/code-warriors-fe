@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Trash2, Edit2, Eye } from 'lucide-react';
 import axios from 'axios';
 import EditPage from '../../components/discussion/editPage';
-
+import truncateHTML from '@/utils/truncateHTML';
 const MyDiscussions = () => {
   const [discussions, setDiscussions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -76,16 +76,7 @@ const MyDiscussions = () => {
     }
   };
 
-  const truncateContent = (content) => {
-    // Strip HTML tags
-    const plainText = content.replace(/<[^>]*>/g, '');
-    
-    // Truncate to 100 characters
-    if (plainText.length > 100) {
-      return plainText.substring(0, 100) + '...';
-    }
-    return plainText;
-  };
+
 
   if (loading) {
     return <div className="text-center py-8">Loading discussions...</div>;
@@ -120,8 +111,19 @@ const MyDiscussions = () => {
           <tbody className="divide-y divide-gray-200">
             {discussions.map((discussion) => (
               <tr key={discussion._id} className="hover:bg-gray-50">
-                <td className="py-3 px-4 text-sm text-gray-800 font-medium">{discussion.title}</td>
-                <td className="py-3 px-4 text-sm text-gray-600">{truncateContent(discussion.content)}</td>
+                <td className="py-3 px-4 text-sm text-gray-800 font-medium">
+                  <div className="max-w-xs truncate"  title={discussion.title}>
+                      {truncateHTML(discussion.title, 20)}
+                  </div>
+                </td>
+                
+                <td className="py-3 px-4 text-sm text-gray-600">
+                  <div className="max-w-xs w-full h-6 overflow-hidden whitespace-nowrap text-ellipsis"
+                       title={discussion.content}dangerouslySetInnerHTML={{
+                           __html:truncateHTML(discussion.content || 'This CodeWars contest is sponsored by FunPlus.',25),
+                         }}>
+                  </div>
+                </td>
                 <td className="py-3 px-4 text-center text-sm text-gray-600">
                   {discussion.favourite ? discussion.favourite.length : 0}
                 </td>
