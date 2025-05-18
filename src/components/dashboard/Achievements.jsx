@@ -1,12 +1,12 @@
-export default function Achievements() {
+export default function Achievements({ userStats }) {
     const achievements = [
         {
             id: 1,
             name: 'First Blood',
             description: 'Won your first battle',
             icon: '⚔️',
-            progress: 100,
-            completed: true,
+            progress: userStats?.totalMatches > 0 ? 100 : 0,
+            completed: userStats?.totalMatches > 0,
             color: 'bg-green-500',
         },
         {
@@ -14,8 +14,8 @@ export default function Achievements() {
             name: 'Problem Solver',
             description: 'Solved 50 problems',
             icon: '🎯',
-            progress: 76,
-            completed: false,
+            progress: Math.min((userStats?.problemsSolved || 0) * 2, 100),
+            completed: (userStats?.problemsSolved || 0) >= 50,
             color: 'bg-blue-500',
         },
         {
@@ -23,17 +23,17 @@ export default function Achievements() {
             name: 'Battle Master',
             description: 'Win 100 battles',
             icon: '👑',
-            progress: 45,
-            completed: false,
+            progress: Math.min((userStats?.wins || 0), 100),
+            completed: (userStats?.wins || 0) >= 100,
             color: 'bg-purple-500',
         },
         {
             id: 4,
-            name: 'Speed Demon',
-            description: 'Complete a problem in under 5 minutes',
-            icon: '⚡',
-            progress: 100,
-            completed: true,
+            name: 'Elite Coder',
+            description: 'Reach 2000 ELO rating',
+            icon: '⭐',
+            progress: Math.min(((userStats?.elo || 0) / 2000) * 100, 100),
+            completed: (userStats?.elo || 0) >= 2000,
             color: 'bg-yellow-500',
         },
     ];
