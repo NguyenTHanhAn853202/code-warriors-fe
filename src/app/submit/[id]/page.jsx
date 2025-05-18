@@ -25,6 +25,7 @@ function Submit({ params }) {
     const [isLoading, setIsLoading] = useState(false);
     const editorRef = useRef(null);
     const [testResult, setTestResult] = useState(null);
+    const [problem, setProblem] = useState();
 
     const { id: problemId } = params;
 
@@ -77,6 +78,45 @@ function Submit({ params }) {
             if (response.status === 200) {
                 toastSuccess('Submit successfully');
                 setTestResult(response.data);
+                if (response.data.status === 'success') {
+                    const text = `cải thiện đoạn code này lại sao cho tối ưu hơn:
+                   - code: ${editorRef.current.getValue()}
+                   - Đề bài: ${problem.description}
+                   - Chỉ trả về code thuần dạng text, không có blockcode, không có đánh dấu ngôn ngữ, không có markdown.
+                   - có comment giải thích
+                   `;
+
+                    const source = await request.post('/user/chatbot', {
+                        text: text,
+                    });
+
+                    console.log(source);
+
+                    editorRef.current.setValue(
+                        editorRef.current.getValue() +
+                            '\n' +
+                            source.data.data.response.candidates[0].content.parts[0].text,
+                    );
+                } else {
+                    const text = `Gợi ý cách làm cho bài này:
+                    
+                    - Đề bài: ${problem.description}
+                    
+                    - có comment để để bỏ vào editor không lỗi(ngôn ngữ comment: ${idLanguage.name})
+                    `;
+
+                    const source = await request.post('/user/chatbot', {
+                        text: text,
+                    });
+
+                    console.log(source);
+
+                    editorRef.current.setValue(
+                        editorRef.current.getValue() +
+                            '\n' +
+                            source.data.data.response.candidates[0].content.parts[0].text,
+                    );
+                }
             }
         } catch (error) {
             console.log(error);
@@ -110,6 +150,7 @@ function Submit({ params }) {
         (async () => {
             const response = await request.get(`/problems/${problemId}`);
             const data = response.data.data;
+            setProblem(response.data.data);
             const text = `
             Tạo đoạn code mẫu cho một bài lập trình như sau:
 
