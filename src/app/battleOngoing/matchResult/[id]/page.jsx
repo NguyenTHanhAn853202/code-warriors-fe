@@ -6,6 +6,7 @@ import { FaTrophy, FaClock, FaMemory, FaStopwatch, FaMedal } from 'react-icons/f
 import { useRouter } from 'next/navigation';
 import { toastError } from '@/utils/toasty';
 import request from '@/utils/server';
+import WaitingForPlayers from '@/components/roombattle/WaitingforPlayer';
 
 // Thêm hàm helper để tính thời gian làm bài
 const calculateSolvingTime = (startTime, submitTime) => {
@@ -76,6 +77,7 @@ export default function BattleResult({ params }) {
         return (
             <div className="flex justify-center items-center min-h-screen">
                 <Spin size="large" />
+                {/* <WaitingForPlayers></WaitingForPlayers> */}
             </div>
         );
     }
@@ -84,7 +86,6 @@ export default function BattleResult({ params }) {
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
                 <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                    {/* Header with battle time */}
                     <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
                         <h1 className="text-2xl font-bold text-white">Battle Results</h1>
                         <p className="text-blue-100">Room: {roomId}</p>
@@ -176,10 +177,10 @@ export default function BattleResult({ params }) {
                     {/* Actions */}
                     <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-4">
                         <button
-                            onClick={() => router.push('/dashboard')}
+                            onClick={() => router.push('/create-room')}
                             className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
                         >
-                            Back to Dashboard
+                            Back to Room Battle
                         </button>
                     </div>
                 </div>

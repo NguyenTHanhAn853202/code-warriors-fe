@@ -7,8 +7,9 @@ import TopicFilters from '@/components/problems/TopicFilters';
 import FilterBar from '@/components/problems/FilterBar';
 import Pagination from '@/components/problems/Pagination';
 import ProblemsTable from '@/components/problems/ProblemTable';
-import CourseSlider from '@/components/problems/SlideProblemPage';
+import CourseSlider from '@/components/problems/CodingPlatformSlider';
 import AlgorithmType from '@/components/problems/AlgorithmType';
+import CodingPlatformSlider from '@/components/problems/CodingPlatformSlider';
 
 const ProblemList = () => {
     const [algorithmTypes, setAlgorithmTypes] = useState([]);
@@ -155,7 +156,7 @@ const ProblemList = () => {
 
     return (
         <div className="container mx-auto px-4 py-6 bg-gray-50">
-            <CourseSlider />
+            <CodingPlatformSlider />
 
             <AlgorithmType
                 algorithmType={algorithmTypes}
