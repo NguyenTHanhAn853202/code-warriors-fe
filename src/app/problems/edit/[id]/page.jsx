@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Form, Input, Button, message, Select, Divider, Row, Col } from 'antd';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import Description from '@/app/contest/create/Description';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -12,6 +13,7 @@ export default function EditProblemPage() {
     const { id } = useParams();
     const router = useRouter();
     const [form] = Form.useForm();
+    const [descriptions, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
     const [ranks, setRanks] = useState([]);
 
@@ -25,17 +27,17 @@ export default function EditProblemPage() {
 
                 const problem = problemRes.data.problem;
                 console.log('Fetched problem:', problem);
-
                 form.setFieldsValue({
                     title: problem.title,
-                    description: problem.description,
                     difficulty: problem.difficulty?.[0]?._id,
                     testCases:
                         problem.testCases?.map((tc) => ({
                             input: tc.input,
                             expectedOutput: tc.expectedOutput,
                         })) || [],
+                    description: problem.description,
                 });
+                setDescription(problem.description);
                 setRanks(ranksRes.data.data.ranks || []);
             } catch (err) {
                 message.error('Failed to load problem data');
@@ -47,8 +49,26 @@ export default function EditProblemPage() {
     const handleSubmit = async (values) => {
         setLoading(true);
         try {
+            let updatedDescription = descriptions;
+
+            if (values.testCases && values.testCases.length > 0) {
+                const firstTestCase = values.testCases[0];
+                const testCaseText = `
+<br/>
+<b>Example:</b><br/>
+<pre>
+Input:
+${firstTestCase.input}
+
+Expected Output:
+${firstTestCase.expectedOutput}
+</pre>
+            `;
+                updatedDescription += testCaseText;
+            }
             await axios.patch(`http://localhost:8080/api/v1/problems/updateProblems/${id}`, {
                 ...values,
+                description: updatedDescription,
                 testCases: values.testCases || [],
             });
             message.success('Problem updated successfully');
@@ -69,8 +89,8 @@ export default function EditProblemPage() {
                     <Input />
                 </Form.Item>
 
-                <Form.Item name="description" label="Description">
-                    <TextArea rows={4} />
+                <Form.Item label="Description">
+                    <Description value={descriptions} setValue={setDescription} />
                 </Form.Item>
 
                 <Form.Item name="difficulty" label="Difficulty" rules={[{ required: true }]}>

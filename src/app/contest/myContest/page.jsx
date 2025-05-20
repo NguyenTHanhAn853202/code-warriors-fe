@@ -161,9 +161,26 @@ export default function ContestManagementPage() {
     const handleUpdateContest = async () => {
         try {
             const values = await form.validateFields();
+            let updatedDescription = descriptions;
+
+            if (values.testCases && values.testCases.length > 0) {
+                const firstTestCase = values.testCases[0];
+                const testCaseText = `
+<br/>
+<b>Example:</b><br/>
+<pre>
+Input:
+${firstTestCase.input}
+
+Expected Output:
+${firstTestCase.expectedOutput}
+</pre>
+            `;
+                updatedDescription += testCaseText;
+            }
             const updatedData = {
                 title: values.title,
-                description: descriptions,
+                description: updatedDescription,
                 difficulty: values.rank,
                 startDate: values.dateRange[0].toISOString(),
                 endDate: values.dateRange[1].toISOString(),
@@ -309,8 +326,8 @@ export default function ContestManagementPage() {
                             {currentContests.map((contest) => (
                                 <tr key={contest._id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="max-w-xs truncate"  title={contest.title}>
-                                             {truncateHTML(contest.title, 15)}
+                                        <div className="max-w-xs truncate" title={contest.title}>
+                                            {truncateHTML(contest.title, 15)}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -318,7 +335,11 @@ export default function ContestManagementPage() {
                                             className="max-w-xs w-full h-6 overflow-hidden whitespace-nowrap text-ellipsis"
                                             title={contest.description}
                                             dangerouslySetInnerHTML={{
-                                            __html:truncateHTML(contest.description || 'This CodeWars contest is sponsored by FunPlus.',15),
+                                                __html: truncateHTML(
+                                                    contest.description ||
+                                                        'This CodeWars contest is sponsored by FunPlus.',
+                                                    15,
+                                                ),
                                             }}
                                         ></div>
                                     </td>
@@ -451,7 +472,7 @@ export default function ContestManagementPage() {
                         name="dateRange"
                         rules={[{ required: true, message: 'Please select time range!' }]}
                     >
-                        <RangePicker showTime format="DD/MM/YYYY HH:mm" style={{ width: '100%' }} />
+                        <RangePicker showTime format="DD/MM/YYYY HH:mm:ss" style={{ width: '100%' }} />
                     </Form.Item>
 
                     <Divider orientation="left">Test Cases</Divider>

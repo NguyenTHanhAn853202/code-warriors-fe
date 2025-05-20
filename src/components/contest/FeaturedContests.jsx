@@ -52,7 +52,6 @@ const FeaturedContests = ({ styles, contests }) => {
         return <p className="text-center text-gray-500">No featured contests available.</p>;
     }
 
-    // Filter contests that have not ended yet
     const upcomingContests = contests.filter((contest) => {
         const now = new Date().getTime();
         const endTime = new Date(contest.endDate).getTime();
@@ -74,12 +73,13 @@ const FeaturedContests = ({ styles, contests }) => {
                     const rank = contest.difficulty?.[0]?.name?.toLowerCase();
                     const backgroundImage = getBackgroundImage(rank);
                     const { days, hours, minutes, seconds } = useCountdown(contest.endDate);
-                    
+
                     // Check if contest has started
                     const now = new Date().getTime();
                     const startTime = new Date(contest.startDate).getTime();
                     const hasStarted = startTime <= now;
-                    
+                    const secondsUntilStart = Math.floor((startTime - now) / 1000);
+
                     return (
                         <div
                             key={contest._id}
@@ -105,7 +105,8 @@ const FeaturedContests = ({ styles, contests }) => {
                                 )}
                             </div>
                             <div className="p-2 text-left bg-white bg-opacity-50 text-black">
-                               <h3 className={`font-semibold text-base ${hasStarted ? 'hover:underline cursor-pointer' : 'cursor-default'} overflow-hidden text-ellipsis`}
+                                <h3
+                                    className={`font-semibold text-base ${hasStarted ? 'hover:underline cursor-pointer' : 'cursor-default'} overflow-hidden text-ellipsis`}
                                     style={{
                                         display: '-webkit-box',
                                         WebkitLineClamp: 4,
@@ -113,10 +114,10 @@ const FeaturedContests = ({ styles, contests }) => {
                                     }}
                                     onClick={() => {
                                         if (hasStarted) {
-                                        router.push(`/contest/${contest._id}`);
+                                            router.push(`/contest/${contest._id}`);
                                         }
                                     }}
-                                    >
+                                >
                                     {contest.title}
                                 </h3>
 
@@ -126,7 +127,9 @@ const FeaturedContests = ({ styles, contests }) => {
                                     </p>
                                 ) : (
                                     <p className="text-sm">
-                                        🕒 Starts in: {Math.floor((startTime - now) / (1000 * 60 * 60 * 24))}d {Math.floor(((startTime - now) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))}h
+                                        🕒 Starts in: {Math.floor((startTime - now) / (1000 * 60 * 60 * 24))}d{' '}
+                                        {Math.floor(((startTime - now) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))}h (
+                                        {secondsUntilStart} seconds)
                                     </p>
                                 )}
                             </div>

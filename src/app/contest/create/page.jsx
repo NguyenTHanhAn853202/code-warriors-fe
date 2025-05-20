@@ -114,11 +114,28 @@ const Contest = () => {
             return;
         }
 
+        let updatedDescription = description;
+
+        if (testCases && testCases.length > 0) {
+            const firstTestCase = testCases[0];
+            const testCaseText = `
+<br/>
+<b>Example:</b><br/>
+<pre>
+Input:
+${firstTestCase.input}
+
+Expected Output:
+${firstTestCase.expectedOutput}
+</pre>
+            `;
+            updatedDescription += testCaseText;
+        }
         setLoading(true);
 
         const requestData = {
             title,
-            description,
+            description: updatedDescription,
             difficulty: [selectedRank],
             startDate: selectedTime[0].toISOString(),
             endDate: selectedTime[1].toISOString(),

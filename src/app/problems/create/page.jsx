@@ -77,17 +77,33 @@ const CreateProblems = () => {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-
     const handleSubmit = async () => {
         if (!validateFields()) {
             message.error('Please fill in all the information!');
             return;
         }
 
+        let updatedDescription = description;
+
+        if (testCases && testCases.length > 0) {
+            const firstTestCase = testCases[0];
+            const testCaseText = `
+<br/>
+<b>Example:</b><br/>
+<pre>
+Input:
+${firstTestCase.input}
+
+Expected Output:
+${firstTestCase.expectedOutput}
+</pre>
+            `;
+            updatedDescription += testCaseText;
+        }
         setLoading(true);
         const requestData = {
             title,
-            description,
+            description: updatedDescription,
             difficulty: [selectedRank],
             testCases: testCases.map((tc) => ({
                 input: tc.input,
@@ -157,7 +173,7 @@ const CreateProblems = () => {
                     />
                     {errors.selectedRank && <p className="text-red-500 text-sm mt-1">{errors.selectedRank}</p>}
                 </div>
-                \{/* Test Cases Section */}
+                {/* Test Cases Section */}
                 <div className="form-group mt-6">
                     <div className="flex justify-between items-center mb-2">
                         <label className="block text-gray-700 font-medium">Test Cases List</label>
