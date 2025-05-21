@@ -76,8 +76,8 @@ export default function BattleResult({ params }) {
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
-                <Spin size="large" />
-                {/* <WaitingForPlayers></WaitingForPlayers> */}
+                {/* <Spin size="large" /> */}
+                <WaitingForPlayers></WaitingForPlayers>
             </div>
         );
     }
