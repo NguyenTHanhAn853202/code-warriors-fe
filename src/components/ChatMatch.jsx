@@ -25,8 +25,6 @@ function ChatMatch({ matchId }) {
 
     useEffect(() => {
         const handleReceiveMessage = (data) => {
-            toastInfo('take message');
-
             appendMsg({
                 type: 'text',
                 content: { text: data?.message || '' },

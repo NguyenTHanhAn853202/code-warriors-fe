@@ -149,7 +149,6 @@ export default function ContestManagementPage() {
 
         form.setFieldsValue({
             title: contest.title,
-            // description: contest.description,
             rank: contest.difficulty?.[0]?._id,
             dateRange: [dayjs(contest.startDate), dayjs(contest.endDate)],
             testCases: formattedTestCases,

@@ -130,44 +130,45 @@ export default function ContestDetail() {
                 </div>
 
                 {/* Contest Title */}
-                <h1 className="text-3xl font-bold text-orange-500 mb-2 overflow-hidden text-ellipsis"
+                <h1
+                    className="text-3xl font-bold text-orange-500 mb-2 overflow-hidden text-ellipsis"
                     style={{
                         display: '-webkit-box',
                         WebkitLineClamp: 4,
                         WebkitBoxOrient: 'vertical',
                     }}
-                    >
+                >
                     {contestData.title}
-                    </h1>
+                </h1>
                 <div className="rounded-lg p-4 mb-6">
                     {/* Start date on timeline */}
                     <div className="relative border-l-2 border-blue-400 pl-6 pb-2">
                         <div className="absolute -left-2 top-0">
-                        <div className="bg-blue-500 rounded-full w-4 h-4"></div>
+                            <div className="bg-blue-500 rounded-full w-4 h-4"></div>
                         </div>
                         <span className="text-sm text-gray-500">Start</span>
                         <div className="font-medium">{formattedDate}</div>
                     </div>
-                    
+
                     {/* End date on timeline */}
                     {contestData.endDate && (
                         <div className="relative border-l-2 border-purple-400 pl-6 mt-4">
-                        <div className="absolute -left-2 top-0">
-                            <div className="bg-purple-500 rounded-full w-4 h-4"></div>
-                        </div>
-                        <span className="text-sm text-gray-500">End</span>
-                        <div className="font-medium">{formattedEndDate}</div>
+                            <div className="absolute -left-2 top-0">
+                                <div className="bg-purple-500 rounded-full w-4 h-4"></div>
+                            </div>
+                            <span className="text-sm text-gray-500">End</span>
+                            <div className="font-medium">{formattedEndDate}</div>
                         </div>
                     )}
-                    
+
                     {/* Contest ended notice */}
                     {!isContestActive && contestData.endDate && (
                         <div className="mt-4 bg-red-50 p-2 rounded-md border border-red-100 flex items-center">
-                        <AlertCircle size={16} className="text-red-500 mr-2" />
-                        <span className="text-red-600 text-sm">This contest has ended</span>
+                            <AlertCircle size={16} className="text-red-500 mr-2" />
+                            <span className="text-red-600 text-sm">This contest has ended</span>
                         </div>
                     )}
-                    </div>
+                </div>
 
                 {/* Contest Type and Action Buttons */}
                 <div className="mb-6 flex gap-3">
@@ -191,65 +192,74 @@ export default function ContestDetail() {
 
                 {/* TOP 3 Ranking */}
                 <div className="flex items-end gap-6 max-w-md w-full justify-center">
-                    {[top3[1], top3[0], top3[2]].map((participant, index) => {
-                        if (!participant) return null;
-
+                    {(() => {
                         const actualTop3 = top3.filter(Boolean);
-                        const count = actualTop3.length;
+                        const sortedTop3 = [...actualTop3].sort((a, b) => b.score - a.score);
 
-                        const rankMap = [2, 1, 3];
-                        const rank = rankMap[index];
-
-                        let colorRank;
-                        if (count === 1) {
-                            colorRank = 2;
-                        } else if (count === 2) {
-                            const orderedParticipants = [top3[0], top3[1]].filter(Boolean);
-                            const realRank = orderedParticipants.findIndex((p) => p === participant) + 1;
-                            colorRank = realRank === 1 ? 2 : 1;
+                        let displayOrder = [];
+                        if (sortedTop3.length === 1) {
+                            displayOrder = [null, sortedTop3[0], null];
+                        } else if (sortedTop3.length === 2) {
+                            displayOrder = [sortedTop3[1], sortedTop3[0], null]; // người điểm cao đứng giữa
                         } else {
-                            colorRank = rank;
+                            displayOrder = [sortedTop3[1], sortedTop3[0], sortedTop3[2]]; // 2 - 1 - 3
                         }
 
-                        const baseHeight = { 1: 180, 2: 160, 3: 140 }[rank];
-                        const baseBarHeight = { 1: 110, 2: 100, 3: 90 }[rank];
-                        const bgColor = {
-                            3: 'bg-yellow-800 bg-opacity-80',
-                            2: 'bg-yellow-400',
-                            1: 'bg-gray-300 bg-opacity-30',
-                        }[colorRank];
-                        const circleBg = {
-                            3: 'bg-yellow-900 text-yellow-300',
-                            2: 'bg-yellow-300 text-yellow-900',
-                            1: 'bg-gray-400 text-gray-900',
-                        }[colorRank];
-                        const fontSize = {
-                            1: 'text-2xl',
-                            2: 'text-xl',
-                            3: 'text-lg',
-                        }[colorRank];
+                        return displayOrder.map((participant, index) => {
+                            if (!participant) return null;
 
-                        return (
-                            <div
-                                key={rank}
-                                className={`flex flex-col items-center ${bgColor} rounded-t-xl shadow-lg`}
-                                style={{ height: `${baseHeight}px`, width: '96px' }}
-                            >
+                            const rankMap = [2, 1, 3]; // giữa là hạng 1
+                            const rank = rankMap[index];
+
+                            let colorRank;
+                            if (sortedTop3.length === 1) {
+                                colorRank = 2;
+                            } else if (sortedTop3.length === 2) {
+                                colorRank = index === 1 ? 2 : 1;
+                            } else {
+                                colorRank = rank;
+                            }
+
+                            const baseHeight = { 1: 180, 2: 160, 3: 140 }[rank];
+                            const baseBarHeight = { 1: 110, 2: 100, 3: 90 }[rank];
+                            const bgColor = {
+                                3: 'bg-yellow-800 bg-opacity-80',
+                                2: 'bg-yellow-400',
+                                1: 'bg-gray-300 bg-opacity-30',
+                            }[colorRank];
+                            const circleBg = {
+                                3: 'bg-yellow-900 text-yellow-300',
+                                2: 'bg-yellow-300 text-yellow-900',
+                                1: 'bg-gray-400 text-gray-900',
+                            }[colorRank];
+                            const fontSize = {
+                                1: 'text-2xl',
+                                2: 'text-xl',
+                                3: 'text-lg',
+                            }[colorRank];
+
+                            return (
                                 <div
-                                    className={`${circleBg} ${fontSize} font-bold rounded-full w-12 h-12 flex items-center justify-center -mt-6 shadow-md select-none`}
+                                    key={participant.user.id || rank}
+                                    className={`flex flex-col items-center ${bgColor} rounded-t-xl shadow-lg`}
+                                    style={{ height: `${baseHeight}px`, width: '96px' }}
                                 >
-                                    {rank}
+                                    <div
+                                        className={`${circleBg} ${fontSize} font-bold rounded-full w-12 h-12 flex items-center justify-center -mt-6 shadow-md select-none`}
+                                    >
+                                        {rank}
+                                    </div>
+                                    <div className="mt-auto mb-4 font-semibold text-center">
+                                        {participant.user.username}
+                                    </div>
+                                    <div
+                                        className={`${circleBg.split(' ')[0]} rounded-t-xl w-full`}
+                                        style={{ height: `${baseBarHeight}px` }}
+                                    ></div>
                                 </div>
-                                <div className="mt-auto mb-4 font-semibold text-center">
-                                    {participant.user.username}
-                                </div>
-                                <div
-                                    className={`${circleBg.split(' ')[0]} rounded-t-xl w-full`}
-                                    style={{ height: `${baseBarHeight}px` }}
-                                ></div>
-                            </div>
-                        );
-                    })}
+                            );
+                        });
+                    })()}
                 </div>
 
                 {/* Contest Description */}
@@ -258,14 +268,12 @@ export default function ContestDetail() {
                         <div
                             className="text-gray-700 mb-4 overflow-hidden text-ellipsis"
                             style={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: 100,
-                            WebkitBoxOrient: 'vertical',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 100,
+                                WebkitBoxOrient: 'vertical',
                             }}
                             dangerouslySetInnerHTML={{
-                            __html:
-                                contestData.description ||
-                                'This CodeWars contest is sponsored by FunPlus.',
+                                __html: contestData.description || 'This CodeWars contest is sponsored by FunPlus.',
                             }}
                         />
                     </div>

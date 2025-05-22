@@ -207,8 +207,9 @@ function Room() {
                                 alt="Rank Icon"
                                 className="w-[100px] h-[100px]"
                             />
+                            {console.log(localStorage.getItem('avatar'))}
                             <img
-                                src="/user_1.jpg" // Thay bằng avatar của bạn
+                                src={localStorage.getItem('avatar') ?? '/user_1.jpg'} // Thay bằng avatar của bạn
                                 alt="Avatar"
                                 className="absolute inset-0 w-17 h-17 m-auto rounded-full border-4 border-gray-800"
                             />
