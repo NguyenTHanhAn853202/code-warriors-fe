@@ -14,13 +14,9 @@ const WaitingForPlayers = () => {
                         </div>
                     </div>
 
-                    <h2 className="text-xl font-bold text-gray-800">
-                        Waiting for submissions
-                    </h2>
+                    <h2 className="text-xl font-bold text-gray-800">Waiting for submissions</h2>
                     <p className="text-gray-500 mt-1">Please wait while all players submit their solutions</p>
                 </div>
-
-                
 
                 <div className="mt-6 flex items-center justify-center text-sm text-gray-500">
                     <Clock className="w-4 h-4 mr-1" />

@@ -41,7 +41,16 @@ const ProblemList = () => {
     const fetchProblems = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/problems/viewAllProblems');
+            const response = await axios.get('http://localhost:8080/api/v1/problems/viewAllProblems', {
+                params: {
+                    page: filters.page,
+                    limit: filters.limit,
+                    difficulty: filters.difficulty || undefined,
+                    title: filters.title || undefined,
+                    userId: localStorage.getItem('userId') || undefined, // Lấy userId từ localStorage hoặc context
+                    // algorithmTypes: filters.algorithmTypes.join(',') || undefined, // Nếu backend hỗ trợ lọc theo algorithmTypes
+                },
+            });
             const allProblems = response.data.problems || [];
 
             setProblems(allProblems);

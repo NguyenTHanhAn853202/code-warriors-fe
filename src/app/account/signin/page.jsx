@@ -9,6 +9,7 @@ export default function SignInPage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
         username: '',
+        userId: '',
         email: '',
         password: '',
         rememberMe: false,
@@ -76,7 +77,10 @@ export default function SignInPage() {
             if (data.data) {
                 localStorage.setItem('avatar', data.data.avtImage);
                 localStorage.setItem('username', data?.data?.username);
+                localStorage.setItem('userId', data.data.userId);
             }
+            console.log(data);
+
             if (data.user) {
                 localStorage.setItem('userData', JSON.stringify(data.user));
             }
@@ -85,7 +89,6 @@ export default function SignInPage() {
             toast.success('Login successful!');
 
             window.location.href = '/';
-   
         } catch (error) {
             setError(error.message || 'Invalid email or password');
             toast.error(error.message || 'Login failed');

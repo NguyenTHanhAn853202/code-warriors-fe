@@ -20,15 +20,22 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
         return difficulty;
     };
 
-    const getStatusIcon = (problem, index) => {
-        if (problem.completed) {
-            return <FaCheck className="text-green-500" />;
-        } else if (problem.locked) {
-            return <FaLock className="text-gray-400" />;
-        } else if (index % 3 === 0) {
-            return <FaCheck className="text-green-500" />;
+    const getStatusIcon = (problem) => {
+        if (problem.isSolved) {
+            return (
+                <div className="flex items-center justify-center">
+                    <FaCheck className="text-green-500" /> {/* ✅ Đã giải */}
+                </div>
+            );
         }
-        return null;
+        if (problem.locked) {
+            return (
+                <div className="flex items-center justify-center">
+                    <FaLock className="text-gray-400" /> {/* 🔒 Bài khóa */}
+                </div>
+            );
+        }
+        return <div className="w-4 h-4"></div>; // Empty placeholder to maintain alignment
     };
 
     const handleSort = (field) => {
@@ -42,9 +49,11 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
 
     const getSortIcon = (field) => {
         if (sortField !== field) return <FaSort className="ml-1 text-gray-300" />;
-        return sortDirection === 'asc'
-            ? <FaSortUp className="ml-1 text-blue-500" />
-            : <FaSortDown className="ml-1 text-blue-500" />;
+        return sortDirection === 'asc' ? (
+            <FaSortUp className="ml-1 text-blue-500" />
+        ) : (
+            <FaSortDown className="ml-1 text-blue-500" />
+        );
     };
 
     const handleProblemClick = (problemId) => {
@@ -53,7 +62,10 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
 
     // Lọc theo độ khó
     const filteredProblems = filteredDifficulty
-        ? problems.filter((p) => getDifficultyName(p.difficulty) === filteredDifficulty)
+        ? problems.filter((p) => {
+              const diffName = getDifficultyName(p.difficulty);
+              return diffName.toLowerCase() === filteredDifficulty.toLowerCase();
+          })
         : problems;
 
     // Sắp xếp
@@ -63,10 +75,15 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
         } else if (sortField === 'difficulty') {
             const diffA = getDifficultyName(a.difficulty);
             const diffB = getDifficultyName(b.difficulty);
-            const difficultyOrder = { Easy: 1, Medium: 2, Hard: 3 };
+            const difficultyOrder = { Bronze: 1, Silver: 2, Gold: 3, Platinum: 4 };
             const valueA = difficultyOrder[diffA] || 0;
             const valueB = difficultyOrder[diffB] || 0;
             return sortDirection === 'asc' ? valueA - valueB : valueB - valueA;
+        } else if (sortField === 'status') {
+            // Sort by solved status
+            return sortDirection === 'asc' 
+                ? Number(a.isSolved) - Number(b.isSolved) 
+                : Number(b.isSolved) - Number(a.isSolved);
         }
         return 0;
     });
@@ -76,16 +93,19 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
-                            Status
+                        <th 
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20 cursor-pointer"
+                            onClick={() => handleSort('status')}
+                        >
+                            <div className="flex items-center justify-center">
+                                Status {getSortIcon('status')}
+                            </div>
                         </th>
                         <th
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer group"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                             onClick={() => handleSort('title')}
                         >
-                            <div className="flex items-center">
-                                Title {getSortIcon('title')}
-                            </div>
+                            <div className="flex items-center">Title {getSortIcon('title')}</div>
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
                             Solution
@@ -94,9 +114,7 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32 cursor-pointer"
                             onClick={() => handleSort('difficulty')}
                         >
-                            <div className="flex items-center">
-                                Difficulty {getSortIcon('difficulty')}
-                            </div>
+                            <div className="flex items-center">Difficulty {getSortIcon('difficulty')}</div>
                         </th>
                     </tr>
                 </thead>
@@ -118,16 +136,21 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
                         </tr>
                     ) : (
                         sortedProblems.map((problem, index) => (
-                            <tr key={problem._id} className="hover:bg-gray-50 transition-colors duration-150">
+                            <tr 
+                                key={problem._id} 
+                                className={`hover:bg-gray-50 transition-colors duration-150 ${
+                                    problem.isSolved ? 'bg-green-50' : ''
+                                }`}
+                            >
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="flex items-center justify-center">
-                                        {getStatusIcon(problem, index)}
-                                    </div>
+                                    {getStatusIcon(problem)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div
                                         onClick={() => handleProblemClick(problem._id)}
-                                        className="text-sm font-medium text-gray-900 cursor-pointer hover:text-blue-600"
+                                        className={`text-sm font-medium cursor-pointer hover:text-blue-600 ${
+                                            problem.isSolved ? 'text-green-700' : 'text-gray-900'
+                                        }`}
                                     >
                                         {index + 1}. {problem.title}
                                     </div>
@@ -136,9 +159,22 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
                                     {problem.source_code ? (
                                         <button
                                             className="text-blue-500 hover:text-blue-700 transition-colors"
-                                            onClick={(e) => e.stopPropagation()}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                // Handle solution view logic
+                                            }}
                                         >
                                             📄 View
+                                        </button>
+                                    ) : problem.isSolved ? (
+                                        <button
+                                            className="text-green-500 hover:text-green-700 transition-colors"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                // Handle viewing user's solution
+                                            }}
+                                        >
+                                            📄 My Solution
                                         </button>
                                     ) : (
                                         <span className="text-gray-400">-</span>

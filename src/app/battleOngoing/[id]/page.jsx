@@ -175,7 +175,7 @@ function Submit({ params }) {
                 sourceCode: code,
                 languageId: idLanguage.id,
             });
-            router.push(`/battleOngoing//matchResult/${roomId}`);
+            router.push(`/battleOngoing/matchResult/${roomId}`);
         } catch (error) {
             console.error('Submission error:', error);
             setTestResult({
