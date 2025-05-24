@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { FaTrophy, FaClock, FaMemory, FaStopwatch, FaMedal } from 'react-icons/fa6';
 import { useRouter } from 'next/navigation';
 import { toastError } from '@/utils/toasty';
@@ -29,7 +29,7 @@ function calculateSolvingTime(startedAt, timeSubmission) {
 export default function BattleResult({ params }) {
   const [result, setResult] = useState(null);
   const router = useRouter();
-  const roomId = params.id;
+  const {id: roomId} = use(params);
 
   const fetchBattleResult = async () => {
     try {

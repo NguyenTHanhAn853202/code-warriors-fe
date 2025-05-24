@@ -29,7 +29,7 @@ function Submit({ params }) {
     const [testResult, setTestResult] = useState(null);
     const router = useRouter();
     const problemId = useSearchParams().get('problemId');
-    const roomId = params.id;
+    const { id: roomId } = use(params);
     const socket = useSocket();
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;

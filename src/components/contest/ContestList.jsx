@@ -37,18 +37,34 @@ const ContestList = ({ contests: initialContests }) => {
             setLoading(true);
             try {
                 let url = 'http://localhost:8080/api/v1/contest/viewAllContest?';
-                
+
                 if (searchTerm) {
                     url += `title=${searchTerm}&`;
                 }
-                
+
                 if (selectedRank) {
                     url += `difficulty=${selectedRank}`;
                 }
-                
+
                 const response = await axios.get(url);
                 if (response.status === 200) {
-                    setContests(response.data.data.contests || []);
+                    const data = response.data.data.contests;
+                    const isContestVisibleToUser = (contest) => {
+                        if (!contest.difficulty || contest.difficulty.length === 0) return true;
+                        if (!userRank) return false;
+
+                        const contestRank = contest.difficulty[0]?.name || null;
+                        if (!contestRank) return true;
+
+                        const userRankIndex = rankOrder.indexOf(userRank);
+                        const contestRankIndex = rankOrder.indexOf(contestRank);
+
+                        if (userRankIndex === -1 || contestRankIndex === -1) return true;
+
+                        return contestRankIndex <= userRankIndex;
+                    };
+                    const newData = data.filter(isContestVisibleToUser);
+                    setContests(newData || []);
                 }
             } catch (error) {
                 console.error('Error fetching filtered contests:', error);
@@ -121,8 +137,7 @@ const ContestList = ({ contests: initialContests }) => {
         setSearchTerm('');
         setSelectedRank('');
     };
-    console.log("All contests:", contests);
-
+    console.log('All contests:', contests);
 
     return (
         <div className="p-4">
@@ -195,16 +210,18 @@ const ContestList = ({ contests: initialContests }) => {
 
                                         <div className="flex-1 space-y-2">
                                             <h3 className="text-lg font-semibold">
-                                            {contest.title.length > 25
-                                                ? `${contest.title.substring(0, 25)}...`
-                                                : contest.title}
+                                                {contest.title.length > 25
+                                                    ? `${contest.title.substring(0, 25)}...`
+                                                    : contest.title}
                                             </h3>
 
                                             <p className="text-sm">
-                                                ⏲️ Start Date: <span className="rounded">{formatDate(contest.startDate)}</span>
+                                                ⏲️ Start Date:{' '}
+                                                <span className="rounded">{formatDate(contest.startDate)}</span>
                                             </p>
                                             <p className="text-sm">
-                                                ⏲️ End Date: <span className="rounded">{formatDate(contest.endDate)}</span>
+                                                ⏲️ End Date:{' '}
+                                                <span className="rounded">{formatDate(contest.endDate)}</span>
                                             </p>
                                             <p className="text-sm">
                                                 🔥 Rank:
@@ -259,7 +276,9 @@ const ContestList = ({ contests: initialContests }) => {
                                 onClick={() => handlePageChange(currentPage + 1)}
                                 disabled={currentPage === totalPages || totalPages === 0}
                                 className={`px-3 py-1 border border-black rounded-md ${
-                                    currentPage === totalPages || totalPages === 0 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-gray-200'
+                                    currentPage === totalPages || totalPages === 0
+                                        ? 'text-gray-400 cursor-not-allowed'
+                                        : 'hover:bg-gray-200'
                                 }`}
                             >
                                 Next

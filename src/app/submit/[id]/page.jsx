@@ -9,7 +9,7 @@ import { LuTerminal } from 'react-icons/lu';
 import { FaPlay } from 'react-icons/fa6';
 import { MdOutlineCloudUpload } from 'react-icons/md';
 import { IoIosArrowDown } from 'react-icons/io';
-import { useEffect, useRef, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { Button, Popover, Spin } from 'antd';
 import axios from 'axios';
 import DetailProblem from '@/components/DetailProblem';
@@ -27,7 +27,7 @@ function Submit({ params }) {
     const [testResult, setTestResult] = useState(null);
     const [problem, setProblem] = useState();
 
-    const { id: problemId } = params;
+    const { id: problemId } = use(params);
 
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
