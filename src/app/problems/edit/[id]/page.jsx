@@ -66,17 +66,11 @@ ${firstTestCase.expectedOutput}
             `;
                 updatedDescription += testCaseText;
             }
-            await axios.patch(
-                `http://localhost:8080/api/v1/problems/updateProblems/${id}`,
-                {
-                    ...values,
-                    description: updatedDescription,
-                    testCases: values.testCases || [],
-                },
-                {
-                    withCredentials: true,
-                },
-            );
+            await axios.patch(`http://localhost:8080/api/v1/problems/updateProblems/${id}`, {
+                ...values,
+                description: updatedDescription,
+                testCases: values.testCases || [],
+            });
             message.success('Problem updated successfully');
             router.push('/problems');
         } catch (err) {
