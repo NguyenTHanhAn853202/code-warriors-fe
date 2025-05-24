@@ -1,4 +1,5 @@
 "use client"
+import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 
 const ResetPasswordForm = () => {
@@ -156,12 +157,12 @@ const ResetPasswordForm = () => {
                     <p>Your password reset link is invalid or has expired.</p>
                   </div>
                   <div className="mt-4">
-                    <a
+                    <Link
                       href="/account/password/forgot-password"
                       className="w-full inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                       Request a new link
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -307,20 +308,20 @@ const ResetPasswordForm = () => {
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <div>
-                <a
+                <Link
                   href="/account/signin"
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Back to login
-                </a>
+                </Link>
               </div>
               <div>
-                <a
+                <Link
                   href="/account/password/forgot-password"
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Forgot password
-                </a>
+                </Link>
               </div>
             </div>
           </div>

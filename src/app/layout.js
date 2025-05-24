@@ -75,9 +75,8 @@ export default function RootLayout({ children }) {
             console.error('Logout failed:', error);
         }
     };
-     // Check if user has admin role
-    const isAdmin = user?.role === "admin";
-
+    // Check if user has admin role
+    const isAdmin = user?.role === 'admin';
 
     const toggleDropdown = () => {
         setShowDropdown(!showDropdown);
@@ -89,21 +88,21 @@ export default function RootLayout({ children }) {
                 <header className="sticky top-0 z-50 bg-white shadow-sm">
                     <div className="container mx-auto px-4 flex justify-between items-center h-16">
                         <div className="flex items-center">
-                            <a href="/" className="flex items-center font-semibold text-xl">
+                            <Link href="/" className="flex items-center font-semibold text-xl">
                                 <Image src="/logoCode.png" alt="LeetCode Logo" width={55} height={55} />
                                 CodeWars
-                            </a>
+                            </Link>
 
                             <nav className="hidden md:flex ml-10">
                                 {/* Admin Dashboard Menu Item - Only shown for users with admin role */}
-                                    {isAdmin && (
-                                            <Link
-                                                href="/dashboard"    
-                                                className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
-                                            >
-                                                Dashboard
-                                            </Link>
-                                    )}
+                                {isAdmin && (
+                                    <Link
+                                        href="/dashboard"
+                                        className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
+                                    >
+                                        Dashboard
+                                    </Link>
+                                )}
                                 <Link
                                     href="/contest"
                                     className="mr-6 text-gray-600 hover:text-orange-500 text-sm font-medium"
@@ -291,7 +290,7 @@ export default function RootLayout({ children }) {
                                                     </svg>
                                                     Profile
                                                 </a>
-                                                <a
+                                                <Link
                                                     href="/account/submissions"
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600"
                                                     role="menuitem"
@@ -311,8 +310,8 @@ export default function RootLayout({ children }) {
                                                         />
                                                     </svg>
                                                     Your Submissions
-                                                </a>
-                                                <a
+                                                </Link>
+                                                <Link
                                                     href="/contest/myContest"
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600"
                                                     role="menuitem"
@@ -332,8 +331,8 @@ export default function RootLayout({ children }) {
                                                         />
                                                     </svg>
                                                     Manage Contests
-                                                </a>
-                                                <a
+                                                </Link>
+                                                <Link
                                                     href="/problems/manageProblems"
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600"
                                                     role="menuitem"
@@ -353,8 +352,8 @@ export default function RootLayout({ children }) {
                                                         />
                                                     </svg>
                                                     Manage Problems
-                                                </a>
-                                                <a
+                                                </Link>
+                                                <Link
                                                     href="/settings"
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600"
                                                     role="menuitem"
@@ -380,7 +379,7 @@ export default function RootLayout({ children }) {
                                                         />
                                                     </svg>
                                                     Settings
-                                                </a>
+                                                </Link>
                                             </div>
 
                                             {/* Sign Out Button */}
@@ -411,7 +410,7 @@ export default function RootLayout({ children }) {
                                     )}
                                 </div>
                             ) : (
-                                <a
+                                <Link
                                     href="/account/signin"
                                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-orange-700 bg-orange-100 hover:bg-orange-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200"
                                 >
@@ -430,7 +429,7 @@ export default function RootLayout({ children }) {
                                         />
                                     </svg>
                                     Sign In
-                                </a>
+                                </Link>
                             )}
                         </div>
                     </div>
@@ -449,14 +448,14 @@ export default function RootLayout({ children }) {
                                 <h3 className="font-medium text-gray-800 mb-4">CodeWars</h3>
                                 <ul className="space-y-2">
                                     <li>
-                                        <a href="#" className="text-sm text-gray-600 hover:text-orange-500">
+                                        <Link href="#" className="text-sm text-gray-600 hover:text-orange-500">
                                             About
-                                        </a>
+                                        </Link>
                                     </li>
                                     <li>
-                                        <a href="#" className="text-sm text-gray-600 hover:text-orange-500">
+                                        <Link href="#" className="text-sm text-gray-600 hover:text-orange-500">
                                             Careers
-                                        </a>
+                                        </Link>
                                     </li>
                                     <li>
                                         <a href="#" className="text-sm text-gray-600 hover:text-orange-500">

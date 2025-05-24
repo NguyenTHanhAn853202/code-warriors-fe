@@ -421,12 +421,12 @@ const parseBirthday = (formattedDate) => {
             </div>
             
             <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
-              <a
+              <Link
                 href="/account/password/set"
                 className="inline-flex justify-center py-1.5 px-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Change Password
-              </a>
+              </Link>
             </div>
           </div>
         </div>
