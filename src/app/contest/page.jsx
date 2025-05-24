@@ -67,9 +67,8 @@ const Page = () => {
     }, []);
 
     // Lọc contest dựa theo rank user
-    const filteredContests = contests.filter((contest) => {
+    const isContestVisibleToUser = (contest) => {
         if (!contest.difficulty || contest.difficulty.length === 0) return true;
-
         if (!userRank) return false;
 
         const contestRank = contest.difficulty[0]?.name || null;
@@ -78,10 +77,14 @@ const Page = () => {
         const userRankIndex = rankOrder.indexOf(userRank);
         const contestRankIndex = rankOrder.indexOf(contestRank);
 
-        if (userRankIndex === -1 || contestRankIndex === -1) return true; // rank không trong rankOrder => hiện luôn
+        if (userRankIndex === -1 || contestRankIndex === -1) return true;
 
         return contestRankIndex <= userRankIndex;
-    });
+    };
+
+    const filteredContests = contests.filter(isContestVisibleToUser);
+    const filteredFeaturedContests = featuredContests.filter(isContestVisibleToUser);
+    console.log('abcd:', filteredContests);
 
     return (
         <div className="bg-white min-h-screen text-gray-800">
@@ -99,7 +102,7 @@ const Page = () => {
                 {loadingFeatured ? (
                     <p className="text-center p-4">Loading featured contests...</p>
                 ) : (
-                    <FeaturedContests styles={styles} contests={filteredContests} />
+                    <FeaturedContests styles={styles} contests={filteredFeaturedContests} />
                 )}
 
                 {/* Contest List and Rankings */}

@@ -27,7 +27,6 @@ function Submit({ params }) {
     const [testResult, setTestResult] = useState(null);
     const [problem, setProblem] = useState();
 
-
     const { id: problemId } = use(params);
 
     function handleEditorDidMount(editor, monaco) {

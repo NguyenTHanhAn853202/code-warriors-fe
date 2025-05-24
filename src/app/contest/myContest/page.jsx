@@ -375,6 +375,7 @@ ${firstTestCase.expectedOutput}
                             ))}
                         </tbody>
                     </table>
+                    {currentContests.length === 0 && <h1 className="text-center p-7">Empty Data</h1>}
                 </div>
                 {totalPages > 1 && (
                     <div className="px-4 py-3 border-t flex items-center justify-center">
