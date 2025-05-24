@@ -4,10 +4,20 @@ import React, { useState } from 'react';
 import { FaCheck, FaLock, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
-const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficulty }) => {
+const ProblemsTable = ({ 
+    problems, 
+    loading, 
+    getDifficultyColor, 
+    filteredDifficulty,
+    currentPage = 1,
+    limit = 10
+}) => {
     const router = useRouter();
     const [sortField, setSortField] = useState('');
     const [sortDirection, setSortDirection] = useState('asc');
+
+    // Tính số thứ tự bắt đầu cho trang hiện tại
+    const startIndex = (currentPage - 1) * limit;
 
     const getDifficultyName = (difficulty) => {
         if (!difficulty) return 'Unknown';
@@ -81,8 +91,8 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
             return sortDirection === 'asc' ? valueA - valueB : valueB - valueA;
         } else if (sortField === 'status') {
             // Sort by solved status
-            return sortDirection === 'asc'
-                ? Number(a.isSolved) - Number(b.isSolved)
+            return sortDirection === 'asc' 
+                ? Number(a.isSolved) - Number(b.isSolved) 
                 : Number(b.isSolved) - Number(a.isSolved);
         }
         return 0;
@@ -93,11 +103,13 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                     <tr>
-                        <th
+                        <th 
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20 cursor-pointer"
                             onClick={() => handleSort('status')}
                         >
-                            <div className="flex items-center justify-center">Status {getSortIcon('status')}</div>
+                            <div className="flex items-center justify-center">
+                                Status {getSortIcon('status')}
+                            </div>
                         </th>
                         <th
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
@@ -134,13 +146,15 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
                         </tr>
                     ) : (
                         sortedProblems.map((problem, index) => (
-                            <tr
-                                key={problem._id}
+                            <tr 
+                                key={problem._id} 
                                 className={`hover:bg-gray-50 transition-colors duration-150 ${
                                     problem.isSolved ? 'bg-green-50' : ''
                                 }`}
                             >
-                                <td className="px-6 py-4 whitespace-nowrap">{getStatusIcon(problem)}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    {getStatusIcon(problem)}
+                                </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div
                                         onClick={() => handleProblemClick(problem._id)}
@@ -148,7 +162,7 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
                                             problem.isSolved ? 'text-green-700' : 'text-gray-900'
                                         }`}
                                     >
-                                        {index + 1}. {problem.title}
+                                        {startIndex + index + 1}. {problem.title}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
@@ -178,7 +192,7 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
                                 </td>
                                 <td
                                     className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${getDifficultyColor(
-                                        getDifficultyName(problem.difficulty),
+                                        getDifficultyName(problem.difficulty)
                                     )}`}
                                 >
                                     {getDifficultyName(problem.difficulty)}

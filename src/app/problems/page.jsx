@@ -1,20 +1,17 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaCheck, FaRegCalendarCheck, FaChevronDown, FaSearch, FaCog, FaRandom } from 'react-icons/fa';
 import './page.css';
-import TopicFilters from '@/components/problems/TopicFilters';
 import FilterBar from '@/components/problems/FilterBar';
 import Pagination from '@/components/problems/Pagination';
 import ProblemsTable from '@/components/problems/ProblemTable';
-import CourseSlider from '@/components/problems/CodingPlatformSlider';
 import AlgorithmType from '@/components/problems/AlgorithmType';
 import CodingPlatformSlider from '@/components/problems/CodingPlatformSlider';
 
 const ProblemList = () => {
     const [algorithmTypes, setAlgorithmTypes] = useState([]);
     const [problems, setProblems] = useState([]);
-    const [filteredProblems, setFilteredProblems] = useState([]);
+    const [displayedProblems, setDisplayedProblems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pagination, setPagination] = useState({
         currentPage: 1,
@@ -25,18 +22,22 @@ const ProblemList = () => {
         difficulty: '',
         title: '',
         page: 1,
-        limit: 5,
+        limit: 10,
         algorithmTypes: [],
+        status: '',
     });
 
     useEffect(() => {
-        fetchProblems();
         fetchAlgorithmTypes();
     }, []);
 
     useEffect(() => {
-        applyFilters();
-    }, [filters, problems]);
+        fetchProblems();
+    }, [filters.page, filters.limit, filters.difficulty, filters.title]);
+
+    useEffect(() => {
+        applyClientSideFilters();
+    }, [filters.algorithmTypes, filters.status, problems]);
 
     const fetchProblems = async () => {
         setLoading(true);
@@ -47,25 +48,36 @@ const ProblemList = () => {
                     limit: filters.limit,
                     difficulty: filters.difficulty || undefined,
                     title: filters.title || undefined,
-                    userId: localStorage.getItem('userId') || undefined, // Lấy userId từ localStorage hoặc context
-                    // algorithmTypes: filters.algorithmTypes.join(',') || undefined, // Nếu backend hỗ trợ lọc theo algorithmTypes
+                    userId: localStorage.getItem('userId') || undefined,
                 },
             });
-            const allProblems = response.data.problems || [];
-
-            setProblems(allProblems);
-            setFilteredProblems(allProblems);
-            setPagination({
+            
+            const responseData = response.data;
+            setProblems(responseData.problems || []);
+            
+            if (filters.algorithmTypes.length === 0 && !filters.status) {
+                setDisplayedProblems(responseData.problems || []);
+            }
+            
+            setPagination(responseData.pagination || {
                 currentPage: 1,
-                totalPages: Math.ceil(allProblems.length / filters.limit),
-                totalProblems: allProblems.length,
+                totalPages: 1,
+                totalProblems: 0,
             });
         } catch (error) {
             console.error('Error fetching problems:', error);
+            setProblems([]);
+            setDisplayedProblems([]);
+            setPagination({
+                currentPage: 1,
+                totalPages: 1,
+                totalProblems: 0,
+            });
         } finally {
             setLoading(false);
         }
     };
+
     const fetchAlgorithmTypes = async () => {
         try {
             const response = await axios.get('http://localhost:8080/api/v1/algorithmTypes/ViewalgorithmTypes');
@@ -76,18 +88,12 @@ const ProblemList = () => {
         }
     };
 
-    const applyFilters = () => {
+    const applyClientSideFilters = () => {
         let filtered = [...problems];
 
-        if (filters.difficulty) {
-            filtered = filtered.filter((problem) => {
-                const difficulties = problem.difficulty.map((d) => d.name.toLowerCase());
-                return difficulties.includes(filters.difficulty.toLowerCase());
-            });
-        }
-
-        if (filters.title) {
-            filtered = filtered.filter((problem) => problem.title.toLowerCase().includes(filters.title.toLowerCase()));
+        if (filters.algorithmTypes.length === 0 && !filters.status) {
+            setDisplayedProblems(problems);
+            return;
         }
 
         if (filters.status) {
@@ -100,33 +106,29 @@ const ProblemList = () => {
         if (filters.algorithmTypes.length > 0) {
             filtered = filtered.filter((problem) => {
                 if (problem.algorithmTypes && Array.isArray(problem.algorithmTypes)) {
-                    return problem.algorithmTypes.some((type) => filters.algorithmTypes.includes(type.name || type));
+                    return problem.algorithmTypes.some((type) => 
+                        filters.algorithmTypes.includes(type.name || type)
+                    );
                 } else if (problem.algorithmType && typeof problem.algorithmType === 'object') {
                     return filters.algorithmTypes.includes(problem.algorithmType.name);
                 } else if (problem.categories && Array.isArray(problem.categories)) {
-                    return problem.categories.some((cat) => filters.algorithmTypes.includes(cat.name || cat));
+                    return problem.categories.some((cat) => 
+                        filters.algorithmTypes.includes(cat.name || cat)
+                    );
                 }
                 return false;
             });
         }
 
-        const start = (filters.page - 1) * filters.limit;
-        const end = start + filters.limit;
-        console.log('Filtered problems:', filtered);
-
-        setFilteredProblems(filtered.slice(start, end));
-        setPagination({
-            currentPage: filters.page,
-            totalPages: Math.ceil(filtered.length / filters.limit),
-            totalProblems: filtered.length,
-        });
+        console.log('Client-side filtered problems:', filtered);
+        setDisplayedProblems(filtered);
     };
 
     const handleFilterChange = (key, value) => {
         setFilters((prev) => ({
             ...prev,
             [key]: value,
-            page: key === 'page' ? value : 1,
+            page: ['difficulty', 'title'].includes(key) ? 1 : (key === 'page' ? value : prev.page),
         }));
     };
 
@@ -134,7 +136,6 @@ const ProblemList = () => {
         setFilters((prev) => ({
             ...prev,
             algorithmTypes: selectedTypes,
-            page: 1,
         }));
     };
 
@@ -181,16 +182,20 @@ const ProblemList = () => {
                 </div>
             )}
 
-            
-
             <ProblemsTable
-                problems={filteredProblems}
+                problems={displayedProblems}
                 loading={loading}
                 getDifficultyColor={getDifficultyColor}
                 filteredDifficulty={filters.difficulty}
+                currentPage={pagination.currentPage}
+                limit={filters.limit}
             />
 
-            <Pagination pagination={pagination} filters={filters} handleFilterChange={handleFilterChange} />
+            <Pagination 
+                pagination={pagination} 
+                filters={filters} 
+                handleFilterChange={handleFilterChange} 
+            />
         </div>
     );
 };

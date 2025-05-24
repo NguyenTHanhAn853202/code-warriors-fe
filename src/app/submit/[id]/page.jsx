@@ -162,13 +162,10 @@ Yêu cầu:
 - Có một hàm rỗng solve() để người dùng tự viết lời giải.
 - hàm solve để trống, và có comment write code here
 - Hàm main() đã được viết sẵn để xử lý input/output.
-- chỉ viết code ở hàm main() không viết code ở các nơi khác đây là mệnh lệnh quan trọng, các hàm khác mà không phải hàm main thì để tróng để người dùng nhập vào.
-- **Bạn chỉ viết code ở hàm main() thôi nhé, không viết code ở các nơi khác**
-- **hàm main chỉ có nhiệm vụ đọc input, gọi hàm solve() và in ra kết quả**.
 
 -  không thay đổi hàm main().
 - lưu ý: bạn không viết code ở hàm solve(đặc biệt lưu ý), nhưng có truyền tham số cho hàm
-- lưu ý: **hàm main chỉ có nhiệm vụ đọc input, gọi hàm solve() và in ra kết quả**.
+
 Ngôn ngữ: ${idLanguage.name}
 
 Chỉ trả về code thuần dạng text, không có blockcode, không có đánh dấu ngôn ngữ, không có markdown.
