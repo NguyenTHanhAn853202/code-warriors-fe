@@ -120,29 +120,29 @@ const ProfilePage = () => {
     };
 
     const getRank = (elo) => {
-        if (elo >= 5000) return { name: 'Platinum', color: 'bg-cyan-500' };
+        if (elo >= 3000) return { name: 'Platinum', color: 'bg-cyan-500' };
         if (elo >= 2000) return { name: 'Gold', color: 'bg-yellow-500' };
         if (elo >= 1000) return { name: 'Silver', color: 'bg-gray-400' };
         return { name: 'Bronze', color: 'bg-amber-700' };
     };
 
     const getProgressToNextRank = (elo) => {
-        if (elo >= 5000) return 100; // Max rank
-        if (elo >= 2000) return ((elo - 2000) / 3000) * 100; // Progress to Platinum
+        if (elo >= 3000) return 100; // Max rank
+        if (elo >= 2000) return ((elo - 2000) / 1000) * 100; // Progress to Platinum
         if (elo >= 1000) return ((elo - 1000) / 1000) * 100; // Progress to Gold
         return (elo / 1000) * 100; // Progress to Silver
     };
 
     const getNextRank = (elo) => {
-        if (elo >= 5000) return 'Max Rank';
+        if (elo >= 3000) return 'Max Rank';
         if (elo >= 2000) return 'Platinum';
         if (elo >= 1000) return 'Gold';
         return 'Silver';
     };
 
     const getPointsToNextRank = (elo) => {
-        if (elo >= 5000) return 0;
-        if (elo >= 2000) return 5000 - elo;
+        if (elo >= 3000) return 0;
+        if (elo >= 2000) return 3000 - elo;
         if (elo >= 1000) return 2000 - elo;
         return 1000 - elo;
     };
@@ -439,11 +439,11 @@ const ProfilePage = () => {
                         </div>
                         <div className="p-3 rounded-lg border border-yellow-500">
                             <p className="text-sm text-gray-500">Gold</p>
-                            <p className="font-medium">2000-4999 points</p>
+                            <p className="font-medium">2000-2999 points</p>
                         </div>
                         <div className="p-3 rounded-lg border border-cyan-500">
                             <p className="text-sm text-gray-500">Platinum</p>
-                            <p className="font-medium">5000+ points</p>
+                            <p className="font-medium">3000+ points</p>
                         </div>
                     </div>
                 </Section>
