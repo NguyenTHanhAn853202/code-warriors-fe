@@ -222,6 +222,7 @@ function Submit() {
                         sourceCode: '//cheating',
                         matchId: matchId,
                     });
+                    setHasSubmission(true);
                 } catch (error) {
                     console.error('Error submitting code:', error);
                 }
