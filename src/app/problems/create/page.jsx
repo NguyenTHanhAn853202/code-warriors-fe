@@ -114,7 +114,9 @@ ${firstTestCase.expectedOutput}
         };
 
         try {
-            const response = await axios.post('http://localhost:8080/api/v1/problems/createProblems', requestData);
+            const response = await axios.post('http://localhost:8080/api/v1/problems/createProblems', requestData, {
+                withCredentials: true,
+            });
             if (response.status === 200) {
                 message.success('Problem created successfully!');
             } else {
