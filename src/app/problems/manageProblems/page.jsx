@@ -8,8 +8,6 @@ import { useRouter } from 'next/navigation';
 
 export default function ManageProblems() {
     const [problems, setProblems] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(10);
     const router = useRouter();
 
     useEffect(() => {
@@ -18,7 +16,9 @@ export default function ManageProblems() {
 
     const fetchProblems = async () => {
         try {
-            const { data } = await axios.get('http://localhost:8080/api/v1/problems/viewAllProblems');
+            const { data } = await axios.get(
+                'http://localhost:8080/api/v1/problems/viewAllProblems?limit=10000&page=1'
+            );
             setProblems(data.problems);
         } catch (err) {
             message.error('Failed to fetch problems');
@@ -36,9 +36,6 @@ export default function ManageProblems() {
             message.error('Error deleting problem');
         }
     };
-
-    const currentProblems = problems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-    const totalPages = Math.ceil(problems.length / itemsPerPage);
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-10">
@@ -63,7 +60,7 @@ export default function ManageProblems() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 bg-white">
-                            {currentProblems.map((problem) => (
+                            {problems.map((problem) => (
                                 <tr key={problem._id} className="hover:bg-gray-50 transition-all">
                                     <td className="px-6 py-4 text-sm text-gray-800">{problem.title}</td>
                                     <td className="px-6 py-4 text-sm text-gray-800">{problem.difficulty?.[0]?.name}</td>
@@ -86,28 +83,6 @@ export default function ManageProblems() {
                         </tbody>
                     </table>
                 </div>
-
-                {totalPages > 1 && (
-                    <div className="p-4 border-t bg-gray-50 flex justify-center">
-                        <div className="flex items-center space-x-4">
-                            <Button
-                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                            >
-                                Previous
-                            </Button>
-                            <span className="text-gray-700">
-                                Page {currentPage} of {totalPages}
-                            </span>
-                            <Button
-                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages}
-                            >
-                                Next
-                            </Button>
-                        </div>
-                    </div>
-                )}
             </div>
         </div>
     );

@@ -4,10 +4,20 @@ import React, { useState } from 'react';
 import { FaCheck, FaLock, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
-const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficulty }) => {
+const ProblemsTable = ({ 
+    problems, 
+    loading, 
+    getDifficultyColor, 
+    filteredDifficulty,
+    currentPage = 1,
+    limit = 10
+}) => {
     const router = useRouter();
     const [sortField, setSortField] = useState('');
     const [sortDirection, setSortDirection] = useState('asc');
+
+    // Tính số thứ tự bắt đầu cho trang hiện tại
+    const startIndex = (currentPage - 1) * limit;
 
     const getDifficultyName = (difficulty) => {
         if (!difficulty) return 'Unknown';
@@ -152,7 +162,7 @@ const ProblemsTable = ({ problems, loading, getDifficultyColor, filteredDifficul
                                             problem.isSolved ? 'text-green-700' : 'text-gray-900'
                                         }`}
                                     >
-                                        {index + 1}. {problem.title}
+                                        {startIndex + index + 1}. {problem.title}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
