@@ -233,18 +233,16 @@ function Submit({ params }) {
                 }
 
                 const text = `
-                    Create a code template for the following programming problem:
+                   Yêu cầu:
+- Chỉ viết phần khai báo thư viện, khai báo hàm (chỉ phần signature, tên hàm tùy ý), và hàm main chỉ chứa phần nhập dữ liệu theo đúng thứ tự input đã cho.
+- Không bao gồm bất kỳ lời giải thích, comment, hay phần thân của hàm.
+- Chỉ trả về code thuần dạng text, không có blockcode, không có đánh dấu ngôn ngữ, không có markdown.
 
-                    Problem: ${problemData.description}
+Đề bài: ${problemData.description}
 
-                    Requirements:
-                    - Have an empty solve() function for implementation
-                    - solve() function should have // write code here comment
-                    - main() function should be pre-written for I/O
-                    - Do not modify main() function
-                    - Note: Don't write code in solve(), but include parameters
+- Ngôn ngữ: ${idLanguage.name}
 
-                    Language: ${idLanguage.name}
+Chỉ trả về code thuần dạng text, không có blockcode, không có đánh dấu ngôn ngữ, không có markdown.
                 `.trim();
 
                 const source = await request.post('/user/chatbot', { text });

@@ -147,28 +147,20 @@ function Submit({ params }) {
     };
 
     useEffect(() => {
+        if (!idLanguage?.id) return;
         (async () => {
             const response = await request.get(`/problems/${problemId}`);
             const data = response.data.data;
             setProblem(response.data.data);
             const text = `
-            Tạo đoạn code mẫu cho một bài lập trình như sau:
+Yêu cầu:
+- Chỉ viết phần khai báo thư viện, khai báo hàm (chỉ phần signature, tên hàm tùy ý), và hàm main chỉ chứa phần nhập dữ liệu theo đúng thứ tự input đã cho.
+- Không bao gồm bất kỳ lời giải thích, comment, hay phần thân của hàm.
+- Chỉ trả về code thuần dạng text, không có blockcode, không có đánh dấu ngôn ngữ, không có markdown.
 
 Đề bài: ${data.description}
 
-Yêu cầu:
-
-
-- Hàm main() đã được viết sẵn để xử lý input/output.
-- chỉ viết code ở hàm main() không viết code ở các nơi khác đây là mệnh lệnh quan trọng, các hàm khác mà không phải hàm main thì để tróng để người dùng nhập vào.
-- **Bạn chỉ viết code ở hàm main() thôi nhé, không viết code ở các nơi khác**
-- **hàm main chỉ có nhiệm vụ đọc input, gọi hàm khác và in ra kết quả**.
-
--  không thay đổi hàm main().
-- lưu ý: **hàm main chỉ có nhiệm vụ đọc input, gọi hàm khác và in ra kết quả**.
-- lưu ý: **bạn không viết code  bất kỳ hàm nào khác ngoại trừ hàm main (Đặc biệt lưu ý), nhưng có truyền tham số cho hàm**.
-- lưu ý: Bạn chỉ được phép viết code ở hàm main, còn các hàm khác để trống và comment 'your code'. Đây là điều tuyệt đối quan trọng
-Ngôn ngữ: ${idLanguage.name}
+- Ngôn ngữ: ${idLanguage.name}
 
 Chỉ trả về code thuần dạng text, không có blockcode, không có đánh dấu ngôn ngữ, không có markdown.
             `;
