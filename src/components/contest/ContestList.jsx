@@ -11,7 +11,6 @@ const ContestList = ({ contests: initialContests }) => {
     const [rankOptions, setRankOptions] = useState([]);
     const [contests, setContests] = useState(initialContests);
     const [loading, setLoading] = useState(false);
-    const [now, setNow] = useState(new Date());
 
     // Fetch rank options
     useEffect(() => {
@@ -81,14 +80,6 @@ const ContestList = ({ contests: initialContests }) => {
 
         return () => clearTimeout(timeoutId);
     }, [searchTerm, selectedRank, initialContests]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setNow(new Date());
-        }, 5000); // cập nhật mỗi 5 giây
-
-        return () => clearInterval(interval);
-    }, []);
 
     const getBackgroundImage = (rank) => {
         const backgroundMap = {
@@ -241,15 +232,13 @@ const ContestList = ({ contests: initialContests }) => {
                                                 )}
                                             </p>
                                         </div>
-                                        {new Date(contest.startDate) <= now ? (
+                                        {new Date(contest.startDate) <= new Date() ? (
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     router.push(`/contest/${contest._id}`);
                                                 }}
-                                                className="px-4 py-2 rounded-lg font-medium transition-all duration-200 
-            bg-blue-500 text-white border border-blue-600 
-            hover:bg-blue-600 hover:border-blue-700 hover:shadow-md"
+                                                className="px-4 py-2 rounded-lg font-medium transition-all duration-200 bg-blue-500 text-white border border-blue-600 hover:bg-blue-600 hover:border-blue-700 hover:shadow-md"
                                             >
                                                 Join
                                             </button>
