@@ -57,7 +57,7 @@ const MyDiscussions = () => {
                 withCredentials: true,
             });
 
-            if (response.data.status === 'success') {
+            if (response.status === 200) {
                 // Remove the deleted discussion from state
                 setDiscussions((prevDiscussions) => prevDiscussions.filter((discussion) => discussion._id !== id));
                 // Optional: Show success message to user
@@ -133,7 +133,7 @@ const MyDiscussions = () => {
                                 <td className="py-3 px-4 text-center">
                                     <div className="flex justify-center space-x-2">
                                         <Link
-                                            href={`/home/${discussion._id}`}
+                                            href={`/discussion/${discussion._id}`}
                                             className="text-blue-500 hover:text-blue-700"
                                             title="View"
                                         >
