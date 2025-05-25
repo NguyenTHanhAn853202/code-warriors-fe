@@ -86,7 +86,7 @@ export default function BattleResult({ params }) {
             setLoading(false);
         } catch (error) {
             console.error('Error:', error);
-            toastError('Lỗi tải kết quả');
+            toastError('Error');
             setLoading(false);
         }
     };
@@ -238,11 +238,11 @@ export default function BattleResult({ params }) {
                                         >
                                             {submission.grade} pts
                                         </p>
-                                        <p className="text-sm text-gray-600">
+                                        {/* <p className="text-sm text-gray-600">
                                             {submission.submittedAt
                                                 ? new Date(submission.submittedAt).toLocaleString('vi-VN')
                                                 : 'Chưa nộp bài'}
-                                        </p>
+                                        </p> */}
                                     </div>
                                 </div>
 
