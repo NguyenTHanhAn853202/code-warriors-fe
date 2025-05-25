@@ -4,6 +4,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
+const rankOrder = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+
 const ContestList = ({ contests: initialContests, userRank }) => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
