@@ -190,6 +190,7 @@ function Submit() {
             toastInfo('We found you cheating, your assignment will be submited with black page!');
             (async () => {
                 try {
+                    if (hasSubmission) return;
                     setIsLoading(true);
                     setHasSubmission(true);
                     socket.emit('submit_match', {
