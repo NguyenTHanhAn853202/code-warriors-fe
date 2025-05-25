@@ -5,6 +5,7 @@ import axios from 'axios';
 import EditPage from '../../components/discussion/editPage';
 import truncateHTML from '@/utils/truncateHTML';
 import Link from 'next/link';
+import { toastError, toastSuccess } from '@/utils/toasty';
 const MyDiscussions = () => {
     const [discussions, setDiscussions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -60,15 +61,15 @@ const MyDiscussions = () => {
                 // Remove the deleted discussion from state
                 setDiscussions((prevDiscussions) => prevDiscussions.filter((discussion) => discussion._id !== id));
                 // Optional: Show success message to user
-                alert('Discussion deleted successfully');
+                toastSuccess('Discussion deleted successfully');
             }
         } catch (err) {
             console.error('Error deleting discussion:', err);
             // Show more specific error message if available
             if (err.response && err.response.data && err.response.data.message) {
-                alert(`Failed to delete discussion: ${err.response.data.message}`);
+                toastError(`Failed to delete discussion: ${err.response.data.message}`);
             } else {
-                alert('Failed to delete discussion. Please try again.');
+                toastError('Failed to delete discussion. Please try again.');
             }
         } finally {
             setIsDeleting(false);
