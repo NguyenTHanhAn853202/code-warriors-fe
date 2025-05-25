@@ -103,7 +103,7 @@ export default function BattleResult({ params }) {
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
                     <FaSpinner className="animate-spin text-4xl text-blue-500 mx-auto mb-4" />
-                    <p className="text-gray-600">Đang tải kết quả battle...</p>
+                    <p className="text-gray-600">Loading battle results...</p>
                 </div>
             </div>
         );
@@ -129,19 +129,19 @@ export default function BattleResult({ params }) {
     const getStatusText = (status) => {
         switch (status) {
             case 'Accepted':
-                return 'Chấp nhận';
+                return 'Accepted';
             case 'Wrong Answer':
-                return 'Sai đáp án';
+                return 'Wrong Answer';
             case 'Time Limit Exceeded':
-                return 'Quá thời gian';
+                return 'Time Limit Exceeded';
             case 'Memory Limit Exceeded':
-                return 'Quá bộ nhớ';
+                return 'Memory Limit Exceeded';
             case 'Runtime Error':
-                return 'Lỗi runtime';
+                return 'Runtime Error';
             case 'Compile Error':
-                return 'Lỗi biên dịch';
+                return 'Compile Error';
             case 'Waiting':
-                return 'Đang chờ...';
+                return 'Waiting...';
             default:
                 return status;
         }
@@ -167,25 +167,25 @@ export default function BattleResult({ params }) {
                     <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
                         <div className="flex justify-between items-center">
                             <div>
-                                <h1 className="text-2xl font-bold text-white">Kết Quả Battle</h1>
-                                <p className="text-blue-100">Phòng: {result.roomId}</p>
+                                <h1 className="text-2xl font-bold text-white">Battle Results</h1>
+                                <p className="text-blue-100">Room: {result.roomId}</p>
                             </div>
                             <div className="text-right">
                                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge()}`}>
                                     {result.status === 'finished'
-                                        ? 'Đã kết thúc'
+                                        ? 'Finished'
                                         : result.status === 'finished'
                                           ? 'Đang diễn ra'
-                                          : 'Chờ bắt đầu'}
+                                          : 'Ongoing'}
                                 </span>
                                 <p className="text-blue-100 text-sm mt-1">
-                                    {result.totalPlayers}/{result.maxPlayers} người chơi
+                                    {result.totalPlayers}/{result.maxPlayers} players
                                 </p>
                             </div>
                         </div>
                         <div className="mt-2 text-blue-100 text-sm">
-                            <p>Bắt đầu: {result.startedAt}</p>
-                            <p>Kết thúc: {result.endedAt || 'Đang diễn ra'}</p>
+                            <p>Started at: {result.startedAt}</p>
+                            <p>Ended at: {result.endedAt || 'In progress'}</p>
                         </div>
                     </div>
 
@@ -205,12 +205,12 @@ export default function BattleResult({ params }) {
                                                 </span>
                                                 {result.winner === submission.username && (
                                                     <span className="ml-2 px-2 py-1 bg-yellow-400 text-yellow-900 text-xs rounded-full font-medium">
-                                                        🏆 Người thắng
+                                                        🏆 Winner
                                                     </span>
                                                 )}
                                                 {!submission.hasSubmitted && (
                                                     <span className="ml-2 px-2 py-1 bg-gray-400 text-white text-xs rounded-full font-medium">
-                                                        Chưa nộp
+                                                        Not submitted
                                                     </span>
                                                 )}
                                             </h2>
@@ -237,7 +237,7 @@ export default function BattleResult({ params }) {
                                                       : 'text-blue-600'
                                             }`}
                                         >
-                                            {submission.grade} điểm
+                                            {submission.grade} pts
                                         </p>
                                         <p className="text-sm text-gray-600">
                                             {submission.submittedAt
@@ -253,7 +253,7 @@ export default function BattleResult({ params }) {
                                             className={submission.hasSubmitted ? 'text-blue-400' : 'text-gray-300'}
                                         />
                                         <div>
-                                            <span className="text-sm font-semibold">Thời gian chạy</span>
+                                            <span className="text-sm font-semibold">Execution time</span>
                                             <p className="text-sm text-gray-700">{submission.executionTime}s</p>
                                         </div>
                                     </div>
@@ -263,7 +263,7 @@ export default function BattleResult({ params }) {
                                             className={submission.hasSubmitted ? 'text-purple-400' : 'text-gray-300'}
                                         />
                                         <div>
-                                            <span className="text-sm font-semibold">Bộ nhớ</span>
+                                            <span className="text-sm font-semibold">Memory</span>
                                             <p className="text-sm text-gray-700">{submission.memoryUsage}MB</p>
                                         </div>
                                     </div>
@@ -273,7 +273,7 @@ export default function BattleResult({ params }) {
                                             className={submission.hasSubmitted ? 'text-green-400' : 'text-gray-300'}
                                         />
                                         <div>
-                                            <span className="text-sm font-semibold">Thời gian giải</span>
+                                            <span className="text-sm font-semibold">Solving time</span>
                                             <p className="text-sm text-gray-700">{submission.solvingTime}</p>
                                         </div>
                                     </div>
