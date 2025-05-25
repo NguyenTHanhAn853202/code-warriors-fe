@@ -24,11 +24,10 @@ export default function RoomBattleClient({ roomId }) {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isRedirecting, setIsRedirecting] = useState(false);
-    const [isClient, setIsClient] = useState(false); 
-
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        setIsClient(true); 
+        setIsClient(true);
 
         const storedUsername = localStorage.getItem('username');
         const storedRoomId = localStorage.getItem('roomId');
@@ -55,6 +54,8 @@ export default function RoomBattleClient({ roomId }) {
             try {
                 const response = await axios.get(`${API_URL}/rooms/${roomId}`);
                 const roomData = response.data; // Assuming server returns room data
+                console.log('fetch  ', roomData);
+
                 setRoom(roomData.room);
                 setPlayers(roomData.players);
                 setGameStatus(roomData.status);
@@ -131,7 +132,7 @@ export default function RoomBattleClient({ roomId }) {
         return () => {
             if (socket) {
                 Object.keys(socketHandlers).forEach((event) => {
-                    socket.off(event); 
+                    socket.off(event);
                 });
                 if (roomId && username) {
                     socket.emit('leave_room', { roomId, username });
@@ -176,6 +177,8 @@ export default function RoomBattleClient({ roomId }) {
             </div>
         );
     }
+
+    console.log('room', room);
 
     return (
         <RoomBattleUI

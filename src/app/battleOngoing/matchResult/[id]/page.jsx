@@ -45,8 +45,7 @@ export default function BattleResult({ params }) {
                     if (result) {
                         const resultData = result.submission || result;
                         // Ưu tiên lấy theo thứ tự: timeSubmission -> submittedAt -> endedAt (nếu có)
-                        const submissionTime = result.timeSubmission || result.submittedAt || room.endedAt;
-
+                        const submissionTime = result.timeSubmission || result.executionTime|| result.memoryUsage
                         return {
                             username: playerName,
                             status: resultData.status || 'Waiting',
@@ -94,7 +93,7 @@ export default function BattleResult({ params }) {
 
     useEffect(() => {
         fetchBattleResult();
-        const interval = setInterval(fetchBattleResult, 2000);
+        const interval = setInterval(fetchBattleResult, 1000);
         return () => clearInterval(interval);
     }, [roomId]);
 
