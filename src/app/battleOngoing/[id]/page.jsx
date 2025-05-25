@@ -94,7 +94,7 @@ function Submit({ params }) {
                     time: submission.executionTime,
                 },
             });
-            toastSuccess('Nộp bài thành công');
+            toastSuccess('Submission is successfully');
             setIsSubmitting(false);
         });
 

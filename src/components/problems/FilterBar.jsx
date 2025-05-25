@@ -30,7 +30,7 @@ const FilterBar = ({ filters, handleFilterChange }) => {
     }, []);
 
     return (
-        <div className="flex flex-wrap gap-2 mb-6 items-center">
+        <div className="flex flex-wrap gap-2 mb-6 items-center mt-5">
             {/* Difficulty Filter Dropdown */}
             <div className="relative" ref={difficultyRef}>
                 <button

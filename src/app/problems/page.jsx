@@ -164,14 +164,14 @@ const ProblemList = () => {
     };
 
     return (
-        <div className="container mx-auto px-4 py-6 bg-gray-50">
+        <div className="container mx-auto px-4 py-6 bg-gray-50 ">
             <CodingPlatformSlider />
 
-            <AlgorithmType
+            {/* <AlgorithmType
                 algorithmType={algorithmTypes}
                 loading={loading}
                 onFilterSelect={handleAlgorithmTypeFilter}
-            />
+            /> */}
 
             <FilterBar filters={filters} handleFilterChange={handleFilterChange} />
 
