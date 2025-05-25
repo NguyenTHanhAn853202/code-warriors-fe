@@ -180,7 +180,7 @@ ${firstTestCase.expectedOutput}
             const updatedData = {
                 title: values.title,
                 description: updatedDescription,
-                difficulty: values.rank,
+                difficulty: [values.rank],
                 startDate: values.dateRange[0].toISOString(),
                 endDate: values.dateRange[1].toISOString(),
                 sourceCode: values.sourceCode,
