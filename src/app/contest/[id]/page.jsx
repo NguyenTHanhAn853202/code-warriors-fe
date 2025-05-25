@@ -250,7 +250,9 @@ export default function ContestDetail() {
                                         {rank}
                                     </div>
                                     <div className="mt-auto mb-4 font-semibold text-center">
-                                        {participant.user.username}
+                                        {participant.user.username.length > 10
+                                            ? participant.user.username.slice(0, 7) + '...'
+                                            : participant.user.username}
                                     </div>
                                     <div
                                         className={`${circleBg.split(' ')[0]} rounded-t-xl w-full`}

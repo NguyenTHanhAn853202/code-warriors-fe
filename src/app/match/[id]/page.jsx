@@ -276,7 +276,7 @@ Chỉ trả về code thuần dạng text, không có blockcode, không có đá
 
     return (
         <div className="min-h-[88vh] relative bg-gray-100">
-            {/* <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" className="absolute -z-10" /> */}
+            <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" className="absolute -z-10" />
             <PanelGroup className="!h-[88vh]" direction="horizontal">
                 <Panel>
                     <PanelGroup>

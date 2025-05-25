@@ -14,16 +14,16 @@ const GlobalRanking = ({ styles }) => {
             try {
                 setLoading(true);
                 const response = await axios.get('http://localhost:8080/api/v1/user/topUser');
-                
+
                 if (response.data.status === 'success' && response.data.data && response.data.data.topUsers) {
                     // Map the API response to our ranking format
                     const formattedRankings = response.data.data.topUsers.map((user, index) => ({
                         rank: index + 1,
                         name: user.username,
-                        avatar: user.avtImage && user.avtImage !== "" ? user.avtImage : '/user_1.png',
-                        score: user.elo
+                        avatar: user.avtImage && user.avtImage !== '' ? user.avtImage : '/user_1.png',
+                        score: user.elo,
                     }));
-                    
+
                     setRankings(formattedRankings);
                 } else {
                     throw new Error('Invalid data format received from API');
@@ -81,9 +81,7 @@ const GlobalRanking = ({ styles }) => {
 
             {/* Error state */}
             {!loading && error && (
-                <div className="p-4 text-center text-red-500">
-                    Failed to load rankings. Using fallback data.
-                </div>
+                <div className="p-4 text-center text-red-500">Failed to load rankings. Using fallback data.</div>
             )}
 
             {/* Danh sách ranking */}
@@ -96,17 +94,27 @@ const GlobalRanking = ({ styles }) => {
                         >
                             {/* Xếp hạng (số thứ tự) */}
                             <div className={`w-15 ${getRankNumberStyle(user.rank)}`}>
-                                {user.rank === 1 ? '🥇' : 
-                                 user.rank === 2 ? '🥈' : 
-                                 user.rank === 3 ? '🥉' :
-                                 user.rank === 4 ? '4️⃣' :
-                                 user.rank === 5 ? '5️⃣' : 
-                                 user.rank === 6 ? '6️⃣' : 
-                                 user.rank === 7 ? '7️⃣' : 
-                                 user.rank === 8 ? '8️⃣' : 
-                                 user.rank === 9 ? '9️⃣' : 
-                                 user.rank === 10? '🔟' :  
-                                 user.rank }
+                                {user.rank === 1
+                                    ? '🥇'
+                                    : user.rank === 2
+                                      ? '🥈'
+                                      : user.rank === 3
+                                        ? '🥉'
+                                        : user.rank === 4
+                                          ? '4️⃣'
+                                          : user.rank === 5
+                                            ? '5️⃣'
+                                            : user.rank === 6
+                                              ? '6️⃣'
+                                              : user.rank === 7
+                                                ? '7️⃣'
+                                                : user.rank === 8
+                                                  ? '8️⃣'
+                                                  : user.rank === 9
+                                                    ? '9️⃣'
+                                                    : user.rank === 10
+                                                      ? '🔟'
+                                                      : user.rank}
                             </div>
 
                             {/* Avatar */}
@@ -123,7 +131,7 @@ const GlobalRanking = ({ styles }) => {
 
                             {/* Điểm số và số cuộc thi */}
                             <div className="text-right">
-                                <div className="text-lg font-bold text-gray-900">{user.score} 🏆</div>
+                                <div className="text-lg font-bold text-gray-900 truncate">{user.score} 🏆</div>
                             </div>
                         </div>
                     ))}

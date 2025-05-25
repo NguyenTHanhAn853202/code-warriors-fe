@@ -6,6 +6,7 @@ import ContestList from '../../components/contest/ContestList';
 import GlobalRanking from '../../components/contest/GlobalRanking';
 import axios from 'axios';
 import styles from './page.module.css';
+import Link from 'next/link';
 
 const rankOrder = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
 
@@ -18,7 +19,7 @@ const Page = () => {
     const [userRank, setUserRank] = useState(null);
     const [loadingUserRank, setLoadingUserRank] = useState(false);
 
-    // Lấy rank user từ API
+    // get rank user
     const fetchUserRank = async () => {
         setLoadingUserRank(true);
         try {
@@ -35,7 +36,7 @@ const Page = () => {
         setLoadingUserRank(false);
     };
 
-    // Lấy danh sách tất cả contest
+    // get all contest
     const fetchContests = async () => {
         setLoading(true);
         try {
@@ -66,7 +67,7 @@ const Page = () => {
         fetchFeaturedContests();
     }, []);
 
-    // Lọc contest dựa theo rank user
+    // filtter contest folllow rank user
     const isContestVisibleToUser = (contest) => {
         if (!contest.difficulty || contest.difficulty.length === 0) return true;
         if (!userRank) return false;
@@ -84,18 +85,19 @@ const Page = () => {
 
     const filteredContests = contests.filter(isContestVisibleToUser);
     const filteredFeaturedContests = featuredContests.filter(isContestVisibleToUser);
-    console.log('abcd:', filteredContests);
 
     return (
         <div className="bg-white min-h-screen text-gray-800">
             {/* Header Banner */}
-            <div className="bg-gray-800 py-10 text-center text-white relative">
-                <div className={`${styles.trophyIcon} mb-2`}>
-                    <img src="/cup.png" alt="Trophy" className="w-35 h-40 mx-auto" />
+            <Link href="/contest" className="block">
+                <div className="bg-gray-800 py-10 text-center text-white relative hover:bg-gray-700 transition cursor-pointer">
+                    <div className="mb-2">
+                        <img src="/cup.png" alt="Trophy" className="w-35 h-40 mx-auto" />
+                    </div>
+                    <h1 className="text-2xl font-semibold mb-1">CodeWars Contest</h1>
+                    <p className="text-gray-300 text-sm">Challenge yourself every week and rise in the rankings!</p>
                 </div>
-                <h1 className="text-2xl font-semibold mb-1">CodeWars Contest</h1>
-                <p className="text-gray-300 text-sm">Challenge yourself every week and rise in the rankings!</p>
-            </div>
+            </Link>
 
             <div className="max-w-5xl mx-auto px-4 py-8">
                 {/* Featured Contests */}
