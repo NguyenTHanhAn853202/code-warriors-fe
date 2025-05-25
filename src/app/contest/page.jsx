@@ -126,7 +126,7 @@ const Page = () => {
                             ) : filteredContests.length === 0 ? (
                                 <p className="text-center p-4">No contests available for your rank.</p>
                             ) : (
-                                <ContestList styles={styles} contests={filteredContests} />
+                                <ContestList styles={styles} contests={filteredContests} userRank={userRank} />
                             )}
                         </div>
                     </div>

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
-const ContestList = ({ contests: initialContests }) => {
+const ContestList = ({ contests: initialContests, userRank }) => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRank, setSelectedRank] = useState('');
