@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Trash2, Edit, Plus } from 'lucide-react';
+import { Trash2, Edit, Plus, Eye } from 'lucide-react';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { Modal, Form, Input, Select, DatePicker, Button, Divider, Row, Col, message } from 'antd';
@@ -358,6 +358,13 @@ ${firstTestCase.expectedOutput}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap flex space-x-2">
+                                        <Link
+                                            href={`/contest/list/${contest._id}`}
+                                            className="text-blue-500 hover:text-blue-700"
+                                            title="View"
+                                        >
+                                            <Eye size={18} />
+                                        </Link>
                                         <button
                                             onClick={() => handleEdit(contest)}
                                             className="text-blue-500 hover:text-blue-700 transition-colors duration-200"
